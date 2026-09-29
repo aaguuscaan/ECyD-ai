@@ -21,8 +21,12 @@ from .config import settings
 
 log = logging.getLogger("ecyd.embeddings")
 
-if os.getenv("VERCEL"):  # en Vercel solo /tmp es escribible
+if os.getenv("VERCEL"):  # en Vercel solo /tmp es escribible (512 MB)
     os.environ.setdefault("HF_HOME", "/tmp/hf")
+    # Descarga HTTP simple: el protocolo "xet" guarda una copia extra en caché
+    # y llena /tmp ("No space left on device").
+    os.environ.setdefault("HF_HUB_DISABLE_XET", "1")
+    os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
 
 
 def _hf_name(name: str) -> str:

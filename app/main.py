@@ -10,6 +10,7 @@ import hashlib
 import hmac
 import json
 import logging
+import os
 import threading
 from pathlib import Path
 from typing import Optional
@@ -35,8 +36,21 @@ app.mount("/static", StaticFiles(directory=WEB_DIR), name="static")
 _state = {"rag": "cargando", "rag_error": None, "loader": None}
 
 
-def _ensure_rag_loading():
-    """Arranca la carga del corpus en segundo plano (una sola vez por instancia)."""
+_load_lock = threading.Lock()
+
+
+def _ensure_rag_loading(block: bool = False):
+    """Carga el corpus y el modelo (una sola vez por instancia).
+
+    En Vercel las funciones se congelan entre pedidos, así que un hilo en
+    segundo plano casi no avanza: ahí la carga se hace dentro del pedido."""
+    if _state["rag"] != "cargando":
+        return
+    if block or os.getenv("VERCEL"):
+        with _load_lock:
+            if _state["rag"] == "cargando":
+                _load_rag()
+        return
     if _state["loader"] is None:
         t = threading.Thread(target=_load_rag, daemon=True)
         _state["loader"] = t
@@ -56,7 +70,8 @@ def _load_rag():
 
 @app.on_event("startup")
 def startup():
-    _ensure_rag_loading()
+    if not os.getenv("VERCEL"):
+        _ensure_rag_loading()
 
 
 # ------------------------------------------------------------------ auth
