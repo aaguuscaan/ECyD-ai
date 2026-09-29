@@ -136,10 +136,13 @@
   function inline(s) {
     s = esc(s);
     s = s.replace(/`([^`]+)`/g, "<code>$1</code>");
+    s = s.replace(/\*\*F(\d{1,2})\*\*|\[F(\d{1,2})\]|\(F(\d{1,2})\)/g, (m, a, b, c) => {
+      const n = a || b || c;
+      return `<button type="button" class="cite" data-n="${n}" title="Ver fuente F${n}">F${n}</button>`;
+    });
     s = s.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
     s = s.replace(/(^|[^*\w])\*([^*\n]+)\*(?!\w)/g, "$1<em>$2</em>");
     s = s.replace(/(^|\W)_([^_\n]+)_(?=\W|$)/g, "$1<em>$2</em>");
-    s = s.replace(/\[F(\d+)\]/g, '<button type="button" class="cite" data-n="$1" title="Ver fuente F$1">F$1</button>');
     return s;
   }
   function markdown(src) {

@@ -39,7 +39,8 @@ def make_title(text: str) -> str:
 
 
 def cited_numbers(answer: str) -> set:
-    return {int(n) for n in re.findall(r"\[F(\d+)\]", answer)}
+    # acepta [F1], [F1][F3], **F1**, (F1) o F1 suelto
+    return {int(n) for n in re.findall(r"(?<![A-Za-z0-9])F(\d{1,2})(?![0-9])", answer)}
 
 
 class Assistant:

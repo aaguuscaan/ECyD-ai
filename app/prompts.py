@@ -454,6 +454,8 @@ Las fuentes recuperadas vienen numeradas [F1], [F2], … con título, tipo de ma
 
 Cuando afirmes algo que proviene del material ECyD, indicá la fuente entre corchetes al final de la frase, por ejemplo: [F2]. Podés combinar: [F1][F3].
 
+Usá SIEMPRE exactamente ese formato: [F2]. No escribas **F2**, (F2) ni "F2 describe…": la interfaz convierte [F2] en un enlace a la fuente. Nombrá el documento por su título cuando ayude ("los Estatutos del ECyD [F2]").
+
 Solo podés citar números de fuente que existan en la lista. Nunca inventes un número, un título ni una página.
 
 No pongas entre comillas una frase como textual si no aparece literalmente en el fragmento.
