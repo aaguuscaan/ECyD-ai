@@ -68,3 +68,32 @@ def test_index_consistency():
     R = Retriever(embed_fn=lambda t: np.ones((1, 384), dtype="float32"))
     assert len(R.chunks) == R.chunk_index.ntotal
     assert all(c["doc_id"] in R.doc_by_id for c in R.chunks)
+
+
+def test_retry_when_request_too_large(tmp_path):
+    from app.llm import RequestTooLarge
+
+    class TightLLM(FakeLLM):
+        def __init__(self):
+            super().__init__(); self.sizes = []
+        def stream(self, messages, **kw):
+            size = sum(len(m["content"]) for m in messages)
+            self.sizes.append((size, kw.get("max_tokens")))
+            if len(self.sizes) == 1:
+                raise RequestTooLarge("Error code: 413 - Request too large")
+            yield "Respuesta corta [F1]"
+
+    a = make(tmp_path)
+    a._llm = TightLLM()
+    evs = list(a.stream("¿Cómo preparo la reunión?"))
+    assert any(e["type"] == "done" for e in evs)
+    (s1, _), (s2, _) = a.llm.sizes
+    assert s2 < s1  # segundo intento con menos contexto
+
+
+def test_budget_respects_tpm(tmp_path):
+    from app.config import settings
+    a = make(tmp_path)
+    ctx = a.prepare("x " * 10, None, None)
+    used = sum(a.estimate_tokens(m["content"]) for m in ctx["messages"])
+    assert used + ctx["max_tokens"] <= settings.token_budget

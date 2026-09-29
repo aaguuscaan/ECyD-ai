@@ -26,6 +26,25 @@ class LLMError(RuntimeError):
     pass
 
 
+class RequestTooLarge(LLMError):
+    """El pedido supera el límite de tokens por minuto del plan (error 413)."""
+
+
+def _too_large(err: Exception) -> bool:
+    t = str(err).lower()
+    return "413" in t or "request too large" in t or "reduce your message size" in t
+
+
+def _retry_after(err: Exception) -> float:
+    """Segundos que pide esperar Groq ("try again in 12.3s" / "in 1m2s")."""
+    m = re.search(r"try again in (?:(\d+)m)?([\d.]+)(ms|s)", str(err))
+    if not m:
+        return 0.0
+    mins = float(m.group(1) or 0)
+    val = float(m.group(2)) / (1000 if m.group(3) == "ms" else 1)
+    return mins * 60 + val
+
+
 def _is_transient(err: Exception) -> bool:
     text = str(err).lower()
     return any(t in text for t in TRANSIENT)
@@ -90,9 +109,11 @@ class GroqLLM:
                 except Exception as e:
                     last = e
                     log.warning("Groq %s intento %d: %s", m, attempt + 1, e)
+                    if _too_large(e):
+                        raise RequestTooLarge(str(e)) from e
                     if _is_model_problem(e) or not _is_transient(e):
                         break
-                    time.sleep(2 ** attempt)
+                    time.sleep(min(max(_retry_after(e) + 0.5, 2 ** attempt), 25))
         raise LLMError(f"No fue posible generar la respuesta con Groq. Último error: {last}")
 
     def complete(self, messages: List[Dict], *, model=None, max_tokens=None, temperature=None,
@@ -135,9 +156,11 @@ class GroqLLM:
                         raise LLMError(f"Se cortó la respuesta: {e}")
                     last = e
                     log.warning("Groq stream %s intento %d: %s", m, attempt + 1, e)
+                    if _too_large(e):
+                        raise RequestTooLarge(str(e)) from e
                     if _is_model_problem(e) or not _is_transient(e):
                         break
-                    time.sleep(2 ** attempt)
+                    time.sleep(min(max(_retry_after(e) + 0.5, 2 ** attempt), 25))
         raise LLMError(f"No fue posible generar la respuesta con Groq. Último error: {last}")
 
 

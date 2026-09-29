@@ -51,7 +51,9 @@ class Settings:
     gemini_api_key: str = field(default_factory=lambda: _env("GEMINI_API_KEY"))
     gemini_model: str = field(default_factory=lambda: _env("GEMINI_MODEL", "gemini-3.6-flash"))
     temperature: float = field(default_factory=lambda: _float("LLM_TEMPERATURE", 0.35))
-    max_output_tokens: int = field(default_factory=lambda: _int("LLM_MAX_TOKENS", 6000))
+    max_output_tokens: int = field(default_factory=lambda: _int("LLM_MAX_TOKENS", 4000))
+    # Tokens por minuto del plan de Groq (gratis: 8000). Consulta + respuesta deben entrar acá.
+    token_budget: int = field(default_factory=lambda: _int("GROQ_TPM_LIMIT", 7600))
 
     # --- RAG -------------------------------------------------------
     data_dir: Path = field(default_factory=lambda: Path(_env("DATA_DIR", str(BASE_DIR / "data"))))

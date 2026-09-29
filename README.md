@@ -137,6 +137,16 @@ Montá un volumen en `/data` si no usás Supabase.
 **Importante:** la memoria guarda información sobre adolescentes. Mantené el repositorio
 **privado**, definí siempre `APP_PASSWORD` y usá HTTPS.
 
+## Límites de Groq (plan gratuito)
+
+El plan gratis de Groq permite **8.000 tokens por minuto por organización** (consulta +
+respuesta), sin importar cuántas claves crees. La app se adapta sola: usa la versión
+condensada del prompt formativo (mismos principios), calcula cuánto espacio queda para la
+respuesta y, si Groq igual rechaza el pedido por tamaño, reintenta recortando historial y
+fuentes. Si Groq pide esperar por límite de velocidad, espera lo indicado y reintenta.
+
+Con el plan pago (Dev tier) podés poner `GROQ_TPM_LIMIT` más alto y `PROMPT_VERSION=completo`.
+
 ## Pruebas
 
 ```bash

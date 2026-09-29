@@ -19,7 +19,7 @@ from typing import Dict, Iterator, List, Optional
 
 from . import prompts
 from .config import settings
-from .llm import get_llm, parse_json, small_model
+from .llm import RequestTooLarge, get_llm, parse_json, small_model
 from .memory import MemoryStore, get_store
 from .retrieval import Hit, Retriever, get_retriever
 
@@ -83,24 +83,50 @@ class Assistant:
 
         etapa = parse_etapa((team or {}).get("perfil", {}).get("etapa"))
         hits = self.retriever.search(self._retrieval_query(message, history), etapa=etapa)
-        rag_context = self.retriever.build_context(hits)
-
         team_ctx = prompts.format_team_context(team)
-        user_msg = prompts.build_user_message(
-            query=message, team_context=team_ctx, memory=prompts.format_memory(memories),
-            notes=conv.get("notas", ""), rag_context=rag_context)
 
-        messages = [{"role": "system", "content": prompts.SYSTEM_PROMPT}]
-        for m in history:
+        ctx = {"conversation": conv, "team": team, "memories": memories, "hits": hits,
+               "weak": Retriever.is_weak(hits), "message": message, "history": history,
+               "team_context": team_ctx, "etapa": etapa}
+        ctx["messages"], ctx["max_tokens"] = self.build_messages(ctx, level=0)
+        return ctx
+
+    # Niveles de recorte si el pedido no entra en el límite de tokens por minuto:
+    # (mensajes de historial, caracteres por respuesta previa, caracteres de fuentes)
+    LEVELS = [(6, 1200, 7000), (2, 600, 4500), (0, 0, 2800)]
+
+    @staticmethod
+    def estimate_tokens(text: str) -> int:
+        return int(len(text) / 3.6) + 4  # estimación conservadora para español
+
+    def build_messages(self, ctx: Dict, level: int = 0):
+        """Arma los mensajes para el nivel pedido; si no queda lugar suficiente
+        para la respuesta (≥ 2200 tokens), pasa solo al siguiente nivel."""
+        for lvl in range(level, len(self.LEVELS)):
+            messages, max_tokens = self._build_level(ctx, lvl)
+            if max_tokens >= 2200:
+                break
+        ctx["level"] = lvl
+        return messages, max_tokens
+
+    def _build_level(self, ctx: Dict, level: int):
+        n_hist, hist_chars, ctx_chars = self.LEVELS[level]
+        rag_context = self.retriever.build_context(ctx["hits"], max_chars=ctx_chars)
+        user_msg = prompts.build_user_message(
+            query=ctx["message"], team_context=ctx["team_context"],
+            memory=prompts.format_memory(ctx["memories"][-25:]),
+            notes=ctx["conversation"].get("notas", ""), rag_context=rag_context)
+        messages = [{"role": "system", "content": prompts.system_prompt()}]
+        for m in (ctx["history"][-n_hist:] if n_hist else []):
             content = m["content"]
-            if m["role"] == "assistant" and len(content) > MAX_HISTORY_CHARS_PER_MSG:
-                content = content[:MAX_HISTORY_CHARS_PER_MSG] + "\n[…respuesta recortada…]"
+            if m["role"] == "assistant" and len(content) > hist_chars:
+                content = content[:hist_chars] + "\n[…respuesta recortada…]"
             messages.append({"role": m["role"], "content": content})
         messages.append({"role": "user", "content": user_msg})
-
-        return {"conversation": conv, "team": team, "memories": memories, "hits": hits,
-                "weak": Retriever.is_weak(hits), "messages": messages, "message": message,
-                "team_context": team_ctx, "etapa": etapa}
+        used = sum(self.estimate_tokens(m["content"]) for m in messages)
+        room = settings.token_budget - used - 250
+        max_tokens = max(900, min(settings.max_output_tokens, room))
+        return messages, max_tokens
 
     @staticmethod
     def sources_payload(hits: List[Hit], answer: str = "") -> List[Dict]:
@@ -123,9 +149,20 @@ class Assistant:
 
         parts: List[str] = []
         try:
-            for piece in self.llm.stream(ctx["messages"]):
-                parts.append(piece)
-                yield {"type": "delta", "text": piece}
+            level = 0
+            while True:
+                try:
+                    for piece in self.llm.stream(ctx["messages"], max_tokens=ctx["max_tokens"]):
+                        parts.append(piece)
+                        yield {"type": "delta", "text": piece}
+                    break
+                except RequestTooLarge:
+                    # no entró en el límite de tokens: se recorta historial y fuentes
+                    level = max(level, ctx.get("level", 0)) + 1
+                    if parts or level >= len(self.LEVELS):
+                        raise
+                    log.warning("Pedido demasiado grande para Groq: recortando (nivel %d)", level)
+                    ctx["messages"], ctx["max_tokens"] = self.build_messages(ctx, level)
         except Exception as e:  # noqa: BLE001
             log.exception("Error generando respuesta")
             partial = "".join(parts)
@@ -177,7 +214,7 @@ class Assistant:
                      team_context=ctx["team_context"], memories=ctx["memories"],
                      previous_summary=conv.get("notas", ""), user_message=ctx["message"],
                      assistant_message=answer)}],
-                model=small_model(), max_tokens=1500, temperature=0.1, json_mode=True)
+                model=small_model(), max_tokens=900, temperature=0.1, json_mode=True)
             data = parse_json(raw)
         except Exception as e:  # noqa: BLE001
             log.warning("No se pudo actualizar la memoria: %s", e)
