@@ -1,0 +1,11 @@
+services:
+  ecyd:
+    build: .
+    env_file: .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ecyd-data:/data        # memoria, equipos e historial persisten acá
+    restart: unless-stopped
+volumes:
+  ecyd-data:

@@ -1,0 +1,13 @@
+.env
+__pycache__/
+*.pyc
+.venv/
+venv/
+data/memoria.db*
+data/legacy/
+.pytest_cache/
+.modelos/
+_para_borrar/
+Claude outputs/
+.vercel/
+.fuse_hidden*

@@ -1,0 +1,5769 @@
+{
+ "schema_version": "2.0",
+ "generado": "2026-09-29T22:15:23+00:00",
+ "total": 119,
+ "vocabularios": {
+  "tipos": {
+   "documento_oficial": "Documento oficial (estatutos, estilo formativo)",
+   "ensayo": "Ensayo del Regnum Christi / ECyD",
+   "programa_territorial": "Programa territorial y guías de planificación",
+   "retiro": "Material de retiros",
+   "ficha": "Ficha de reunión por etapa",
+   "guia": "Guía práctica",
+   "formulario": "Formulario / registro",
+   "otro": "Otro material"
+  },
+  "autoridad": {
+   "1": "Estatutos del ECyD",
+   "2": "Documento que explica el estilo y camino formativo del ECyD",
+   "3": "Material oficial de etapas, itinerarios y espiritualidad",
+   "4": "Guía o material práctico",
+   "5": "Ficha o recurso concreto"
+  },
+  "temas": {
+   "oracion": "Oración",
+   "sacramentos": "Sacramentos",
+   "amistad_con_cristo": "Amistad con Cristo / Alianza",
+   "identidad": "Identidad y autoconocimiento",
+   "amistad": "Amistad",
+   "vida_de_equipo": "Vida de equipo",
+   "afectividad": "Afectividad, amor y sexualidad",
+   "familia": "Familia",
+   "conciencia_virtudes": "Conciencia y virtudes",
+   "mision_apostolado": "Misión y apostolado",
+   "fe_razones": "Fe y razones para creer",
+   "maria": "María",
+   "tiempo_liturgico": "Tiempos litúrgicos",
+   "iglesia": "Iglesia",
+   "tecnologia_redes": "Redes y tecnología",
+   "emociones": "Emociones y salud interior",
+   "servicio_social": "Servicio y doctrina social",
+   "vocacion_sentido": "Vocación y sentido de vida",
+   "acompanamiento_formacion": "Acompañamiento y estilo formativo",
+   "retiros": "Retiros",
+   "reino": "Reino de Cristo"
+  }
+ },
+ "documentos": [
+  {
+   "id": "doc_0001",
+   "ids_legacy": [
+    "doc_0001"
+   ],
+   "titulo": "La Confesión",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "sacramentos",
+    "amistad",
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La Confesión.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-octubre\\La Confesión.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 14929,
+    "calidad": "media",
+    "sha1": "114c9c10a68120de37e793a75ba17ab14509e9c8"
+   },
+   "overrides": [],
+   "resumen": "éMI EQUIPO SABE QUE ES LA VIDA DE GRACIA? Los nifos no entienden aun el valor de la confesi6n, por tanto, no lo consideran como un encuentro con Jesus sino algo que se hace simplemente por rutina o como un requisito. A su vez, les da pena ir con el Sacerdote porque piensan que lo",
+   "vector_id": 0,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0002",
+   "ids_legacy": [
+    "doc_0002"
+   ],
+   "titulo": "La oración ¿se puede hablar y escuchar con Jesús",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "oracion",
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La oración_ ¿se puede hablar y escuchar con Jesús_.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-octubre\\La oración_ ¿se puede hablar y escuchar con Jesús_.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11009,
+    "calidad": "media",
+    "sha1": "327f86c600d5d2862a9aa66a7983c012e3435d38"
+   },
+   "overrides": [],
+   "resumen": "& LR ORACION:éSE PUEDE HABLAR Y ESCUCHAR A JESUS? Septiembre Tera etapa IMPORTANTE? Si de verdad queremos tener una relaci6n con Cristo, necesitamos experi Mentar que podemos hablarle y escucharle, y que a su vez, E cha y nos habla; es decir, una experiencia del amor de Dios en d",
+   "vector_id": 1,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0003",
+   "ids_legacy": [
+    "doc_0003"
+   ],
+   "titulo": "¿Quién es Dios para mi",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "¿Quién es Dios para mi_.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-octubre\\¿Quién es Dios para mi_.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10659,
+    "calidad": "media",
+    "sha1": "547289da850b6d0ae827c88b3acffc5170b08681"
+   },
+   "overrides": [],
+   "resumen": "éQUIEN ES DIOS PARA MI? LA PRESENCIA O& UN AMIGO Octubre Jera etapa PORQUE ESTE TEMA £5 IMPORTANTE? Es importante que los nifos sepan que pueden contar con Jesus como un mejor amigo, alguien que es fiel, con- fiable y comprensible. Cristo siempre va a estar para nosotros en cualq",
+   "vector_id": 2,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0004",
+   "ids_legacy": [
+    "doc_0004"
+   ],
+   "titulo": "El ECYD te cambia la vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El ECYD te cambia la vida.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-septiembre\\El ECYD te cambia la vida.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10082,
+    "calidad": "media",
+    "sha1": "07c4d1dbb60d81f0da81820d1479ac547928dac7"
+   },
+   "overrides": [],
+   "resumen": "éTUS NINOS ESTAN EN LA BUSQUEDA DEL SENTIDO DE SUS VIDAS? El adolescente esta empezando a buscar el sentido a su vida y quiere ser parte de algo mas grande. Es impor- tante que él sepa que de la mano de Jesus el ECYD le puede dar esta res- puesta, y asi cambiara su vida y la de l",
+   "vector_id": 3,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0005",
+   "ids_legacy": [
+    "doc_0005",
+    "doc_0048"
+   ],
+   "titulo": "La Alianza con Cristo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1,
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad",
+    "amistad_con_cristo"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La Alianza con Cristo.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-septiembre\\La Alianza con Cristo.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": [
+     {
+      "archivo": "La Alianza con Cristo.pdf",
+      "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-septiembre\\La Alianza con Cristo.pdf",
+      "ids_legacy": [
+       "doc_0048"
+      ],
+      "etapas": [
+       2
+      ],
+      "calendario": {
+       "ciclo_origen": "escolar_mexico",
+       "mes_original": "septiembre",
+       "meses_originales": [
+        "septiembre"
+       ],
+       "mes_argentino": "marzo",
+       "tiempo_liturgico": null
+      }
+     }
+    ]
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 12418,
+    "calidad": "buena",
+    "sha1": "7a3d68117cb955e570430c52243e133606e8f598"
+   },
+   "overrides": [],
+   "resumen": "LA ALIANZA CON CRISTO ECYD MX - NMX 1a Etapa 2024 ¿Cómo está mi EQUIPO? ¿Por qué es IMPORTANTE este tema? Jesús es un amigo que sale a nuestro encuentro y nos llama por nuestro nombre. Todos los miembros del ECYD hemos tenido un encuentro personal con Jesús que nos invita a ser s",
+   "vector_id": 4,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0006",
+   "ids_legacy": [
+    "doc_0006"
+   ],
+   "titulo": "La Espiritualidad del ECYD",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La Espiritualidad del ECYD.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-septiembre\\La Espiritualidad del ECYD.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11199,
+    "calidad": "buena",
+    "sha1": "80a7fa7c43b863b46d323cab84e03bb0ee17952d"
+   },
+   "overrides": [],
+   "resumen": "LA ESPIRITUALIDAD DEL ECYD ECYD MX - NMX 1era Etapa 2024 ¿Por qué es IMPORTANTE este tema? Este tema es importante ya que la espiritualidad es lo que da fuerza para actuar, si no tenemos fuerza no alcanzaremos lo que Cristo quiere del ECyD. La espiritualidad es el centro, el cora",
+   "vector_id": 5,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0007",
+   "ids_legacy": [
+    "doc_0007"
+   ],
+   "titulo": "¿Qué es el ECyD?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Qué es el ECYD pdf.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1era-etapa-etapa-septiembre\\Qué es el ECYD pdf.pdf",
+    "carpeta": "1ra etapa fichas/1era-etapa-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 12592,
+    "calidad": "buena",
+    "sha1": "5e4c89a8e02b78cf90652bf8def265b8ef97806b"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Imprimir el rally y el mapa adjuntado (dependiendo del número de equipos) y recórtalo. Paliacates, objeto o medalla pequeña para esconder, papel crepé para disfraz, cucharas y limones (dependiendo el número de equipos) LINK MAPA PARA IMPRIMIR DA CLICK AQUÍ ¿QUÉ ES EL ECYD? ECYD M",
+   "vector_id": 6,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0008",
+   "ids_legacy": [
+    "doc_0008"
+   ],
+   "titulo": "Cristo Rey",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico",
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cristo_rey"
+   },
+   "fuente": {
+    "archivo": "Cristo Rey.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-cristo-rey\\Cristo Rey.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-cristo-rey",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15917,
+    "calidad": "media",
+    "sha1": "b9cdea11b5c333c09bc373e2ed41709129dbcdcd"
+   },
+   "overrides": [],
+   "resumen": "JULIO 2019 ECYD MX-MTY CRISTO REY Noviembre lera etapa .) ANTES QUE ESTE TEMA ES IMPORTANTE? Quiza algunos nifios conocen o han escuchado hablar de Cristo Rey pero no comprenden que la fiesta de Cristo Rey es parte esencial del ECYD por ser el Reino de Cristo parte de la espiritu",
+   "vector_id": 7,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0009",
+   "ids_legacy": [
+    "doc_0009"
+   ],
+   "titulo": "They are first, I'm second",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cuaresma"
+   },
+   "fuente": {
+    "archivo": "They are first, I'm second.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-cuaresma\\They are first, I'm second.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-cuaresma",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12532,
+    "calidad": "media",
+    "sha1": "a7af72264533f3d9fbe1881c2c8068d9e5741dd7"
+   },
+   "overrides": [],
+   "resumen": "® THEY ARE FIRST, | AM SECOND QMO ESTA MI N, EQUIPO? éSaben los nifios Marzo lera etapa PORQUE ESTE TEMA ES IMPORTANTE? Los nifos de esta etapa tienen muchos conocimientos de la cuaresma pero hay que ayudarles a que logren tener una experiencia profunda de Jesus para que vivan me",
+   "vector_id": 8,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0010",
+   "ids_legacy": [
+    "doc_0010"
+   ],
+   "titulo": "El mapa de la adolescencia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El mapa de la adolescencia.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-enero\\El mapa de la adolescencia.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 17059,
+    "calidad": "media",
+    "sha1": "4586f1350af70ce898b2dad6b373bedacb012f51"
+   },
+   "overrides": [],
+   "resumen": "éMis nifios o nifias entienden porque estdn pasando por esto? éSe sienten solos? ~éConfundidos? Es necesario explicarles y que entien- dan el momento vital que les toca vivir. Se trata de mirar la adolescencia en toda su amplitud. No solo qué viven (eso ya lo experimentan) sino p",
+   "vector_id": 9,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0011",
+   "ids_legacy": [
+    "doc_0011"
+   ],
+   "titulo": "Qué me pasa por dentro",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "identidad",
+    "afectividad",
+    "emociones"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Qué me pasa por dentro.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-enero\\Qué me pasa por dentro.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12193,
+    "calidad": "media",
+    "sha1": "909a0e71e009bd522df164d63bf202cc3329b571"
+   },
+   "overrides": [],
+   "resumen": "— aQUE ME PASA POR DENTRO? Enero lera etapa IMPORTANTE? El adolescente necesita comprender el sentido de sus emociones, para com- prender mas tarde el sentido profundo de su sexualidad. Ahora en esta etapa comienza a experimentar nuevas sen- saciones y emociones que le cautivan y",
+   "vector_id": 10,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0012",
+   "ids_legacy": [
+    "doc_0012"
+   ],
+   "titulo": "Re-conocerme yo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Re-conocerme yo.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-enero\\Re-conocerme yo.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 13575,
+    "calidad": "media",
+    "sha1": "73c00b342853264efd59da6eb41e68284845e905"
+   },
+   "overrides": [],
+   "resumen": "RE-CONOCERME YO Enero Jera etapa PORQUE ESTE TEMA ES IMPORTANTE? La necesidad de conocerse a si mismo es tarea de toda la vida pero en este mo- mento es un reto importante para que el adolescente Ilegue a ser quien esta llamado a ser. Que sea él mismo 0 ella misma, no lo que otro",
+   "vector_id": 11,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0013",
+   "ids_legacy": [
+    "doc_0013"
+   ],
+   "titulo": "Amigos que me enriquecen",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Amigos que me enriquecen.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-febrero\\Amigos que me enriquecen.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12018,
+    "calidad": "media",
+    "sha1": "c36a59c0a8a14b3ea82cb1da946dfb5d41399097"
+   },
+   "overrides": [],
+   "resumen": "9 “ EQUIPO? éQué valor le dan a sus relaciones virtuales? éTe das cuenta si comienzan a sentir atraccién por el sexo opuesto? AMIGOS(AS) QUE ME ENRIQUECEN rero lera etapa LPORQUE ESTE TEMA ES IMPORTANTE? En su primer contacto con las amis- tades del sexo opuesto el adolescente pu",
+   "vector_id": 12,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0014",
+   "ids_legacy": [
+    "doc_0014"
+   ],
+   "titulo": "Mi Equipo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "vida_de_equipo",
+    "amistad",
+    "amistad_con_cristo"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Mi Equipo.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-febrero\\Mi Equipo.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11121,
+    "calidad": "media",
+    "sha1": "c0745cffdf2421d11fc4834858304346a165a996"
+   },
+   "overrides": [],
+   "resumen": "~éSon un equipo unido? ~éSe motivan entre ellos a ser mejores personas? La vida de equipo es un elemento esen- cial en la vida del ECYD, es el lugar donde el adolescente se encuentra con- sigo mismo, con Dios y con los demas. El equipo le ayuda tener un sentido de pertenencia a a",
+   "vector_id": 13,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0015",
+   "ids_legacy": [
+    "doc_0015"
+   ],
+   "titulo": "Mis Amigos",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad",
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Mis Amigos.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-febrero\\Mis Amigos.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 13707,
+    "calidad": "media",
+    "sha1": "e59d0b8861c7f9786600e2ff40f606005c6e59f5"
+   },
+   "overrides": [],
+   "resumen": "Una necesidad basica que tiene el ado- lescente en esta etapa es sentirse acep- tado por los demas, de formar parte de algo, a veces incluso se preocupa mas en tener muchos amigos que ser un buen amigo, por ello es necesario pre- sentar el valor de la amistad en esta etapa que co",
+   "vector_id": 14,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0016",
+   "ids_legacy": [
+    "doc_0016"
+   ],
+   "titulo": "Cuidado de la casa común",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "servicio_social"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Cuidado de la casa común.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-junio\\Cuidado de la casa común.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11379,
+    "calidad": "buena",
+    "sha1": "175a85f279ecb73ba3a7591b2c6e5e96563f516c"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 CUIDADO DE LA CASA COMÚN ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S •1era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Este tema es importante porque hay que con- cie",
+   "vector_id": 15,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0017",
+   "ids_legacy": [
+    "doc_0017"
+   ],
+   "titulo": "El regalo de ser tu",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El regalo de ser tu.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-junio\\El regalo de ser tu.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 13060,
+    "calidad": "buena",
+    "sha1": "9526bfa6364b5c40e2ce7b81dcad5a0ed4a5973d"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 EL REGALO DE SER TÚ EN C U E N T R O S • C O N V IC C IONES • DECIS IO N E S •1era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Los niños están a punto de comenzar a cono- cerse ",
+   "vector_id": 16,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0018",
+   "ids_legacy": [
+    "doc_0018"
+   ],
+   "titulo": "Powerade, Gatorade o Jesus ade",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "sacramentos"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Powerade, Gatorade o Jesus _ade_.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-marzo-y-abril\\Powerade, Gatorade o Jesus _ade_.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11614,
+    "calidad": "media",
+    "sha1": "4c83011fcf3995a38051ba7cea989dc9d6e1397e"
+   },
+   "overrides": [],
+   "resumen": "o POWERADE, GATORADE O JESUS “ADE” iPORQUE ESTE TEMA ES IMPORTANTE? Los nifos de esta edad saben lo que es la Eucaristia porque se los han dicho, quiza no porque lo han vivido. Hay que despertar en ellos la conciencia de que Jesus esta realmente alli en la Eucaristia y que en El ",
+   "vector_id": 17,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0019",
+   "ids_legacy": [
+    "doc_0019"
+   ],
+   "titulo": "Tengo una meta",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "vocacion_sentido"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Tengo una meta.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-marzo-y-abril\\Tengo una meta.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 9709,
+    "calidad": "media",
+    "sha1": "fe36e7b0fcb60480e004c89bd582bef273357a55"
+   },
+   "overrides": [],
+   "resumen": "Es importante que los nifios tengan como meta llegar al cielo, el lugar al que estamos Ilamados a llegar, y que tam- bién comprendan que la santidad no es algo lejano sino un practica de todos los dias ~éSaben que estan ~éConocen cudl es el Hamados a ser santos? camino para llega",
+   "vector_id": 18,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0020",
+   "ids_legacy": [
+    "doc_0020"
+   ],
+   "titulo": "La conciencia, guía para el camino",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La conciencia, guía para el camino.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-mayo\\La conciencia, guía para el camino.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10070,
+    "calidad": "media",
+    "sha1": "c72c04bbefe7c629d07f64e88f6e6fd4bfd98a4d"
+   },
+   "overrides": [],
+   "resumen": "A través de la conciencia recta, Dios se comunica con nosotros para iluminar- nos hacia el camino del bien. Formar una conciencia recta nos ayuda a cumplir con el proposito de toda persona. ~éSon capaces de distinguir éQué medios tienen para entre el bien y el mal? formar la conc",
+   "vector_id": 19,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0021",
+   "ids_legacy": [
+    "doc_0021"
+   ],
+   "titulo": "María, una adolescente que dijo sí",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "María, una adolescente que dijo sí.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-mayo\\María, una adolescente que dijo sí.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10972,
+    "calidad": "media",
+    "sha1": "33719b85bea018e1fabe6c29cd6d65e534aa1221"
+   },
+   "overrides": [],
+   "resumen": "Ya que cada adolescente necesita un modelo con el que se pueda identificar y la vivencia de la obediencia se dificulta en esta etapa, es necesario poner a la Virgen Maria como la creatura mas obe- diente a Dios, que con su constante si pudo cambiar la historia de la salvacion. ~é",
+   "vector_id": 20,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0022",
+   "ids_legacy": [
+    "doc_0022"
+   ],
+   "titulo": "Navidad desde María",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria",
+    "tiempo_liturgico"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "navidad"
+   },
+   "fuente": {
+    "archivo": "Navidad desde María.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-navidad\\Navidad desde María.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-navidad",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15607,
+    "calidad": "media",
+    "sha1": "6513d715c5aa78c8fda7182f402493a43ffcf4da"
+   },
+   "overrides": [],
+   "resumen": "ia iCOMO ESTA MI. WexeSedoeg hes CL > éQUIEN ES LA VIRGEN MARIA EN SUS VIDAS? __1 v Diciembre lera etapa PORQUE ESTE TEMA £5 IMPORTANTE? El ECYD propone a los adolescentes el amor a Maria: “Busca amar a la Santisima Virgen Maria como su Madre (cf. Jn 19,27), con detalles filiales",
+   "vector_id": 21,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0023",
+   "ids_legacy": [
+    "doc_0023"
+   ],
+   "titulo": "Tengo vocación de heroe",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "vocacion_sentido"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Tengo vocación de heroe.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-noviembre\\Tengo vocación de heroe.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 13307,
+    "calidad": "media",
+    "sha1": "a00f627a654b8cb5d71f6c272e9a82461f20a047"
+   },
+   "overrides": [],
+   "resumen": "TENGO VOCACION DE HEROE Noviembre lera etapa iPOR QUE ESTE TEMA £5 IMPORTANTE? formar ambien wD un corazon de a que tomen concien: jo que aporta cada uno de mas lo Unicos e puede dar, ya q rrepetibles”, : l : ! ; 2 o I | éSON CONSCIENTES DE QUE SU EQUIPO? APORTACION ES UNICA Y NA",
+   "vector_id": 22,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0024",
+   "ids_legacy": [
+    "doc_0024"
+   ],
+   "titulo": "¿Cómo está el mundo que me toca vivir",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    1
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "¿Cómo está el mundo que me toca vivir_.pdf",
+    "ruta": "E:\\ECyD\\1ra etapa fichas\\1ra-etapa-noviembre\\¿Cómo está el mundo que me toca vivir_.pdf",
+    "carpeta": "1ra etapa fichas/1ra-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15471,
+    "calidad": "media",
+    "sha1": "d7539aa8723e2db3ca5cd943e43059377aaefcb5"
+   },
+   "overrides": [],
+   "resumen": "éSABE COMO RESPONDER ANTE ESTAS SITUACIONES O NECESIDADES? Es necesario que el adolescente em- piece a conectar con su realidad y las necesidades que hay en el mundo. Para ello, es importante que sepan que tienen una Vocacion particular y, que Jesus les hace un llamado a ser sus ",
+   "vector_id": 23,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0025",
+   "ids_legacy": [
+    "doc_0025"
+   ],
+   "titulo": "Mi conciencia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "abril",
+    "meses_originales": [
+     "abril"
+    ],
+    "mes_argentino": "octubre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "abrilMICONCIENCIA.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-abril\\abrilMICONCIENCIA.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 17418,
+    "calidad": "buena",
+    "sha1": "206e6b89bfadbef337a5a84e52fdcbb4a33d2e6e"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Contra corriente San Giuseppe Moscati Ideas de conexión 1º DE SECUNDARIA ABRIL Mi conciencia: mi aliado para un liderazgo diferente ANTES IMPORTANTE Nos paramos aquí porque es n",
+   "vector_id": 24,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0026",
+   "ids_legacy": [
+    "doc_0026"
+   ],
+   "titulo": "With Him we are winners",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "abril",
+    "meses_originales": [
+     "abril"
+    ],
+    "mes_argentino": "octubre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "abrilWITHHIMWEAREWINNERS.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-abril\\abrilWITHHIMWEAREWINNERS.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 17841,
+    "calidad": "buena",
+    "sha1": "198fb44194eb7b18668a8897f9744b18f49c6b37"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Globos en la pared San Pablo apóstol Ideas de conexión 1º DE SECUNDARIA ABRIL “With Him we are winners” ANTES IMPORTANTE Este tema es importante porque es hablarles del misterio",
+   "vector_id": 25,
+   "num_chunks": 16
+  },
+  {
+   "id": "doc_0027",
+   "ids_legacy": [
+    "doc_0027"
+   ],
+   "titulo": "Un rey distinto a los demás",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cristo_rey"
+   },
+   "fuente": {
+    "archivo": "novUNREYDISTINTOALOSDEMAS.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-cristo-rey\\novUNREYDISTINTOALOSDEMAS.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-cristo-rey",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 19320,
+    "calidad": "buena",
+    "sha1": "d2fd2f2bb5cda3b3ee3ba01747f60ee5c44a1d6d"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Un Rey distinto a los demás ANTES IMPORTANTE Queremos que los adolescentes experimenten la necesidad de ser parte del Reino de Cristo y que eso les lleve a que más personas conformen este reino; que vean en Cristo al único rey del universo. En medio de esta situación el ECYD vien",
+   "vector_id": 26,
+   "num_chunks": 17
+  },
+  {
+   "id": "doc_0028",
+   "ids_legacy": [
+    "doc_0028"
+   ],
+   "titulo": "Acompañando al Amigo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cuaresma"
+   },
+   "fuente": {
+    "archivo": "marzoACOMPAÑANDOALAMIGO.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-cuaresma\\marzoACOMPAÑANDOALAMIGO.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-cuaresma",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 77017,
+    "calidad": "buena",
+    "sha1": "ed03afbd63115ecf3936c632df26590a59d48504"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Viacrucis Ideas de conexión 1º DE SECUNDARIA MARZO Acompañando al amigo ANTES IMPORTANTE Los adolescentes deben comprender el sentido de la Cuaresma para poder vivirla mejor y c",
+   "vector_id": 27,
+   "num_chunks": 59
+  },
+  {
+   "id": "doc_0029",
+   "ids_legacy": [
+    "doc_0029"
+   ],
+   "titulo": "Jesús se encarna por amor a nosotros",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "diciembre",
+    "meses_originales": [
+     "diciembre"
+    ],
+    "mes_argentino": "junio",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "dicJESUSSEENCARNAPORAMORANOSOTROS.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-diciembre\\dicJESUSSEENCARNAPORAMORANOSOTROS.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-diciembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 14588,
+    "calidad": "buena",
+    "sha1": "eb541d7541470157f3d11bd9cafa52d36ca95f52"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Dinámica: He’s the gift San Nicolás de Bari Ideas de conexión jesucristo se encarna por amor a nosotros ANTES IMPORTANTE La Navidad es un acontecimiento muy importante en la his",
+   "vector_id": 28,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0030",
+   "ids_legacy": [
+    "doc_0030"
+   ],
+   "titulo": "Gusto, me gusto",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "identidad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "eneroGUSTOMEGUSTO.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-enero\\eneroGUSTOMEGUSTO.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 9325,
+    "calidad": "buena",
+    "sha1": "8f3d1f0fb8d315247ab12b50c81452bd3ea269ac"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Ojos que no ven, corazón que SÍ siente. santo Tomás Moro Ideas de conexión 1º DE SECUNDARIA ENERO ¿gUSTO? ¿me gustó? ¿por qué? ANTES IMPORTANTE Los adolescentes de ahora viven e",
+   "vector_id": 29,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0031",
+   "ids_legacy": [
+    "doc_0031"
+   ],
+   "titulo": "Mi interioridad",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "identidad",
+    "tecnologia_redes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "eneroMIINTERIORIDAD.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-enero\\eneroMIINTERIORIDAD.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 20248,
+    "calidad": "buena",
+    "sha1": "e9bdec411cf5e66f6a0b5f91642b773502244fe4"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Guerra de pintura María Luce Gamboni / santa Inés Ideas de conexión 1º DE SECUNDARIA ENERO MI INTERIORIDAD, MI INTIMIDAD ANTES IMPORTANTE Los adolescentes que tienes frente a ti",
+   "vector_id": 30,
+   "num_chunks": 17
+  },
+  {
+   "id": "doc_0032",
+   "ids_legacy": [
+    "doc_0032"
+   ],
+   "titulo": "¿Qué onda conmigo?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "eneroQUEONDACONMIGO.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-enero\\eneroQUEONDACONMIGO.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 23748,
+    "calidad": "buena",
+    "sha1": "b2fbc60874517a4a171b4a0b689e48956932f7c0"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros ¿Qué me está pasando? Angel Bonetta Clara Luce Badano Ideas de conexión 1º DE SECUNDARIA ENERO ¿QUÉ ONDA CONMIGO? ANTES IMPORTANTE El adolescente en este momento está viviendo c",
+   "vector_id": 31,
+   "num_chunks": 22
+  },
+  {
+   "id": "doc_0033",
+   "ids_legacy": [
+    "doc_0033"
+   ],
+   "titulo": "Amigos y equipo ECyD",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad",
+    "vida_de_equipo"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "febreroAMIGOSYEQUIPOIECYD.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-febrero\\febreroAMIGOSYEQUIPOIECYD.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 8889,
+    "calidad": "buena",
+    "sha1": "3e6b542696ca5b6317b198ca5e61fa8b830062ff"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros ¿Cómo nos conocimos? San Juan, apóstol Ideas de conexión 1º DE SECUNDARIA FEBRERO Amigos y equipo ECYD ANTES IMPORTANTE Es importante que los adolescentes reconozcan a sus amigo",
+   "vector_id": 32,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0034",
+   "ids_legacy": [
+    "doc_0034"
+   ],
+   "titulo": "El lenguaje del cuerpo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "febreroELLENGUAJEDELCUERPO.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-febrero\\febreroELLENGUAJEDELCUERPO.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 14713,
+    "calidad": "buena",
+    "sha1": "0534c5eed2c488513a3fa7be4b17521a1b405652"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Tenis con violín Ideas de conexión 1º DE SECUNDARIA FEBRERO EL LENGUAJE DEL CUERPO: SEXUALIDAD ANTES IMPORTANTE Es un tema de gran interés para ellos. El mundo les presenta una ",
+   "vector_id": 33,
+   "num_chunks": 14
+  },
+  {
+   "id": "doc_0035",
+   "ids_legacy": [
+    "doc_0035",
+    "doc_0059"
+   ],
+   "titulo": "Detrás de la pantalla (jornada)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2,
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "tecnologia_redes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Detrás de la jornada_Jornada.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-junio\\Detrás de la jornada_Jornada.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": [
+     {
+      "archivo": "Detrás de la jornada_Jornada.pdf",
+      "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-junio\\Detrás de la jornada_Jornada.pdf",
+      "ids_legacy": [
+       "doc_0059"
+      ],
+      "etapas": [
+       2,
+       3
+      ],
+      "calendario": {
+       "ciclo_origen": "escolar_mexico",
+       "mes_original": "junio",
+       "meses_originales": [
+        "junio"
+       ],
+       "mes_argentino": "diciembre",
+       "tiempo_liturgico": null
+      }
+     }
+    ]
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11817,
+    "calidad": "media",
+    "sha1": "ae791545587bf220d3ca968c3aa90f96e315bcf0"
+   },
+   "overrides": [
+    "titulo",
+    "etapas"
+   ],
+   "resumen": "ECYD MX-MTY JUNIO 2022 DETRAS DE LA PANTALLA 2da y 3era etapa <2Por qué es importante este tema? Concientizar sobre el peso de los comenta- rios en la vida de las demas personas ya que a través de la pantalla y las redes sociales se puede vivir desde el anonimato pero no le quita",
+   "vector_id": 34,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0036",
+   "ids_legacy": [
+    "doc_0036"
+   ],
+   "titulo": "¿Quién soy yo? (jornada)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "identidad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "¿Quién Soy Yo__Jornada.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-junio\\¿Quién Soy Yo__Jornada.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 9691,
+    "calidad": "media",
+    "sha1": "2f50e630b70104a9de7a6ba5a436c50bf2d453ed"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "ECYD MX-MTY JUNIO 2022 EQUIEN SOY? 2da etapa —0 zPor qué es importante este tema? - Crisis de identidad que lleva a la bUsqueda relacionada con la pregunta: ~quién soy? - Hacerles ver que ya son amados por por el simple hecho de existir. - Existen expectativas y presién social so",
+   "vector_id": 35,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0037",
+   "ids_legacy": [
+    "doc_0037"
+   ],
+   "titulo": "¿Puedo ser feliz?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "marzoPUEDOSERFELIZ.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-marzo\\marzoPUEDOSERFELIZ.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-marzo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 16822,
+    "calidad": "buena",
+    "sha1": "5d66b705c2700061b545048ca7977e2533792ab0"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Brownie de sal santa Teresa de Calcuta Ideas de conexión 1ºDE SECUNDARIA MARZO ¿Puedo ser feliz? ANTES IMPORTANTE Todos queremos ser felices y en esta etapa tus adolescentes emp",
+   "vector_id": 36,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0038",
+   "ids_legacy": [
+    "doc_0038"
+   ],
+   "titulo": "¿Usas las redes o te enredas?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "tecnologia_redes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "FINAL2ETAPAmayoUSASLASREDESOTEENREDAS.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-mayo\\FINAL2ETAPAmayoUSASLASREDESOTEENREDAS.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 17515,
+    "calidad": "buena",
+    "sha1": "ecfbe4a90485d9077dde4a6712f7dd87e1b533e9"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros 1. ¿Qué tan lejos está? 2. Subasta Carlo Acutis Ideas de conexión 1º DE SECUNDARIA MAYO ¿Usas las redes o te enredas? ANTES IMPORTANTE Las redes sociales y los medios de comunic",
+   "vector_id": 37,
+   "num_chunks": 16
+  },
+  {
+   "id": "doc_0039",
+   "ids_legacy": [
+    "doc_0039"
+   ],
+   "titulo": "La alegría de dar un sí a Dios y la entrega a los demás",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "mayoLAALEGRIADEDARUNSIADIOSYLAENTREGAALOSDEMAS.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-mayo\\mayoLAALEGRIADEDARUNSIADIOSYLAENTREGAALOSDEMAS.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 19363,
+    "calidad": "buena",
+    "sha1": "11cb2a40b9ea48f14e520497220272b28729746e"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "1º DE SECUNDARIA MAYO La alegría de dar un sí a Dios y a la entrega a los demás ANTES IMPORTANTE Frente a ti tienes un grupo de adolescentes que llevan en su corazón un deseo profundo de encontrar la felicidad y la alegría; viviendo en un mundo donde les presentan distintas “solu",
+   "vector_id": 38,
+   "num_chunks": 18
+  },
+  {
+   "id": "doc_0040",
+   "ids_legacy": [
+    "doc_0040"
+   ],
+   "titulo": "Mi familia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "familia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "mayoMIFAMILIA.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-mayo\\mayoMIFAMILIA.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 22581,
+    "calidad": "buena",
+    "sha1": "2b3e84a52a367b0074f7e8e4748b90b2d44a19fc"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones ¿Cómo responde Jesús? Modelo de vidaContenidoEncuentros Rally Luigi y María Beltrone Ideas de conexión 1º DE SECUNDARIA MAYO MI FAMILIA ANTES IMPORTANTE La familia es esencial en nuestra vida. Para el adolescente, empieza una nueva f",
+   "vector_id": 39,
+   "num_chunks": 21
+  },
+  {
+   "id": "doc_0041",
+   "ids_legacy": [
+    "doc_0041"
+   ],
+   "titulo": "Porque Cristo me ama",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Nov. Porque Cristo me ama.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-noviembre\\Nov. Porque Cristo me ama.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 33184,
+    "calidad": "buena",
+    "sha1": "e37e8d3a932358158984e721e13838ca7e205fc7"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Nota: El contenido formativo se da junto con la presentación de power point que se divide en tres momentos. Primer momento: Se proyecta el power point con las primeras fotos. Los adolescentes tienen que compartir lo que piensan de la persona en la foto o lo que les provoca, si se",
+   "vector_id": 40,
+   "num_chunks": 27
+  },
+  {
+   "id": "doc_0042",
+   "ids_legacy": [
+    "doc_0042"
+   ],
+   "titulo": "Tengo una misión: ser apóstol",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "vocacion_sentido"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "novTENGOUNAMISIONSERAPOSTOL.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-noviembre\\novTENGOUNAMISIONSERAPOSTOL.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 17357,
+    "calidad": "buena",
+    "sha1": "4714d9e2d7be85b32ee590b4ec2812c983f1aa98"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Tengo una misión, ser Apóstol ANTES IMPORTANTE Nos paramos aquí porque cada adolescente necesita descubrir que tiene una misión en la vida, preguntarse cuál es su misión dentro de la gran misión que tiene el ECYD, transformar el mundo para Cristo. Que se den cuenta de que no “hac",
+   "vector_id": 41,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0043",
+   "ids_legacy": [
+    "doc_0043"
+   ],
+   "titulo": "La oración, mi línea directa con Cristo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "oracion"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "FINAL2ETAPAoctLAORACIONLINEADIRECTACONCRISTO.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-octubre\\FINAL2ETAPAoctLAORACIONLINEADIRECTACONCRISTO.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 10621,
+    "calidad": "buena",
+    "sha1": "70e9e897ef3bd8ff2db6509bfa322be85227e55e"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "La oración, mi línea directa con Cristo ANTES IMPORTANTE Necesitan descubrir una nueva relación con Dios. Hasta ahora Dios estaba en el cielo, y “ahora lo necesito aquí conmigo, si no, no lo quiero”. Necesitan saber que es cercano, que está presente en su vida y tiene algo que de",
+   "vector_id": 42,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0044",
+   "ids_legacy": [
+    "doc_0044"
+   ],
+   "titulo": "Dios quiere lo mejor de mí (los diez mandamientos)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "oct. Dios quiere lo mejor de mi.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-octubre\\oct. Dios quiere lo mejor de mi.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 21307,
+    "calidad": "buena",
+    "sha1": "c9c5a2433605df62557724c1f90050d34d954a3b"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Dios quiere lo mejor de mí y por eso me deja los diez mandamientos ANTES IMPORTANTE Es importante que el adolescente comprenda la importancia de los mandamientos en su vida como un camino que lo guía al cielo (su verdadera meta) y no como una imposición de Dios para condenarse, y",
+   "vector_id": 43,
+   "num_chunks": 19
+  },
+  {
+   "id": "doc_0045",
+   "ids_legacy": [
+    "doc_0045"
+   ],
+   "titulo": "¿Quién te define mejor que tu mejor amigo?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "octubre 2 quien te define mejor.compressed.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-octubre\\octubre 2 quien te define mejor.compressed.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 19632,
+    "calidad": "buena",
+    "sha1": "25095e0be461621f2808704fab9a60c91378f031"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "¿Quién te define mejor que tu mejor amigo? ANTES IMPORTANTE Es el momento en el que están definiendo su identidad. Empiezan a cuestionarse con fuerza ¿quién soy? ¿cómo soy? ¿para qué estoy aquí? ¿por qué quiero ser yo mismo? En este irse descubriendo, van probando varias experien",
+   "vector_id": 44,
+   "num_chunks": 17
+  },
+  {
+   "id": "doc_0046",
+   "ids_legacy": [
+    "doc_0046"
+   ],
+   "titulo": "Mi sello ECyD",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [
+    "vida_de_equipo",
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "FINAL2ETAPAseptMISELLOECYD.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-septiembre\\FINAL2ETAPAseptMISELLOECYD.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 20256,
+    "calidad": "buena",
+    "sha1": "a0f0fd04be41c83cf4322b525a707c87a6c4fe3d"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "MI SELLO ECYD ANTES IMPORTANTE En la adolescencia hay un gran deseo de pertenecer a un grupo social, de ser aceptado por los compañeros y amigos. En muchas ocasiones, para ser aceptado, hay que ir en contra de lo que uno piensa o de las convicciones que uno cree. Es por eso que s",
+   "vector_id": 45,
+   "num_chunks": 17
+  },
+  {
+   "id": "doc_0047",
+   "ids_legacy": [
+    "doc_0047"
+   ],
+   "titulo": "¿Terreno firme o terreno movedizo?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    2
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "1º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "FINAL2ETAPAseptTERRENOFIRMEOMOVEDIZO.pdf",
+    "ruta": "E:\\ECyD\\2da etapa fichas\\2da-etapa-septiembre\\FINAL2ETAPAseptTERRENOFIRMEOMOVEDIZO.pdf",
+    "carpeta": "2da etapa fichas/2da-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 23830,
+    "calidad": "buena",
+    "sha1": "29dd4ea9f6ea0e88c9f07c6444913cfb82b3f09f"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "¿Terreno firme o terreno movedizo? ¿Dónde te paras? ANTES IMPORTANTE Frente a ti tienes un grupo de adolescentes que están viviendo mucho a cambios (muchos de esos cambios no los comprenden del todo), tienen inseguridades, confusiones, miedos, diversas presiones que están tratand",
+   "vector_id": 46,
+   "num_chunks": 21
+  },
+  {
+   "id": "doc_0049",
+   "ids_legacy": [
+    "doc_0049"
+   ],
+   "titulo": "La formación de la conciencia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes",
+    "acompanamiento_formacion"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "abril",
+    "meses_originales": [
+     "abril"
+    ],
+    "mes_argentino": "octubre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La formación de la conciencia.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-abril\\La formación de la conciencia.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 14471,
+    "calidad": "buena",
+    "sha1": "f403b7f6bb7984da7b7a4ddcfb55cc1cccf1b3e9"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Abril 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Los adolescentes deben conocer los medios que le ayudan para ele",
+   "vector_id": 47,
+   "num_chunks": 14
+  },
+  {
+   "id": "doc_0050",
+   "ids_legacy": [
+    "doc_0050"
+   ],
+   "titulo": "Cristo Rey Nuestro",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico",
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cristo_rey"
+   },
+   "fuente": {
+    "archivo": "Cristo Rey Nuestro.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-cristo-rey\\Cristo Rey Nuestro.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-cristo-rey",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 15919,
+    "calidad": "buena",
+    "sha1": "2e334efeedbd59732a238c6c9c178aef7374678a"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v ¡Cristo Rey Nuestro! ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Noviembre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? En nuestra vida hay muchos reyes que qu",
+   "vector_id": 48,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0051",
+   "ids_legacy": [
+    "doc_0051"
+   ],
+   "titulo": "Por este signo vencerás",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cuaresma"
+   },
+   "fuente": {
+    "archivo": "Por este signo vencerás.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-cuaresma\\Por este signo vencerás.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-cuaresma",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 14499,
+    "calidad": "buena",
+    "sha1": "6d82368a3b4401491eeebb3e1a55dc528e85d223"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Por este signo vencerás ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Marzo 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Los niños están en un periodo donde se es",
+   "vector_id": 49,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0052",
+   "ids_legacy": [
+    "doc_0052"
+   ],
+   "titulo": "Autenticidad, el reto de ser libre",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "identidad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Autenticidad, el reto de ser libre.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-enero\\Autenticidad, el reto de ser libre.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 12861,
+    "calidad": "buena",
+    "sha1": "dc0710897e132739f3e3333785be126d554cb724"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 Autenticidad, el reto de ser libre ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Enero 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Muchas veces los adolescentes ",
+   "vector_id": 50,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0053",
+   "ids_legacy": [
+    "doc_0053",
+    "doc_0081"
+   ],
+   "titulo": "Ficha DSI",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3,
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "servicio_social",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Ficha DSI.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-enero\\Ficha DSI.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": [
+     {
+      "archivo": "Ficha DSI.pdf",
+      "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-enero\\Ficha DSI.pdf",
+      "ids_legacy": [
+       "doc_0081"
+      ],
+      "etapas": [
+       4
+      ],
+      "calendario": {
+       "ciclo_origen": "escolar_mexico",
+       "mes_original": "enero",
+       "meses_originales": [
+        "enero"
+       ],
+       "mes_argentino": "julio_agosto",
+       "tiempo_liturgico": null
+      }
+     }
+    ]
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 14385,
+    "calidad": "buena",
+    "sha1": "b075b81a01891179fcc9aba659d166efca04da5d"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX - NMX 3a Etapa 4ta Etapa 2024 La Doctrina Social de la Iglesia ¿Por qué es IMPORTANTE este tema? A nuestro alrededor observamos guerras, injusticia, pobreza y miles de problemas sociales que nos preocupan. Lo que nos propone el mundo (el individualismo, ideologías, alguno",
+   "vector_id": 51,
+   "num_chunks": 14
+  },
+  {
+   "id": "doc_0054",
+   "ids_legacy": [
+    "doc_0054"
+   ],
+   "titulo": "La ciencia de los exesos",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La ciencia de los exesos.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-enero\\La ciencia de los exesos.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11401,
+    "calidad": "buena",
+    "sha1": "de9eff578c0910018fe043f602818e7dc094238d"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 La ciencia de los excesos ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Enero 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Nuestros jóvenes están repletos de vici",
+   "vector_id": 52,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0055",
+   "ids_legacy": [
+    "doc_0055"
+   ],
+   "titulo": "Amar al prójimo como a ti mismo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "2º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "3ETAPAfebAmar al prójimo como a ti mismo .compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-febrero\\3ETAPAfebAmar al prójimo como a ti mismo .compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 19570,
+    "calidad": "buena",
+    "sha1": "b4bee347c085725bf36fdd58e932245d52c23bd2"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones Responder: Despertar: - Dinámica - Reflexión - Confrontación - Contenido formativo - Modelo de vida - Palabra de Dios Acogida y Reconexión Amar al prójimo como a ti mismo ANTES IMPORTANTE En un mundo donde las redes sociales tienen t",
+   "vector_id": 53,
+   "num_chunks": 16
+  },
+  {
+   "id": "doc_0056",
+   "ids_legacy": [
+    "doc_0056"
+   ],
+   "titulo": "Amistades Auténticas",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Amistades Auténticas.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-febrero\\Amistades Auténticas.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 15672,
+    "calidad": "buena",
+    "sha1": "3f2e0a6c61ee454c9241fd84353a8b17eec4f2b6"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 Amistades auténticas ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Febrero 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Saber aceptarse implica reconocer lo valio",
+   "vector_id": 54,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0057",
+   "ids_legacy": [
+    "doc_0057"
+   ],
+   "titulo": "Amor Chatarra",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Amor Chatarra.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-febrero\\Amor Chatarra.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 13986,
+    "calidad": "buena",
+    "sha1": "d09e4028a9fbf222c164825ffdeffc3a1fb3c23a"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 Amor Chatarra ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Febrero 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? El amor es la base de nuestra vida cristiana. Cri",
+   "vector_id": 55,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0058",
+   "ids_legacy": [
+    "doc_0058"
+   ],
+   "titulo": "La Pureza",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La Pureza.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-febrero\\La Pureza.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 16855,
+    "calidad": "buena",
+    "sha1": "3c3c6ebff8074fec34c4e5e7ffed53d97ab15337"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 La Pureza ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Febrero 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? En esta edad, el adolescente vive nuevas experiencias",
+   "vector_id": 56,
+   "num_chunks": 16
+  },
+  {
+   "id": "doc_0060",
+   "ids_legacy": [
+    "doc_0060"
+   ],
+   "titulo": "Eres lo que comes: ¿con qué alimento mi alma?",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "tecnologia_redes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Eres lo que comes_compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-junio\\Eres lo que comes_compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 13455,
+    "calidad": "buena",
+    "sha1": "2ed103ec8c23b7dd0b9bdab45e549d46184cc731"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "ECYD MX-MTY JUNIO 2022 ¿CON QUÉ ALIMENTO MI ALMA? ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S •3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Hoy día es común que los medios de comunicaci",
+   "vector_id": 57,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0061",
+   "ids_legacy": [
+    "doc_0061"
+   ],
+   "titulo": "Está bien no estar bien (jornada)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "emociones",
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Está bien no estar bien_Jornada.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-junio\\Está bien no estar bien_Jornada.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10967,
+    "calidad": "media",
+    "sha1": "64050a2641bf0ab72716d252995916faabe34297"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "ECYD MX-MTY JUNIO 2022 ESTA BIEN NO ESTAR BIEN 3era etapa éPor qué es importante este tema? Vivimos en una sociedad en donde general- mente las personas pretenden estar bien siem- pre, sin embargo, no siempre sabemos lo que estan viviendo por dentro. Muchas veces nosotros mismos ",
+   "vector_id": 58,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0062",
+   "ids_legacy": [
+    "doc_0062"
+   ],
+   "titulo": "Materialismo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "servicio_social"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Materialismo.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-junio\\Materialismo.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11325,
+    "calidad": "buena",
+    "sha1": "70ff882ce236a6a757f16d975e0eca67dd0fd1e1"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 MATERIALISMO ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S •3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Es necesario hablar de la verdadera felicidad, que no se ba",
+   "vector_id": 59,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0063",
+   "ids_legacy": [
+    "doc_0063"
+   ],
+   "titulo": "Si Dios es bueno",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "fe_razones"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Si Dios es bueno.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-marzo\\Si Dios es bueno.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-marzo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 15312,
+    "calidad": "buena",
+    "sha1": "6ecf92971e03a286a42407d5b0791c717013af65"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v SI DIOS ES BUENO, ¿POR QUÉ EXISTE EL MAL? ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Marzo 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Como responsable del E",
+   "vector_id": 60,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0064",
+   "ids_legacy": [
+    "doc_0064"
+   ],
+   "titulo": "María, una madre que me quiere como soy",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "2º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "1 mayo 3ra etapa.compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-mayo\\1 mayo 3ra etapa.compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11191,
+    "calidad": "buena",
+    "sha1": "25399c714c551fb35f666931182629e951e1c5e2"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "María, una madre que me quiere como soy 2º DE SECUNDARIA En esta etapa el adolescente tiende a sentirse solo y poco comprendido, por lo que necesita una figura materna de amor incondicional, y un buen modelo de vida. Hay que ayudarles a comprender que a pesar de sus errores puede",
+   "vector_id": 61,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0065",
+   "ids_legacy": [
+    "doc_0065"
+   ],
+   "titulo": "Homosexualidad",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "2º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "3 mayo 3ra etapa.compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-mayo\\3 mayo 3ra etapa.compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 13189,
+    "calidad": "buena",
+    "sha1": "01e28c07fd2f22a7fd7a03c7aa5879302b2a78b3"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Homosexualidad 2º DE SECUNDARIA En la etapa de la adolescencia se empiezan a crear dudas acerca de la sexualidad y de cómo alguien comienza a ser atraído por su mismo sexo. El adolescente con conflictos relacionados con sus sentimientos sexuales debe, en este momento, enfrentarse",
+   "vector_id": 62,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0066",
+   "ids_legacy": [
+    "doc_0066"
+   ],
+   "titulo": "Qué es el perdón",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Qué es el perdón.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-mayo\\Qué es el perdón.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11908,
+    "calidad": "buena",
+    "sha1": "614e1daf37f3c2991e7215c6b58b6b2ff2923e81"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v ¿QUÉ ES EL PERDÓN? PORQUÉ PERDONAR ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Mayo 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Hoy en día, el adolescente, al",
+   "vector_id": 63,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0067",
+   "ids_legacy": [
+    "doc_0067"
+   ],
+   "titulo": "El Rally de María (rally espiritual)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Rally Espiritual.docx.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-mayo\\Rally Espiritual.docx.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 6587,
+    "calidad": "buena",
+    "sha1": "8cefdb78a51ae173d1375c85523386fee2429dcd"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "El Rally de María La actividad consta de un rally espiritual, el cual tiene 4 estaciones. La finalidad del rally es que los adolescentes hagan la experiencia de la realidad de nuestro pecado y cómo María siempre es una madre que nos acoge y consuela en nuestra debilidad y en los ",
+   "vector_id": 64,
+   "num_chunks": 4
+  },
+  {
+   "id": "doc_0068",
+   "ids_legacy": [
+    "doc_0068"
+   ],
+   "titulo": "En esta Navidad quién eres",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico",
+    "maria"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "navidad"
+   },
+   "fuente": {
+    "archivo": "En esta Navidad quién eres.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-navidad\\En esta Navidad quién eres.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-navidad",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 12621,
+    "calidad": "buena",
+    "sha1": "aff8fac4eac8be06b27aa92b3025609c385b11ce"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 ¿En esta Navidad quién eres? ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Diciembre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? En nuestra vida hay muchos reyes",
+   "vector_id": 65,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0069",
+   "ids_legacy": [
+    "doc_0069"
+   ],
+   "titulo": "La fidelidad a Cristo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "2º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "3ETAPAnovLAFIDELIDAD.compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-noviembre\\3ETAPAnovLAFIDELIDAD.compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 15648,
+    "calidad": "buena",
+    "sha1": "56dcf0bf5fa85d42aa625db33ad64b48ae2d2347"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Rincón de la oración Convicciones y decisiones Responder: Despertar: - Dinámica - Reflexión - Confrontación - Contenido formativo - Modelo de vida - Palabra de Dios Acogida y Reconexión La fidelidad a Cristo cuesta la vida ANTES IMPORTANTE A esta edad, nuestra autenticidad como c",
+   "vector_id": 66,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0070",
+   "ids_legacy": [
+    "doc_0070"
+   ],
+   "titulo": "Quiubole con la Iglesia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Quiubole con la Iglesia.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-noviembre\\Quiubole con la Iglesia.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 18205,
+    "calidad": "buena",
+    "sha1": "88dc7c2d4d6aa83124811903d82c01a9d87c3215"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v Quíubole con la Iglesia ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Noviembre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Todos nosotros, quienes hemos sido b",
+   "vector_id": 67,
+   "num_chunks": 18
+  },
+  {
+   "id": "doc_0071",
+   "ids_legacy": [
+    "doc_0071"
+   ],
+   "titulo": "I pray",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "oracion",
+    "sacramentos",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "I pray.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-octubre\\I pray.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 13913,
+    "calidad": "buena",
+    "sha1": "4086efde024d09fbae449c40661a5ca06292607c"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v I pray ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Octubre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Un cristiano que no reza, no puede tener una relación r",
+   "vector_id": 68,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0072",
+   "ids_legacy": [
+    "doc_0072"
+   ],
+   "titulo": "Jesucristo, una guía en mi camino",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Jesucristo, una guía_compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-octubre\\Jesucristo, una guía_compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 16352,
+    "calidad": "buena",
+    "sha1": "52f8fb6d33506f405d9134bf3203f799cb934e04"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "ECYD MX-MTY JUNIO 2021 Jesucristo, una guía en mi camino ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Octubre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Tomar en cuenta que, en este ",
+   "vector_id": 69,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0073",
+   "ids_legacy": [
+    "doc_0073"
+   ],
+   "titulo": "Razones de mi fe",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "fe_razones",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Razones de mi fe.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-octubre\\Razones de mi fe.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11985,
+    "calidad": "buena",
+    "sha1": "93e947b01aab77c493cf47e230fa067d14c6f637"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022v Razones de mi fe ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Octubre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR Paliacates Velas Crucifijos ¿Qué necesito PREPARAR? ¿Cuáles son las IDEAS CLAVE",
+   "vector_id": 70,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0074",
+   "ids_legacy": [
+    "doc_0074"
+   ],
+   "titulo": "Soy ECYD, soy Iglesia, soy de Cristo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "iglesia",
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Soy ECYD, soy Iglesia, soy de Cristo (1)_compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-septiembre\\Soy ECYD, soy Iglesia, soy de Cristo (1)_compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 15641,
+    "calidad": "buena",
+    "sha1": "fe8cc7d260eb2ff5fde55974c21e9b23cb4eb2b4"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Soy ECYD, soy Iglesia, soy de Cristo ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Septiembre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR Un paliacate Audífonos Ipad o computadora, bocina, tener ",
+   "vector_id": 71,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0075",
+   "ids_legacy": [
+    "doc_0075"
+   ],
+   "titulo": "Un camino hacia mi meta",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    3
+   ],
+   "idioma": "es",
+   "temas": [
+    "vocacion_sentido",
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Un camino hacia mi meta (1)_compressed.pdf",
+    "ruta": "E:\\ECyD\\3ra-etapa-fichas\\3ra-etapa-septiembre\\Un camino hacia mi meta (1)_compressed.pdf",
+    "carpeta": "3ra-etapa-fichas/3ra-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 11272,
+    "calidad": "buena",
+    "sha1": "4698cf82bd2598ed51a05ae48db34a8421b42cf9"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Un camino hacia mi meta ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S • Septiembre 3era etapa ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR Material para hacer el muro de la dinámica. ¿Qué necesito PREPARAR? 1.",
+   "vector_id": 72,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0076",
+   "ids_legacy": [
+    "doc_0076"
+   ],
+   "titulo": "Cristo Rey",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico",
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cristo_rey"
+   },
+   "fuente": {
+    "archivo": "Cristo Rey.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-cristo-rey\\Cristo Rey.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-cristo-rey",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 17434,
+    "calidad": "media",
+    "sha1": "54d0c97cffa579c268a339aedd58cb082d9ebb97"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Cristo Rey Octubre 4ta etapa om éPor qué es IMPORTANTE este tema? ie En nuestra vida es muy facil dejarnos conquistar por el reino del mundo. Los adolescentes de esta edad estan expuestos a falsos dioses que les venden una felicidad de humo y no dejan a Cri",
+   "vector_id": 73,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0077",
+   "ids_legacy": [
+    "doc_0077"
+   ],
+   "titulo": "La Pascua",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cuaresma"
+   },
+   "fuente": {
+    "archivo": "La Pascua.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-cuaresma\\La Pascua.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-cuaresma",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12370,
+    "calidad": "media",
+    "sha1": "58a5d12329836b994f2157d2f75d642cd92baa65"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 La Pascua... Marzo © 4ta etapa : s a o if O° El Domingo de Resurrecci6n o para todos los catdlicos, ya que ¢ adquiere sentido toda nuestra con esto nos abrié las puertas d| La Resurrecci6n de Jesus es u! otras, son el sepulcro vacio y las sus apdstoles. Cua",
+   "vector_id": 74,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0078",
+   "ids_legacy": [
+    "doc_0078"
+   ],
+   "titulo": "Sabana Santa mito o realidad",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "fe_razones"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "cuaresma"
+   },
+   "fuente": {
+    "archivo": "Sabana Santa_ mito o realidad.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-cuaresma\\Sabana Santa_ mito o realidad.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-cuaresma",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 17560,
+    "calidad": "media",
+    "sha1": "b913c11e702d820aab4ed60ef2a364f3e3d72474"
+   },
+   "overrides": [],
+   "resumen": "0 Ea éPor qué es IMPORTANTE este tema? La Sabana Santa es la prueba fisica de que Jesus nosotros en la cruz. A través dé la Sabana Sani pueden confirmar que los hechos veridicos. Y mas que proporcionar dai fe. Tu, responsable, al darles este tet las respuestas a aquellas dudas q ",
+   "vector_id": 75,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0079",
+   "ids_legacy": [
+    "doc_0079"
+   ],
+   "titulo": "Amor a mi mismo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "diciembre",
+    "meses_originales": [
+     "diciembre"
+    ],
+    "mes_argentino": "junio",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Amor a mi mismo.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-diciembre\\Amor a mi mismo.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-diciembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 13569,
+    "calidad": "media",
+    "sha1": "f8ee87a6c2abf1879d28db5533c1171288f0b2cf"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Amoramimismo Diciembre © 4ta etapa éPor qué es IMPORTANTE este tema? o> Los adolescentes de esta edad no se saben valorar. Ponen su ciales. No entienden que la bell rior y quieren alcanzar estereot} éCOmo esta mi EQUIPO? - eLos adolescentes de mi equip - Qu",
+   "vector_id": 76,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0080",
+   "ids_legacy": [
+    "doc_0080"
+   ],
+   "titulo": "El camino del corazón",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad",
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El camino del corazón_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-enero\\El camino del corazón_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 16673,
+    "calidad": "media",
+    "sha1": "dc9e5c36431131f083d9e937cb300529fee629d2"
+   },
+   "overrides": [],
+   "resumen": "oe.) éPor qué es IMPORTANTE este tema? Frente a ti tienes un grupo d@j6venes Que estan Viviendo muchos cambios, cambios que implica la CUrosidad, el amor, la amistad, entre otras cosas. Es importanté @ue ellos aprendan a diferenciar las emociones y los sentimientos, cOMOSOn la am",
+   "vector_id": 77,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0082",
+   "ids_legacy": [
+    "doc_0082"
+   ],
+   "titulo": "Panel: ellas/ellos dicen",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "3º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "enero",
+    "meses_originales": [
+     "enero"
+    ],
+    "mes_argentino": "julio_agosto",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Panel Enero (1).pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-enero\\Panel Enero (1).pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-enero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 10963,
+    "calidad": "buena",
+    "sha1": "ca38b57ff7836b2fc15825f59eb3f47b6c238dcd"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "PANEL ELLAS/ELLOS DICEN 3º DE SECUNDARIA Se busca responder a la necesidad de acercarse al otro y comunicarse con él/ella. Es un momento para que se den cuenta qué sienten y qué experimentan, pues ayuda conocer las diferencias entre nosotros, para lograr una mejor comprensión de ",
+   "vector_id": 78,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0083",
+   "ids_legacy": [
+    "doc_0083"
+   ],
+   "titulo": "Amar, ¿para toda la vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Amar, ¿para toda la vida_.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-febrero\\Amar, ¿para toda la vida_.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15301,
+    "calidad": "media",
+    "sha1": "1b9377b06afe5d8b868f4bd0d0ed8342eae6ffe2"
+   },
+   "overrides": [],
+   "resumen": "éPor qué es IMPORTANTE este tema? éExiste el amor para toda la vida? Esta es una pregunta que todos nos hemos planteado muchas veces. hay personas que suenan con encon- trar su amor para toda la vida y esto lo hacen en una sociedad que esta en una busqueda constante del amor, per",
+   "vector_id": 79,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0084",
+   "ids_legacy": [
+    "doc_0084"
+   ],
+   "titulo": "El Amor Verdadero",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El Amor Verdadero.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-febrero\\El Amor Verdadero.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 17182,
+    "calidad": "media",
+    "sha1": "1a2582558969aea232c0ba738dc15ce7cf6c3ec0"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 El amor verdadero Febrero 4ta etapa éPor qué es IMPORTANTE este tema? C& A los jovenes de hoy en dia les ha tocado desenvolverse en un mundo bombardeado por el egoismo, la lujuria, la vanidad, etc. Donde el amor verdadero es opacado por un amor interesado d",
+   "vector_id": 80,
+   "num_chunks": 14
+  },
+  {
+   "id": "doc_0085",
+   "ids_legacy": [
+    "doc_0085"
+   ],
+   "titulo": "Panel del amor",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "vocacion_sentido"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "febrero",
+    "meses_originales": [
+     "febrero"
+    ],
+    "mes_argentino": "agosto_septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Panel del amor_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-febrero\\Panel del amor_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-febrero",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 10816,
+    "calidad": "media",
+    "sha1": "30a136296c636ac9126de48fd4a1077d570b9918"
+   },
+   "overrides": [],
+   "resumen": "[S) ANTES éPor qué es IMPORTANTE este tema? Que conozcan que Dios piensa persona y hay que descubrirla. En amor verdadero. éCé6mo esta mi EQUIPO? z a, - eSaben lo que significa \"vocaci6n\"? - éTienen conciencia de que todos - €Qué vocaciones conocen? - eSaben a profundidad lo que ",
+   "vector_id": 81,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0086",
+   "ids_legacy": [
+    "doc_0086"
+   ],
+   "titulo": "Falta Eva (jornada para chicas)",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Falta Eva_Jornada(niñas).pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-junio\\Falta Eva_Jornada(niñas).pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11975,
+    "calidad": "media",
+    "sha1": "828909a87a549dea431d4c40990d9d58747511cf"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "éPor qué es importante este tema? En estos tiempos hemos confundido el valor y la necesidad de la mujer. Al igual que Adan, Eva es imagen de Dios enla tierra. La mayorfa de las mujeres piensan que tienen que Ilenar una expectativa y se esfuerzan demasiado por ser la mujer que “de",
+   "vector_id": 82,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0087",
+   "ids_legacy": [
+    "doc_0087"
+   ],
+   "titulo": "Mi Forma de Amar",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "afectividad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "junio",
+    "meses_originales": [
+     "junio"
+    ],
+    "mes_argentino": "diciembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Mi Forma de Amar_compressed.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-junio\\Mi Forma de Amar_compressed.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-junio",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 12581,
+    "calidad": "buena",
+    "sha1": "7debef80396452bd0c39a302d54ea880ee473fc4"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2022 MI FORMA DE AMAR ENC U E N T R OS • C O N V IC C IONES • DECIS IO N E S •4ta etapa Niñas ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ANTES ANTES DESPERTAR RESPONDERACOM PAÑAR ¿Por qué es importante este tema? Hoy en día las adolescentes ya no se sienten tan q",
+   "vector_id": 83,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0088",
+   "ids_legacy": [
+    "doc_0088"
+   ],
+   "titulo": "Anexo de Marzo 3",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "sacramentos",
+    "iglesia",
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [
+    "3º de secundaria"
+   ],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Anexo de Marzo 3.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-marzo-y-abril\\Anexo de Marzo 3.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 5499,
+    "calidad": "buena",
+    "sha1": "944ee5793538c9950c8b399257a93eca24426f9e"
+   },
+   "overrides": [],
+   "resumen": "Guía de preguntas sobre la fe 3º DE SECUNDARIA Marzo 1. ¿Por qué crees en Dios? Creemos porque podemos creer, porque el hombre es capaz de Dios. Dios sale a nuestro encuentro y el hombre puede responder a Dios. Creemos y buscamos a Dios pues Él ha puesto en nuestro corazón el des",
+   "vector_id": 84,
+   "num_chunks": 4
+  },
+  {
+   "id": "doc_0089",
+   "ids_legacy": [
+    "doc_0089"
+   ],
+   "titulo": "El Sentido de mi Vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "vocacion_sentido"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El Sentido de mi Vida.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-marzo-y-abril\\El Sentido de mi Vida.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 14105,
+    "calidad": "media",
+    "sha1": "4945f9d272d72bed05455534752e70016bf80d2c"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY Marzo EI sentido de mi vida 4ta etapa éPor qué es IMPORTANTE este tema? ‘ El sentido de la vida, para un adolescente, es muy importante para poder conformar su personalidad. Se da como parte de un proceso construccién personal que, de forma constante y dinamica, ayu e",
+   "vector_id": 85,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0090",
+   "ids_legacy": [
+    "doc_0090"
+   ],
+   "titulo": "Es tu vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Es tu vida_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-marzo-y-abril\\Es tu vida_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 17747,
+    "calidad": "media",
+    "sha1": "31817f58855dd531e02d0ac32f497d73663585d2"
+   },
+   "overrides": [],
+   "resumen": "éPor qué este tema ES IMPORTANTE? Cada ser humano es amado profundamente por Dios, adn antes de haber nacido. Esto significa que ningun ser humano viene a este mundo por pura casualidad, sino que Dios es quien lo llama a la exis- tencia. De ahi nuestra concepcidn sobre la sacrali",
+   "vector_id": 86,
+   "num_chunks": 13
+  },
+  {
+   "id": "doc_0091",
+   "ids_legacy": [
+    "doc_0091"
+   ],
+   "titulo": "Razones para creer",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "fe_razones"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "marzo",
+    "meses_originales": [
+     "marzo",
+     "abril"
+    ],
+    "mes_argentino": "septiembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Razones para creer_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-marzo-y-abril\\Razones para creer_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-marzo-y-abril",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15082,
+    "calidad": "media",
+    "sha1": "417cd4e120197eadb5c21f4e8eaa3db324859d03"
+   },
+   "overrides": [],
+   "resumen": "(o) éPor qué es IMPORTANTE este tema? La adolescencia es una época dificil. Surgen dudas ante ciertas verdades de la fe, pueden sentirse defraudados por la religidn o sus instituciones cuando perciben que no satisfacen sus exigencias, 0 por su vacio afectivo y el no encontrar sen",
+   "vector_id": 87,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0092",
+   "ids_legacy": [
+    "doc_0092"
+   ],
+   "titulo": "María, Lifecoach",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "maria"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "María, Lifecoach_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-mayo\\María, Lifecoach_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12307,
+    "calidad": "media",
+    "sha1": "0243c67e537141a7c81e29c0d30b61c1ebf3e23f"
+   },
+   "overrides": [],
+   "resumen": "cs) ANTES éPor qué este tema ES IMPORTANTE? Es importante que sepan, en este momento de su vida en dong enfrentan a decisiones importantes que los iran construyendo, que no estan solos, que tienen a Maria como madre, quien los acompafia y &: modelo de vida. La Iglesia nos ensefia",
+   "vector_id": 88,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0093",
+   "ids_legacy": [
+    "doc_0093"
+   ],
+   "titulo": "RC, un estilo de vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "mayo",
+    "meses_originales": [
+     "mayo"
+    ],
+    "mes_argentino": "noviembre",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "RC, un estilo de vida.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-mayo\\RC, un estilo de vida.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-mayo",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 14012,
+    "calidad": "media",
+    "sha1": "6efa1f04aca86add70a75fc5a0c829c1d4ac3b6e"
+   },
+   "overrides": [],
+   "resumen": "ro) a p ances | 4 éPor qué este tema ES IMPORTANTE? En el ECYD se vive el carisma del Movimiento Regnui do a los adolescentes. Es fundamental que los mie especialmente los de cuarta etapa, conozcan qué es el y cémo vive un miembro incorporado. Esto para que put narse y platicar c",
+   "vector_id": 89,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0094",
+   "ids_legacy": [
+    "doc_0094"
+   ],
+   "titulo": "Dios vino a salvar a los suyos",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "tiempo_liturgico"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": "navidad"
+   },
+   "fuente": {
+    "archivo": "Dios vino a salvar a los suyos.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-navidad\\Dios vino a salvar a los suyos.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-navidad",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15020,
+    "calidad": "media",
+    "sha1": "df84901ed7c2a48071246bf5c34dc1ccc30c0938"
+   },
+   "overrides": [],
+   "resumen": "cs) ANTES éPor qué es IMPORTANTE este tema? El adviento es tiempo de conve} de la primera venida del Salvaq bién espera/suplica de la ultima historia y juez universal; conve} Liturgia de este tiempo. Por esd centes comprendan y sean cong cada uno de nosotros, que haga reconozcan ",
+   "vector_id": 90,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0095",
+   "ids_legacy": [
+    "doc_0095"
+   ],
+   "titulo": "Apóstol en mi vida diaria",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Apóstol en mi vida diaria.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-noviembre\\Apóstol en mi vida diaria.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15408,
+    "calidad": "media",
+    "sha1": "6215ef4e7f5042643df7d16848e6e9ac5f632b77"
+   },
+   "overrides": [],
+   "resumen": "(o) éPor qué es IMPORTANTE este tema? Es importante que se entienda que el Ser apdstol es una tarea que se construye todos los dias y que esta implicado sobre todo lo que somos, no tanto lo que hacemos, aunque esto Ultimo es un reflejo de lo que vamos construyendo en nosotros mis",
+   "vector_id": 91,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0096",
+   "ids_legacy": [
+    "doc_0096"
+   ],
+   "titulo": "Mi misión en esta vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "noviembre",
+    "meses_originales": [
+     "noviembre"
+    ],
+    "mes_argentino": "mayo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Mi misión en esta vida.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-noviembre\\Mi misión en esta vida.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-noviembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15974,
+    "calidad": "media",
+    "sha1": "63883f13fb7f88baab42fa63318059b139bbf6ee"
+   },
+   "overrides": [],
+   "resumen": "0 Ea éPor qué es IMPORTANTE este tema? Es una etapa en la que el adolescente esta centrado en si mismo y piensa que todo gira alrededor de él, a la vez hay un poco de incoherencia entre su pertenencia al ECYD y su vida cotidiana. Por lo tanto, es importante que tomen conciencia d",
+   "vector_id": 92,
+   "num_chunks": 12
+  },
+  {
+   "id": "doc_0097",
+   "ids_legacy": [
+    "doc_0097"
+   ],
+   "titulo": "Dios actúa en el mundo",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "fe_razones"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Dios actúa en el mundo.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-octubre\\Dios actúa en el mundo.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 15633,
+    "calidad": "media",
+    "sha1": "f60f4d40d98ddc4549d9c4285499c2accf2e7940"
+   },
+   "overrides": [],
+   "resumen": "oe) éPor qué es IMPORTANTE este tema? En esta etapa, los problemas y/o dificultades que enfrentan los adolescentes pueden provocar dudas acerca de la existencia de Dios. Una interrogante del adolescente en este momento es: “gpor qué, si Dios es bueno, permite el mal en el mundo? ",
+   "vector_id": 93,
+   "num_chunks": 11
+  },
+  {
+   "id": "doc_0098",
+   "ids_legacy": [
+    "doc_0098"
+   ],
+   "titulo": "Jesucristo en mi vida",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo",
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Jesucristo en mi vida.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-octubre\\Jesucristo en mi vida.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 13158,
+    "calidad": "media",
+    "sha1": "e39ceb071947e7ae8a5f5eeb5389893a6e293c6a"
+   },
+   "overrides": [],
+   "resumen": "éPor qué es IMPORTANTE este tema? La esencia de todo cristiano ral y no solamente en el hecho ECYD, los adolescentes sabe! (o) puede tener, por ello hay que By éC6mo esta mi EQUIPO? éQuién es Jesus para cada uno éTienen una amistad con El? ¢G ¢Estd presente en sus vidas? ¢éBuscan",
+   "vector_id": 94,
+   "num_chunks": 10
+  },
+  {
+   "id": "doc_0099",
+   "ids_legacy": [
+    "doc_0099"
+   ],
+   "titulo": "Soy Redimido",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "octubre",
+    "meses_originales": [
+     "octubre"
+    ],
+    "mes_argentino": "abril",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Soy Redimido.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-octubre\\Soy Redimido.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-octubre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 9563,
+    "calidad": "media",
+    "sha1": "1fd7669fd1e17ce0a4be369cf5929312f72e2a93"
+   },
+   "overrides": [],
+   "resumen": "ECYD MX-MTY JUNIO 2020 Soy Redimido Octubre 4ta etapa éPor qué es IMPORTANTE este tema? El adolescente debe saber la importancia de la redenci6n en su vida y tener conciencia de que no es un acto cualquiera sino un acto de amor absoluto. En la cruz Cristo entreg6 su vida para res",
+   "vector_id": 95,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0100",
+   "ids_legacy": [
+    "doc_0100"
+   ],
+   "titulo": "RC, un camino dento de la Iglesia",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "4ta etapa_RC, un camino dento de la Iglesia.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-septiembre\\4ta etapa_RC, un camino dento de la Iglesia.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11461,
+    "calidad": "media",
+    "sha1": "482e9a6a9a7dabedb4705dd9d9eb305606519c30"
+   },
+   "overrides": [],
+   "resumen": "éPor qué es IMPORTANTE este tema? Como catdlicos debemos ser siempre obedientes a las ensefi Iglesia y por lo tanto también del Papa, para lo cual es necesart que nos dicen. El ECYD es un camino dentro de la Iglesia ensefia a amarla junto con el Papa. Este camino no termina des} ",
+   "vector_id": 96,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0101",
+   "ids_legacy": [
+    "doc_0101"
+   ],
+   "titulo": "Ser ECYD",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "4ta etapa_Ser ECYD.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-septiembre\\4ta etapa_Ser ECYD.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 12763,
+    "calidad": "media",
+    "sha1": "aa313dd33151966f4283108dde89a73642587a89"
+   },
+   "overrides": [],
+   "resumen": "éPor qué es IMPORTANTE este tema? prim rencu ro de la cuarta etapa, por lo que tus la vida del ECYD y saben que son parte de algo: muy especial. Como respongabley eS importante Necer mucho énfasis en la idea de que no Van oO estan en el ECYD) Sino Gule son ECYD, porque Dios los h",
+   "vector_id": 97,
+   "num_chunks": 9
+  },
+  {
+   "id": "doc_0102",
+   "ids_legacy": [
+    "doc_0102"
+   ],
+   "titulo": "Sinceridad",
+   "tipo": "ficha",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [
+    4
+   ],
+   "idioma": "es",
+   "temas": [
+    "conciencia_virtudes"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": "escolar_mexico",
+    "mes_original": "septiembre",
+    "meses_originales": [
+     "septiembre"
+    ],
+    "mes_argentino": "marzo",
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Sinceridad_4ta etapa.pdf",
+    "ruta": "E:\\ECyD\\4ta-etapa-fichas\\4ta-etapa-septiembre\\Sinceridad_4ta etapa.pdf",
+    "carpeta": "4ta-etapa-fichas/4ta-etapa-septiembre",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 11745,
+    "calidad": "media",
+    "sha1": "3e94bb5ef3fc7187a40db2e0fddd690441f54638"
+   },
+   "overrides": [],
+   "resumen": "oe.) éPor qué es IMPORTANTE este tema? La sinceridad es una virtud de SUPMesIMapor tence ya Gjue COMO hijos de Dios estamos Ilamados a vivir en lelWerGeideSin embargo, else sinceros va mucho mas alla de simplemente@seein laiverdad, implica el Ser inte= gros en todo momento y actu",
+   "vector_id": 98,
+   "num_chunks": 8
+  },
+  {
+   "id": "doc_0103",
+   "ids_legacy": [
+    "doc_0103"
+   ],
+   "titulo": "ECyD Statutes (inglés)",
+   "tipo": "documento_oficial",
+   "autoridad": {
+    "nivel": 1,
+    "descripcion": "Estatutos del ECyD"
+   },
+   "etapas": [],
+   "idioma": "en",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "ECYD Statutes.pdf",
+    "ruta": "E:\\ECyD\\Documentos oficiales\\ECYD Statutes.pdf",
+    "carpeta": "Documentos oficiales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 52841,
+    "calidad": "buena",
+    "sha1": "88135c304b51e8c373203f761b5e05ec39bf702c"
+   },
+   "overrides": [
+    "titulo",
+    "autoridad_nivel"
+   ],
+   "resumen": "Copyright © Legionaries of Christ, 2016. ECYD Identity and Mission 5 ECYD STATUTES IDENTITY ECYD is an association − understood in the broad sense of the word − because it is a group with its own identity and structure. The “pledge of friendship with Christ and with each other to",
+   "vector_id": 99,
+   "num_chunks": 46
+  },
+  {
+   "id": "doc_0104",
+   "ids_legacy": [
+    "doc_0104"
+   ],
+   "titulo": "Estatutos del ECyD (español)",
+   "tipo": "documento_oficial",
+   "autoridad": {
+    "nivel": 1,
+    "descripcion": "Estatutos del ECyD"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "acompanamiento_formacion",
+    "amistad_con_cristo",
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Estatutos ECYD Esp.pdf",
+    "ruta": "E:\\ECyD\\Documentos oficiales\\Estatutos ECYD Esp.pdf",
+    "carpeta": "Documentos oficiales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 53877,
+    "calidad": "buena",
+    "sha1": "0bf0d742ecdb5d45352080bd974928bacad41dee"
+   },
+   "overrides": [
+    "titulo",
+    "autoridad_nivel"
+   ],
+   "resumen": "Derechos reservados © Legionarios de Cristo, 2016. Identidad y misión del ECYD 5 Estatutos del ECYD IDENTIDAD El término organización se entiende en sentido amplio: el ECYD es una organización porque es un grupo con una identidad propia y una estructura. La “alianza con Cristo y ",
+   "vector_id": 100,
+   "num_chunks": 47
+  },
+  {
+   "id": "doc_0105",
+   "ids_legacy": [
+    "doc_0105"
+   ],
+   "titulo": "Formando apóstoles en el ECyD",
+   "tipo": "documento_oficial",
+   "autoridad": {
+    "nivel": 2,
+    "descripcion": "Documento que explica el estilo y camino formativo del ECyD"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "acompanamiento_formacion",
+    "amistad"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Formando-apostoles-en-el-ECYD.pdf",
+    "ruta": "E:\\ECyD\\Documentos oficiales\\Formando-apostoles-en-el-ECYD.pdf",
+    "carpeta": "Documentos oficiales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 192550,
+    "calidad": "buena",
+    "sha1": "0463b20dddca061b880f6800dd5e072dc4a81e84"
+   },
+   "overrides": [
+    "titulo",
+    "autoridad_nivel"
+   ],
+   "resumen": "Formando apóstoles en el ECYD El estilo formativo del ECYD Formando apóstoles en el ECYD El estilo formativo del ECYD 3 Contenido Prólogo Tomo I: El ECYD: Una alianza de amistad con Cristo y entre nosotros. Introducción 1. Una alianza de amistad 2. La misión como parte constituti",
+   "vector_id": 101,
+   "num_chunks": 175
+  },
+  {
+   "id": "doc_0106",
+   "ids_legacy": [
+    "doc_0106"
+   ],
+   "titulo": "Contemplativos y evangelizadores",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Contemplativos y evangelizadores.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Contemplativos y evangelizadores.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 57803,
+    "calidad": "buena",
+    "sha1": "924874054d54ca0a35761eff74e47cbac56e4570"
+   },
+   "overrides": [],
+   "resumen": "Contemplativos y evangelizadores: apóstoles del Reino según el corazón de Cristo Este ensayo es parte de un proyecto del área de Vida y Misión de la Dirección General del Regnum Christi, que se propone impulsar el conocimiento profundo y la asimilación cordial del carisma a parti",
+   "vector_id": 102,
+   "num_chunks": 52
+  },
+  {
+   "id": "doc_0107",
+   "ids_legacy": [
+    "doc_0107"
+   ],
+   "titulo": "El Encuentro con Cristo en la vida del RC",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo",
+    "mision_apostolado",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "El Encuentro con Cristo en la vida del RC.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\El Encuentro con Cristo en la vida del RC.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 64231,
+    "calidad": "buena",
+    "sha1": "2f82a918e5c7695fc2c7811cc2dc1e21e908fc5e"
+   },
+   "overrides": [],
+   "resumen": "El Encuentro con Cristo en la vida del Regnum Christi Identidad, fundamento y dinámica www.regnumchristi.org #familiaRC I legionarios de Cristo • consagradas • laicos consagrados • laicos Sagrado Corazón 2022 Índice Presentación 6 PARTE I: El Encuentro con Cristo en la vida del R",
+   "vector_id": 103,
+   "num_chunks": 60
+  },
+  {
+   "id": "doc_0108",
+   "ids_legacy": [
+    "doc_0108"
+   ],
+   "titulo": "Instituyó a doce (ensayo)",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Ensayo-instituyo-a-los-doce.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Ensayo-instituyo-a-los-doce.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 71472,
+    "calidad": "buena",
+    "sha1": "41affe63f99482ed519df8a79b31e91be0108f15"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Instituyó a doce para que estuvieran con él y para enviarlos a predicar Las comunidades de apóstoles en el Regnum Christi Índice Índice Introducción 5 Parte I: Comunidades de apóstoles en la Sagrada Escritura 7 I. Cristo el Apóstol del Padre 7 II. Los apóstoles del Reino 8 “Llamó",
+   "vector_id": 104,
+   "num_chunks": 75
+  },
+  {
+   "id": "doc_0109",
+   "ids_legacy": [
+    "doc_0109"
+   ],
+   "titulo": "Las parábolas del Reino (ensayo)",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Ensayo-las-parabolas-del-reino.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Ensayo-las-parabolas-del-reino.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 33724,
+    "calidad": "buena",
+    "sha1": "d68d7615f66c819bc74527f928a1c1cb83af9d2c"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "Las parábolas del Reino como criterio de discernimiento ¡Venga tu Reino! Autora: Tais Gea - Consagrada del Regnum Christi Edición y revisión: Área de Vida y Misión de la Dirección General del Regnum Christi #RegnumChristi I legionarios de Cristo • consagradas • laicos consagrados",
+   "vector_id": 105,
+   "num_chunks": 33
+  },
+  {
+   "id": "doc_0110",
+   "ids_legacy": [
+    "doc_0110"
+   ],
+   "titulo": "¡Aquí estoy, porque me has llamado! (ensayo)",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "vocacion_sentido",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Ensayo_Aqui_Estoy.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Ensayo_Aqui_Estoy.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 66228,
+    "calidad": "buena",
+    "sha1": "98af529e59fd626e99ae7c50ee84c7073a97c92a"
+   },
+   "overrides": [
+    "titulo"
+   ],
+   "resumen": "¡Aquí estoy, porque me has llamado! Cultura, pastoral y promoción vocacional en el Regnum Christi #RegnumChristi I legionarios de Cristo • consagradas • laicos consagrados • laicos I 3 Índice Índice Introducción ....................................................................",
+   "vector_id": 106,
+   "num_chunks": 57
+  },
+  {
+   "id": "doc_0111",
+   "ids_legacy": [
+    "doc_0111"
+   ],
+   "titulo": "La alianza de amistad con Cristo",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo",
+    "amistad",
+    "mision_apostolado"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La alianza de amistad con Cristo.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\La alianza de amistad con Cristo.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 35091,
+    "calidad": "buena",
+    "sha1": "0b0d52052c8058ba40afe378639f1e39e860525c"
+   },
+   "overrides": [],
+   "resumen": "La alianza de amistad con Cristo y entre nosotros. ECYD: El carisma del Regnum Christi vivido por los adolescentes Índice 2 I La alianza de amistad con Cristo y entre nosotros. Índice Oración de la alianza con Cristo en el ECYD 3 Introducción 4 Una alianza de amistad 7 Amistad co",
+   "vector_id": 107,
+   "num_chunks": 28
+  },
+  {
+   "id": "doc_0112",
+   "ids_legacy": [
+    "doc_0112"
+   ],
+   "titulo": "La formación del apostol del Reino",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "acompanamiento_formacion",
+    "reino",
+    "iglesia"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "La formación del apostol del Reino.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\La formación del apostol del Reino.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 42570,
+    "calidad": "buena",
+    "sha1": "1a5a52797a8f1773b6eb22ff731dee9e2f670462"
+   },
+   "overrides": [],
+   "resumen": "#RegnumChristi I legionarios de Cristo • consagradas • laicos consagrados • laicos I 1 Índice La formación del apóstol del Reino Orientaciones formativas para el laico del Regnum Christi #RegnumChristi I legionarios de Cristo • consagradas • laicos consagrados • laicos I 3 Índice",
+   "vector_id": 108,
+   "num_chunks": 39
+  },
+  {
+   "id": "doc_0113",
+   "ids_legacy": [
+    "doc_0113"
+   ],
+   "titulo": "The pledge of friendship with Christ and with each other",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "en",
+   "temas": [],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "The pledge of friendship with Christ and with each other.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\The pledge of friendship with Christ and with each other.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 35427,
+    "calidad": "buena",
+    "sha1": "7844f2adc68f96a7c6bbdf67689ba01893fda7b7"
+   },
+   "overrides": [],
+   "resumen": "The pledge of friendship with Christ and with each other ECYD: The Regnum Christi Charism lived by adolescents Contents 2 I The pledge of friendship with Christ and with each other Contents Prayer of the Pledge of Friendship with Christ 3 Introduction 4 A Pledge of Friendship 7 F",
+   "vector_id": 109,
+   "num_chunks": 29
+  },
+  {
+   "id": "doc_0114",
+   "ids_legacy": [
+    "doc_0114"
+   ],
+   "titulo": "Vive el misterio del Reino",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Vive el misterio del Reino.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Vive el misterio del Reino.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 61459,
+    "calidad": "buena",
+    "sha1": "c3cfd5a3ac8b50c7609a5bfe94a6428d34485a29"
+   },
+   "overrides": [],
+   "resumen": "Vive el misterio del Reino Hazlo presente en tu corazón, en el corazón de los hombres y en la sociedad Este ensayo busca profundizar en el misterio del Reino de Cristo para vivir mejor nuestra identidad como miembros del Regnum Christi. Es parte de un proyecto del área de vida y ",
+   "vector_id": 110,
+   "num_chunks": 53
+  },
+  {
+   "id": "doc_0115",
+   "ids_legacy": [
+    "doc_0115"
+   ],
+   "titulo": "Vivir y hacer presente el misterio de Cristo",
+   "tipo": "ensayo",
+   "autoridad": {
+    "nivel": 3,
+    "descripcion": "Material oficial de etapas, itinerarios y espiritualidad"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "iglesia",
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Vivir y hacer presente el misterio de Cristo.pdf",
+    "ruta": "E:\\ECyD\\Ensayos RC +ECyD\\Vivir y hacer presente el misterio de Cristo.pdf",
+    "carpeta": "Ensayos RC +ECyD",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 42072,
+    "calidad": "buena",
+    "sha1": "a990072d1735d062c912c361fb2863e81de73695"
+   },
+   "overrides": [],
+   "resumen": "Índice Vivir y hacer presente el misterio de Cristo 5 • Introducción 6 • Hacer presente el misterio de Cristo 7 • Desentrañando el misterio de Cristo Apóstol del Reino 19 • La persona dentro del misterio: la experiencia del apóstol del Reino 28 Mapas e infografía conceptuales del",
+   "vector_id": 111,
+   "num_chunks": 33
+  },
+  {
+   "id": "doc_0116",
+   "ids_legacy": [
+    "doc_0116"
+   ],
+   "titulo": "Guía programa territorial",
+   "tipo": "programa_territorial",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "acompanamiento_formacion",
+    "oracion",
+    "sacramentos"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Guía programa territorial.pdf",
+    "ruta": "E:\\ECyD\\Programa territorial + How to ficha\\Guía programa territorial.pdf",
+    "carpeta": "Programa territorial + How to ficha",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 2224,
+    "calidad": "buena",
+    "sha1": "81873940acf5a1f77d5ca39c0298a4fcf0dcb85e"
+   },
+   "overrides": [],
+   "resumen": "E CY D M X -M T Y GUÍA PARA HACER TU PROGRAMA 1. ANÁLISIS DE TU EQUIPO ¿ Cómo están y qué necesitan tus adolescentes en este ámbito? ¿POR QUÉ? - Verdades de la fe, mandamientos y sacramentos. - Llamado a la santidad y al apostolado, amistad con Cristo, oración y vida de gracia, e",
+   "vector_id": 112,
+   "num_chunks": 2
+  },
+  {
+   "id": "doc_0117",
+   "ids_legacy": [
+    "doc_0117"
+   ],
+   "titulo": "How-to ficha",
+   "tipo": "programa_territorial",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "oracion"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "How-to ficha.pdf",
+    "ruta": "E:\\ECyD\\Programa territorial + How to ficha\\How-to ficha.pdf",
+    "carpeta": "Programa territorial + How to ficha",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "ocr",
+    "caracteres": 2014,
+    "calidad": "media",
+    "sha1": "012fdfb4f67c89c635b732f5f0274d0feb86d772"
+   },
+   "overrides": [],
+   "resumen": "HOW-TO FICHA DEL ECYD Guia practica de cémo se arma una ficha \"VEN ESPERTTU CREADOR, VISITA LAS ALMAS DE TUS FIELES Y LLENA DE DIVINA GRACTA LOS CORATONES QUE TU MISMO CREASTE” SAN RABANO MAURO, STGLO IJ ARMANDO TU FICHA Libro de trabajo <0 TITULO DE LA FICHA ETAPA é REZA 4 Ponte",
+   "vector_id": 113,
+   "num_chunks": 2
+  },
+  {
+   "id": "doc_0118",
+   "ids_legacy": [
+    "doc_0118"
+   ],
+   "titulo": "How-to programa territorial",
+   "tipo": "programa_territorial",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "mision_apostolado",
+    "acompanamiento_formacion",
+    "amistad",
+    "oracion"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "How-to programa territorial.pdf",
+    "ruta": "E:\\ECyD\\Programa territorial + How to ficha\\How-to programa territorial.pdf",
+    "carpeta": "Programa territorial + How to ficha",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 4348,
+    "calidad": "buena",
+    "sha1": "88c9f6749104fa2cbe01eabfee7f1ee809232ca9"
+   },
+   "overrides": [],
+   "resumen": "WWW.ECYD.LAT PROGRAMA TERRITORIAL DEL ECYD Guía práctica del programa territorial del ECYD “EL FIN DE LA FORMACIÓN CRISTIANA ES LA CONFOR- MACIÓN DE LA PERSONA CON CRISTO” cf. ROM 8,29 Considerando las dimensiones de la persona, las necesidades concretas de los adolescentes, el c",
+   "vector_id": 114,
+   "num_chunks": 5
+  },
+  {
+   "id": "doc_0119",
+   "ids_legacy": [
+    "doc_0119"
+   ],
+   "titulo": "Subsidio sesión",
+   "tipo": "programa_territorial",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "acompanamiento_formacion",
+    "oracion"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Subsidio sesión.pdf",
+    "ruta": "E:\\ECyD\\Programa territorial + How to ficha\\Subsidio sesión.pdf",
+    "carpeta": "Programa territorial + How to ficha",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 2259,
+    "calidad": "buena",
+    "sha1": "057534394ab07c76cbd298445e5a2006e99e29a3"
+   },
+   "overrides": [],
+   "resumen": "HOW-TO SESIÓN DEL ECYD Guía práctica de cómo se da una sesión del ECYD WWW.ECYD.LAT “HAY DE MÍ SI NO EVANGELIZARA” 1 COR 9, 16 La pedagogía utilizada en la reunión formativa se puede resumir en despertar, responder y acompañar. Esta pedagogía va precedida por un momento de prepar",
+   "vector_id": 115,
+   "num_chunks": 3
+  },
+  {
+   "id": "doc_0120",
+   "ids_legacy": [
+    "doc_0120"
+   ],
+   "titulo": "Haz tu retiro",
+   "tipo": "retiro",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "retiros"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Haz tu retiro.pdf",
+    "ruta": "E:\\ECyD\\Retiros espirituales\\Haz tu retiro.pdf",
+    "carpeta": "Retiros espirituales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 6385,
+    "calidad": "buena",
+    "sha1": "7025d7b9ba5d8a1ea415b104cd21d351a6fc36bd"
+   },
+   "overrides": [],
+   "resumen": "1 HAZ TU RETIRO NOMBRE DEL RETIRO ETAPA ANTES REZA Ponte en presencia de Dios. Vive este momento en una “escucha activa” donde busques escuchar a Dios y poner todo lo que esté de tu parte para plas- marlo. 2 REFLEXIONA Haz las siguientes preguntas para entender la reali- dad de t",
+   "vector_id": 116,
+   "num_chunks": 7
+  },
+  {
+   "id": "doc_0121",
+   "ids_legacy": [
+    "doc_0121"
+   ],
+   "titulo": "How-to Retiros del ECYD",
+   "tipo": "retiro",
+   "autoridad": {
+    "nivel": 4,
+    "descripcion": "Guía o material práctico"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "retiros",
+    "acompanamiento_formacion"
+   ],
+   "temas_origen": "manual",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "How-to Retiros del ECYD.pdf",
+    "ruta": "E:\\ECyD\\Retiros espirituales\\How-to Retiros del ECYD.pdf",
+    "carpeta": "Retiros espirituales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 16050,
+    "calidad": "buena",
+    "sha1": "ff21b8719480c3cc2136364c7e31f166dccd8565"
+   },
+   "overrides": [
+    "temas"
+   ],
+   "resumen": "WWW.ECYD.LAT HOW-TO RETIROS DEL ECYD Guía práctica de cómo se prepara un retiro del ECYD “SI NO SABÉIS CÓMO DEBÉIS ORAR, PEDIDLE ENTONCES A ÉL QUE OS ENSEÑE...” BENEDICTO XVI 1 2 ¿QUÉ SON LOS RETIROS ESPIRITUALES? Son escuela de oración, momentos propicios para el encuentro con D",
+   "vector_id": 117,
+   "num_chunks": 15
+  },
+  {
+   "id": "doc_0122",
+   "ids_legacy": [
+    "doc_0122"
+   ],
+   "titulo": "Registro de la Alianza (formulario)",
+   "tipo": "formulario",
+   "autoridad": {
+    "nivel": 5,
+    "descripcion": "Ficha o recurso concreto"
+   },
+   "etapas": [],
+   "idioma": "es",
+   "temas": [
+    "amistad_con_cristo",
+    "reino"
+   ],
+   "temas_origen": "automatico",
+   "nivel_escolar": [],
+   "calendario": {
+    "ciclo_origen": null,
+    "mes_original": null,
+    "meses_originales": [],
+    "mes_argentino": null,
+    "tiempo_liturgico": null
+   },
+   "fuente": {
+    "archivo": "Registro de la Alianza.pdf",
+    "ruta": "E:\\ECyD\\Retiros espirituales\\Registro de la Alianza.pdf",
+    "carpeta": "Retiros espirituales",
+    "extension": ".pdf",
+    "duplicados": []
+   },
+   "extraccion": {
+    "metodo": "pypdf",
+    "caracteres": 302,
+    "calidad": "baja",
+    "sha1": "a3d6a6472d073579726d04a6995a875637c164e4"
+   },
+   "overrides": [
+    "titulo",
+    "tipo"
+   ],
+   "resumen": "ECYD MX-MTY ¡VENGA TU REINO! ALIANZA CON CRISTO EN EL ECYD EL DÍA DEL MES DE DEL AÑO EN REALIZARON SU ALIANZA CON CRISTO EN EL ECYD LOS SIGUIENTES MIEMBROS: PRESIDIÓ LA ALIANZA Y PARA QUE CONSTE, SECCIÓN NOMBRE 1. 2. 3. 4. 5. 6. 7. 8. 9. 10. APELLIDO (firma de quien la redactó) c",
+   "vector_id": 118,
+   "num_chunks": 1
+  }
+ ]
+}

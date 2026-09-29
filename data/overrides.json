@@ -1,0 +1,142 @@
+{
+  "_descripcion": "Correcciones manuales de metadata. La clave es el nombre del archivo (campo fuente.archivo). Cualquier campo indicado reemplaza al detectado automáticamente (titulo, tipo, etapas, temas, autoridad_nivel, idioma, mes_original, tiempo_liturgico). Se aplican tanto en la ingesta como en la migración y al reconstruir índices.",
+  "archivos": {
+    "abrilMICONCIENCIA.compressed.pdf": {
+      "titulo": "Mi conciencia"
+    },
+    "abrilWITHHIMWEAREWINNERS.compressed.pdf": {
+      "titulo": "With Him we are winners"
+    },
+    "novUNREYDISTINTOALOSDEMAS.compressed.pdf": {
+      "titulo": "Un rey distinto a los demás"
+    },
+    "marzoACOMPAÑANDOALAMIGO.compressed.pdf": {
+      "titulo": "Acompañando al Amigo"
+    },
+    "dicJESUSSEENCARNAPORAMORANOSOTROS.compressed.pdf": {
+      "titulo": "Jesús se encarna por amor a nosotros"
+    },
+    "eneroGUSTOMEGUSTO.compressed.pdf": {
+      "titulo": "Gusto, me gusto"
+    },
+    "eneroMIINTERIORIDAD.compressed.pdf": {
+      "titulo": "Mi interioridad"
+    },
+    "eneroQUEONDACONMIGO.compressed.pdf": {
+      "titulo": "¿Qué onda conmigo?"
+    },
+    "febreroAMIGOSYEQUIPOIECYD.compressed.pdf": {
+      "titulo": "Amigos y equipo ECyD"
+    },
+    "febreroELLENGUAJEDELCUERPO.compressed.pdf": {
+      "titulo": "El lenguaje del cuerpo"
+    },
+    "marzoPUEDOSERFELIZ.compressed.pdf": {
+      "titulo": "¿Puedo ser feliz?"
+    },
+    "FINAL2ETAPAmayoUSASLASREDESOTEENREDAS.compressed.pdf": {
+      "titulo": "¿Usas las redes o te enredas?"
+    },
+    "mayoLAALEGRIADEDARUNSIADIOSYLAENTREGAALOSDEMAS.compressed.pdf": {
+      "titulo": "La alegría de dar un sí a Dios y la entrega a los demás"
+    },
+    "mayoMIFAMILIA.compressed.pdf": {
+      "titulo": "Mi familia"
+    },
+    "Nov. Porque Cristo me ama.compressed.pdf": {
+      "titulo": "Porque Cristo me ama"
+    },
+    "novTENGOUNAMISIONSERAPOSTOL.compressed.pdf": {
+      "titulo": "Tengo una misión: ser apóstol"
+    },
+    "FINAL2ETAPAoctLAORACIONLINEADIRECTACONCRISTO.compressed.pdf": {
+      "titulo": "La oración, mi línea directa con Cristo"
+    },
+    "oct. Dios quiere lo mejor de mi.compressed.pdf": {
+      "titulo": "Dios quiere lo mejor de mí (los diez mandamientos)"
+    },
+    "octubre 2 quien te define mejor.compressed.pdf": {
+      "titulo": "¿Quién te define mejor que tu mejor amigo?"
+    },
+    "FINAL2ETAPAseptMISELLOECYD.pdf": {
+      "titulo": "Mi sello ECyD"
+    },
+    "FINAL2ETAPAseptTERRENOFIRMEOMOVEDIZO.pdf": {
+      "titulo": "¿Terreno firme o terreno movedizo?"
+    },
+    "3ETAPAfebAmar al prójimo como a ti mismo .compressed.pdf": {
+      "titulo": "Amar al prójimo como a ti mismo"
+    },
+    "3ETAPAnovLAFIDELIDAD.compressed.pdf": {
+      "titulo": "La fidelidad a Cristo"
+    },
+    "Detrás de la jornada_Jornada.pdf": {
+      "titulo": "Detrás de la pantalla (jornada)",
+      "etapas": [
+        2,
+        3
+      ]
+    },
+    "¿Quién Soy Yo__Jornada.pdf": {
+      "titulo": "¿Quién soy yo? (jornada)"
+    },
+    "Está bien no estar bien_Jornada.pdf": {
+      "titulo": "Está bien no estar bien (jornada)"
+    },
+    "Falta Eva_Jornada(niñas).pdf": {
+      "titulo": "Falta Eva (jornada para chicas)"
+    },
+    "Eres lo que comes_compressed.pdf": {
+      "titulo": "Eres lo que comes: ¿con qué alimento mi alma?"
+    },
+    "1 mayo 3ra etapa.compressed.pdf": {
+      "titulo": "María, una madre que me quiere como soy"
+    },
+    "3 mayo 3ra etapa.compressed.pdf": {
+      "titulo": "Homosexualidad"
+    },
+    "Rally Espiritual.docx.pdf": {
+      "titulo": "El Rally de María (rally espiritual)"
+    },
+    "Jesucristo, una guía_compressed.pdf": {
+      "titulo": "Jesucristo, una guía en mi camino"
+    },
+    "Panel Enero (1).pdf": {
+      "titulo": "Panel: ellas/ellos dicen"
+    },
+    "Qué es el ECYD pdf.pdf": {
+      "titulo": "¿Qué es el ECyD?"
+    },
+    "Estatutos ECYD Esp.pdf": {
+      "titulo": "Estatutos del ECyD (español)",
+      "autoridad_nivel": 1
+    },
+    "ECYD Statutes.pdf": {
+      "titulo": "ECyD Statutes (inglés)",
+      "autoridad_nivel": 1
+    },
+    "Formando-apostoles-en-el-ECYD.pdf": {
+      "titulo": "Formando apóstoles en el ECyD",
+      "autoridad_nivel": 2
+    },
+    "Ensayo-instituyo-a-los-doce.pdf": {
+      "titulo": "Instituyó a doce (ensayo)"
+    },
+    "Ensayo-las-parabolas-del-reino.pdf": {
+      "titulo": "Las parábolas del Reino (ensayo)"
+    },
+    "Ensayo_Aqui_Estoy.pdf": {
+      "titulo": "¡Aquí estoy, porque me has llamado! (ensayo)"
+    },
+    "Registro de la Alianza.pdf": {
+      "titulo": "Registro de la Alianza (formulario)",
+      "tipo": "formulario"
+    },
+    "How-to Retiros del ECYD.pdf": {
+      "temas": [
+        "retiros",
+        "acompanamiento_formacion"
+      ]
+    }
+  }
+}

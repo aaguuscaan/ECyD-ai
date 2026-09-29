@@ -1,0 +1,24 @@
+{
+ "schema_version": "2.0",
+ "generado": "2026-09-29T22:15:23+00:00",
+ "embedding_model": "paraphrase-multilingual-MiniLM-L12-v2",
+ "dimension": 384,
+ "corpus_sha1": "91015d5ea50b7c08242173d54d732da6e19735d2",
+ "documentos": {
+  "archivo": "documents.json",
+  "index": "documents.index",
+  "vectores": 119
+ },
+ "chunks": {
+  "archivo": "chunks.json",
+  "index": "chunks.index",
+  "vectores": 1982,
+  "chunker": {
+   "metodo": "legacy_v1",
+   "objetivo": 1600,
+   "maximo": 1600,
+   "solapamiento": 0,
+   "nota": "Chunks heredados. Ejecutar scripts/build_index.py para rechunkear."
+  }
+ }
+}

@@ -1,0 +1,7 @@
+# Solo para volver a procesar PDFs (scripts/ingest_corpus.py)
+-r requirements.txt
+pypdf>=4.0
+pymupdf>=1.24
+pytesseract>=0.3
+pillow>=10.0
+python-docx>=1.1

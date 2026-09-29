@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#AC0D2E">
+  <title>Asistente ECyD</title>
+  <link rel="icon" href="/static/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Saira:wght@500;600;700&family=Open+Sans:wght@400;500;600;700&family=Caveat:wght@600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+  <!-- Acceso -->
+  <div id="login" class="overlay hidden">
+    <form id="login-form" class="login-card">
+      <img src="/static/img/cruz-ecyd.svg" alt="" class="login-cross">
+      <h1 class="wordmark">Asistente <span>ECyD</span></h1>
+      <input id="login-pass" type="password" placeholder="Contraseña de acceso" autocomplete="current-password" required>
+      <button class="btn primary" type="submit">Entrar</button>
+      <p id="login-error" class="error-text"></p>
+    </form>
+  </div>
+
+  <div class="app">
+    <!-- ============ Barra lateral ============ -->
+    <aside id="sidebar" class="sidebar">
+      <a class="brand" href="#" data-view="inicio" aria-label="Inicio">
+        <img src="/static/img/cruz-ecyd.svg" alt="Cruz del ECyD" class="brand-cross">
+        <span class="brand-text"><span class="brand-name">ECyD</span><span class="brand-sub">Asistente IA</span></span>
+      </a>
+      <nav class="nav" aria-label="Secciones">
+        <a href="#" class="nav-item" data-view="inicio"><i data-icon="home"></i>Inicio</a>
+        <a href="#" class="nav-item" data-view="conversaciones"><i data-icon="chat"></i>Conversaciones</a>
+        <a href="#" class="nav-item" data-view="equipos"><i data-icon="users"></i>Mis equipos</a>
+        <a href="#" class="nav-item" data-view="documentos"><i data-icon="file"></i>Documentos</a>
+        <a href="#" class="nav-item" data-view="memoria"><i data-icon="brain"></i>Memoria</a>
+        <a href="#" class="nav-item" data-view="configuracion"><i data-icon="settings"></i>Configuración</a>
+      </nav>
+      <button class="btn primary full new-chat" id="new-chat"><i data-icon="plus"></i>Nueva conversación</button>
+      <div class="side-recent">
+        <div class="side-label">Recientes</div>
+        <div id="recent" class="recent"></div>
+      </div>
+    </aside>
+    <div id="scrim" class="scrim"></div>
+
+    <!-- ============ Centro ============ -->
+    <div class="center">
+      <header class="topbar">
+        <button class="icon-btn only-mobile" id="open-sidebar" aria-label="Abrir menú"><i data-icon="menu"></i></button>
+        <div class="search" id="search">
+          <i data-icon="search"></i>
+          <input id="search-input" type="search" placeholder="Buscar en documentos, conversaciones o preguntar algo…" autocomplete="off">
+          <div id="search-results" class="search-results hidden"></div>
+        </div>
+        <button class="icon-btn only-rail" id="open-rail" aria-label="Contexto del equipo" title="Contexto del equipo"><i data-icon="users"></i></button>
+        <button class="profile" id="profile" data-view="configuracion" title="Tu perfil">
+          <span class="avatar" id="profile-avatar">?</span>
+          <span class="profile-text"><span id="profile-name" class="profile-name">Tu nombre</span><span class="profile-role" id="profile-role">Responsable de equipo</span></span>
+          <i data-icon="chevron-down"></i>
+        </button>
+      </header>
+
+      <main id="main" class="main">
+        <!-- ===== Inicio / chat ===== -->
+        <section class="view" id="view-inicio">
+          <div class="hero" id="hero">
+            <div class="hero-copy">
+              <div class="hero-title">
+                <img src="/static/img/cruz-ecyd.svg" alt="" class="hero-cross">
+                <div>
+                  <h1 class="wordmark">Asistente <span>ECyD</span></h1>
+                </div>
+              </div>
+              <p class="hero-text">Te acompaña para preparar tus reuniones, acompañar a los adolescentes y profundizar en el estilo formativo del ECyD, siempre con la mirada puesta en Cristo.</p>
+            </div>
+            <div class="hero-art" aria-hidden="true"></div>
+          </div>
+
+          <div class="chat-card">
+            <div class="chat-head" id="chat-head">
+              <div class="chat-head-text">
+                <div id="chat-title" class="chat-title">Nueva conversación</div>
+                <div id="chat-team" class="chat-sub"></div>
+              </div>
+              <button class="btn ghost small" id="open-notes" title="Lo que el asistente recuerda de esta conversación"><i data-icon="note"></i>Notas</button>
+              <button class="btn ghost small" id="new-chat-2" title="Nueva conversación"><i data-icon="plus"></i><span class="hide-sm">Nueva</span></button>
+            </div>
+
+            <section id="thread" class="thread" aria-live="polite">
+              <div id="empty" class="empty">
+                <div class="msg assistant">
+                  <img class="msg-avatar" src="/static/img/cruz-ecyd.svg" alt="">
+                  <div class="msg-body">
+                    <div class="bubble">
+                      <p class="greet"><strong id="greet-name">Hola</strong></p>
+                      <p>Estoy acá para ayudarte. ¿Sobre qué te gustaría conversar hoy?</p>
+                      <p class="muted">Podés preguntarme sobre temas de formación, situaciones de tus adolescentes, cómo preparar una reunión o el estilo del ECyD. Respondo a partir de los documentos del ECyD y te muestro en qué me baso.</p>
+                    </div>
+                  </div>
+                </div>
+                <div class="quick">
+                  <button class="quick-card" data-prompt="¿Qué dicen los documentos del ECyD sobre formar convicciones en los adolescentes?">
+                    <i data-icon="book"></i><span><strong>Documentos ECyD</strong><small>¿Qué dicen sobre formar convicciones?</small></span><i data-icon="chevron-right" class="chev"></i></button>
+                  <button class="quick-card" data-prompt="Quiero preparar la reunión de este mes con mi equipo. ¿Por dónde empiezo?">
+                    <i data-icon="users"></i><span><strong>Mi equipo</strong><small>Preparar la reunión de este mes</small></span><i data-icon="chevron-right" class="chev"></i></button>
+                  <button class="quick-card" data-prompt="Un adolescente de mi equipo se está aislando del grupo. ¿Cómo lo acompaño?">
+                    <i data-icon="heart"></i><span><strong>Acompañar</strong><small>Un chico se está aislando del grupo</small></span><i data-icon="chevron-right" class="chev"></i></button>
+                  <button class="quick-card" data-prompt="Dame ideas con sentido formativo para una actividad al aire libre que fortalezca la vida de equipo.">
+                    <i data-icon="bulb"></i><span><strong>Ideas y planificación</strong><small>Una actividad que fortalezca el equipo</small></span><i data-icon="chevron-right" class="chev"></i></button>
+                </div>
+              </div>
+            </section>
+
+            <form id="composer" class="composer">
+              <textarea id="input" rows="1" placeholder="Escribí tu consulta o pregunta…" autocomplete="off" aria-label="Mensaje"></textarea>
+              <button class="send-btn" id="send" type="submit" aria-label="Enviar"><i data-icon="send"></i></button>
+              <button class="btn stop hidden" id="stop" type="button"><i data-icon="stop"></i>Detener</button>
+            </form>
+          </div>
+          <p class="disclaimer">El asistente puede equivocarse. Ante situaciones de riesgo, priorizá la seguridad del adolescente y consultá a adultos responsables y profesionales.</p>
+        </section>
+
+        <!-- ===== Otras vistas (se completan desde app.js) ===== -->
+        <section class="view page hidden" id="view-conversaciones"></section>
+        <section class="view page hidden" id="view-equipos"></section>
+        <section class="view page hidden" id="view-documentos"></section>
+        <section class="view page hidden" id="view-memoria"></section>
+        <section class="view page hidden" id="view-configuracion"></section>
+      </main>
+    </div>
+
+    <!-- ============ Columna derecha ============ -->
+    <aside id="rail" class="rail">
+      <button class="icon-btn rail-close only-rail" id="close-rail" aria-label="Cerrar"><i data-icon="x"></i></button>
+
+      <section class="card">
+        <div class="card-head">
+          <i data-icon="user-pin"></i><h3>Contexto del equipo</h3>
+          <button class="link-btn" id="ctx-edit">Editar</button>
+        </div>
+        <select id="team-select" aria-label="Equipo activo"></select>
+        <div id="ctx-list" class="ctx-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <i data-icon="brain"></i><h3>Memoria del equipo</h3>
+          <button class="link-btn" data-view="memoria">Ver todo</button>
+        </div>
+        <p class="card-note">El asistente tiene en cuenta la memoria de tu equipo para darte respuestas más contextualizadas.</p>
+        <div class="side-label">Últimas referencias</div>
+        <ul id="mem-latest" class="dot-list"></ul>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <i data-icon="file"></i><h3>Documentos del ECyD</h3>
+          <button class="link-btn" data-view="documentos">Ver todos</button>
+        </div>
+        <p class="card-note" id="docs-note">La IA utiliza los documentos oficiales del ECyD para responder a tus consultas.</p>
+        <button class="btn outline small" data-view="documentos"><i data-icon="file"></i>Ver documentos<i data-icon="chevron-right"></i></button>
+      </section>
+
+      <div id="status" class="status"><span class="status-dot"></span><span class="status-text">Conectando…</span></div>
+    </aside>
+  </div>
+
+  <!-- Panel deslizable (notas, fuentes) -->
+  <aside id="panel" class="panel" aria-hidden="true">
+    <div class="panel-head">
+      <h3 id="panel-title"></h3>
+      <button class="icon-btn" id="panel-close" aria-label="Cerrar"><i data-icon="x"></i></button>
+    </div>
+    <div id="panel-body" class="panel-body"></div>
+  </aside>
+
+  <div id="toast" class="toast hidden" role="status"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

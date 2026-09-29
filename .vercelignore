@@ -1,0 +1,17 @@
+.env
+.venv
+venv
+__pycache__
+*.pyc
+.modelos
+legacy
+tests
+data/legacy
+data/corpus.json
+data/memoria.db*
+_para_borrar
+Claude outputs
+Dockerfile
+docker-compose.yml
+iniciar.bat
+requirements-ingest.txt
