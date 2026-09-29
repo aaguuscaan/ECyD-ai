@@ -12,6 +12,7 @@ import json
 import logging
 import os
 import threading
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -44,6 +45,10 @@ def _ensure_rag_loading(block: bool = False):
 
     En Vercel las funciones se congelan entre pedidos, así que un hilo en
     segundo plano casi no avanza: ahí la carga se hace dentro del pedido."""
+    if _state["rag"] == "error" and time.time() - _state.get("error_at", 0) > 20:
+        # reintento automático: limpia descargas a medias y vuelve a cargar
+        _cleanup_model_cache()
+        _state.update(rag="cargando", rag_error=None, loader=None)
     if _state["rag"] != "cargando":
         return
     if block or os.getenv("VERCEL"):
@@ -57,6 +62,14 @@ def _ensure_rag_loading(block: bool = False):
         t.start()
 
 
+def _cleanup_model_cache():
+    if not os.getenv("VERCEL"):
+        return
+    import shutil
+    for d in ("/tmp/hf", settings.embedding_cache):
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def _load_rag():
     try:
         r = get_retriever()
@@ -66,6 +79,7 @@ def _load_rag():
         log.exception("No se pudo cargar el RAG")
         _state["rag"] = "error"
         _state["rag_error"] = str(e)
+        _state["error_at"] = time.time()
 
 
 @app.on_event("startup")
