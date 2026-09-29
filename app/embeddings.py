@@ -33,6 +33,59 @@ def _hf_name(name: str) -> str:
     return name if "/" in name else f"sentence-transformers/{name}"
 
 
+# Repositorio ONNX que usa fastembed para cada modelo y archivos necesarios
+_ONNX_FILES = ["config.json", "tokenizer.json", "tokenizer_config.json", "special_tokens_map.json"]
+
+
+def _download_onnx(model_name: str):
+    """Descarga explícita del modelo ONNX (sin caché extra) con errores claros.
+    Devuelve la carpeta local o None si fastembed debe resolverlo solo."""
+    try:
+        from fastembed import TextEmbedding
+        info = next((m for m in TextEmbedding.list_supported_models() if m["model"] == model_name), None)
+        repo = ((info or {}).get("sources") or {}).get("hf")
+        if not repo:
+            return None
+        from huggingface_hub import hf_hub_download
+        target = os.path.join(settings.embedding_cache, repo.replace("/", "__"))
+        os.makedirs(target, exist_ok=True)
+        files = [info["model_file"], *(info.get("additional_files") or []), *_ONNX_FILES]
+        for f in files:
+            dest = os.path.join(target, f)
+            if os.path.exists(dest) and os.path.getsize(dest) > 0:
+                continue
+            try:
+                hf_hub_download(repo_id=repo, filename=f, local_dir=target)
+            except Exception as e:  # noqa: BLE001
+                if f == info["model_file"] or f == "tokenizer.json":
+                    import shutil
+                    free = shutil.disk_usage(settings.embedding_cache).free // 2**20
+                    raise RuntimeError(f"No se pudo descargar {repo}/{f}: {type(e).__name__}: {e} "
+                                       f"(espacio libre: {free} MB)") from e
+        return target
+    except RuntimeError:
+        raise
+    except Exception as e:  # noqa: BLE001
+        log.warning("Descarga explícita no disponible (%s); la resuelve fastembed", e)
+        return None
+
+
+def _limit_tokens(model, max_len: int):
+    """sentence-transformers usa 128 tokens para este modelo; fastembed 512.
+    Se iguala para que los vectores coincidan con los del índice."""
+    for path in (("model", "tokenizer"), ("model", "model", "tokenizer"), ("tokenizer",)):
+        obj = model
+        try:
+            for attr in path:
+                obj = getattr(obj, attr)
+            obj.enable_truncation(max_length=max_len)
+            return True
+        except Exception:  # noqa: BLE001
+            continue
+    log.warning("No se pudo ajustar el largo máximo de tokens del modelo")
+    return False
+
+
 class Embedder:
     def __init__(self, model_name: str | None = None, backend: str | None = None):
         self.model_name = model_name or settings.embedding_model
@@ -54,8 +107,11 @@ class Embedder:
             log.info("Cargando modelo de embeddings %s (%s)…", self.model_name, self.backend)
             if self.backend == "fastembed":
                 from fastembed import TextEmbedding
+                path = _download_onnx(_hf_name(self.model_name))
+                kwargs = {"specific_model_path": path} if path else {}
                 self._model = TextEmbedding(model_name=_hf_name(self.model_name),
-                                            cache_dir=settings.embedding_cache, threads=1)
+                                            cache_dir=settings.embedding_cache, threads=1, **kwargs)
+                _limit_tokens(self._model, 128)  # igual que sentence-transformers
             else:
                 from sentence_transformers import SentenceTransformer
                 self._model = SentenceTransformer(self.model_name)
