@@ -56,7 +56,7 @@ class Settings:
     # --- RAG -------------------------------------------------------
     data_dir: Path = field(default_factory=lambda: Path(_env("DATA_DIR", str(BASE_DIR / "data"))))
     embedding_model: str = field(default_factory=lambda: _env("EMBEDDING_MODEL", "paraphrase-multilingual-MiniLM-L12-v2"))
-    # auto | fastembed (ONNX, liviano: el que se usa en Vercel) | sentence-transformers (PyTorch)
+    # auto (= onnx, liviano: el que usa Vercel) | fastembed | sentence-transformers (PyTorch)
     embedding_backend: str = field(default_factory=lambda: _env("EMBEDDING_BACKEND", "auto").lower())
     embedding_cache: str = field(default_factory=lambda: _env("EMBEDDING_CACHE_DIR", "/tmp/ecyd-modelos" if os.getenv("VERCEL") else str(BASE_DIR / ".modelos")))
     top_k_documents: int = field(default_factory=lambda: _int("RAG_TOP_K_DOCUMENTS", 8))

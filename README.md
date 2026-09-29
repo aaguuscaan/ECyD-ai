@@ -49,7 +49,7 @@ python -m venv .venv
 .venv\Scripts\activate
 pip install -r requirements.txt
 copy .env.example .env      REM solo si no tenés .env: pegá tu GROQ_API_KEY
-python scripts\build_index.py --backend fastembed   REM recomendado: rechunkea y recalcula embeddings (2-5 min)
+python scripts\build_index.py --backend onnx   REM recomendado: rechunkea y recalcula embeddings (2-5 min)
 iniciar.bat                     REM abre http://localhost:8000
 ```
 
@@ -105,9 +105,9 @@ del ECyD, `python scripts/ingest_corpus.py` y luego `build_index.py`.
   (tablas `teams`, `memories`, `conversations`, `messages`). Las tablas tienen RLS: solo
   aceptan pedidos del servidor que traen el secreto `ECYD_DB_SECRET`; la clave pública de
   Supabase sola no da acceso a nada.
-- **Búsqueda**: el mismo modelo de embeddings en versión ONNX (`fastembed`), liviano. En
-  cada arranque en frío se descarga en `/tmp` (la primera consulta tarda unos segundos
-  más). `/api/health` informa `embeddings.similitud_promedio`: si es > 0.9, el modelo en
+- **Búsqueda**: el mismo modelo de embeddings en versión ONNX cuantizada (~120 MB, con
+  `onnxruntime`). En cada arranque en frío se descarga en `/tmp` (la primera consulta
+  tarda unos segundos más). `/api/health` informa `embeddings.similitud_promedio`: si es > 0.9, el modelo en
   ejecución coincide con el que armó el índice.
 
 Variables de entorno en Vercel:
@@ -125,7 +125,7 @@ Sin las variables de Supabase la app usa SQLite local (`data/memoria.db`), así 
 PC funciona igual que antes.
 
 Para recalcular el índice con exactamente el mismo motor que usa Vercel:
-`python scripts\build_index.py --backend fastembed`.
+`python scripts\build_index.py --backend onnx`.
 
 ### Alternativa: Docker (Render, Railway, VPS)
 

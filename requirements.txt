@@ -11,9 +11,12 @@ openai>=1.40
 # RAG: FAISS + modelo de embeddings en ONNX (liviano, apto para Vercel)
 faiss-cpu>=1.8
 numpy>=1.26
-fastembed>=0.5
+onnxruntime>=1.18
+tokenizers>=0.19
+huggingface_hub>=0.23
 
-# Opcional (local): versión PyTorch del mismo modelo
+# Opcional: otras versiones del mismo modelo (EMBEDDING_BACKEND=fastembed | sentence-transformers)
+# fastembed>=0.5
 # sentence-transformers>=3.0
 # Opcional: Gemini como alternativa
 # google-genai>=1.0

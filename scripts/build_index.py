@@ -182,7 +182,7 @@ if __name__ == "__main__":
     p.add_argument("--target", type=int, default=650)
     p.add_argument("--max-chars", type=int, default=900)
     p.add_argument("--overlap", type=int, default=120)
-    p.add_argument("--backend", default=None, help="fastembed (recomendado, igual que en Vercel) o sentence-transformers")
+    p.add_argument("--backend", default=None, help="onnx (recomendado, igual que en Vercel), fastembed o sentence-transformers")
     a = p.parse_args()
     if a.check:
         sys.exit(0 if check() else 1)
