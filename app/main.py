@@ -490,6 +490,7 @@ class EncuentroIn(BaseModel):
     propuesta: Optional[str] = Field(None, max_length=60000)
     observaciones: Optional[str] = Field(None, max_length=8000)
     estado: Optional[str] = None
+    meta: Optional[dict] = None
 
 
 class GenerarIn(BaseModel):
@@ -564,6 +565,23 @@ def generar_encuentro(body: GenerarIn, request: Request):
     if body.encuentro_id:
         _enc_or_404(body.encuentro_id, request)
     return _sse(get_assistant().stream_encuentro(team, body.model_dump(), user_id=_uid(request)))
+
+
+class AjusteIn(BaseModel):
+    instruccion: str = Field(..., min_length=2, max_length=2000)
+    propuesta: Optional[str] = Field(None, max_length=60000)
+
+
+@app.post("/api/encuentros/{eid}/ajustar")
+def ajustar_encuentro(eid: str, body: AjusteIn, request: Request):
+    """La IA modifica la propuesta según las aclaraciones del responsable."""
+    _require_rag()
+    enc = _enc_or_404(eid, request)
+    team = _team_or_404(enc["team_id"], request) if enc.get("team_id") else None
+    propuesta = body.propuesta if body.propuesta is not None else (enc.get("propuesta") or "")
+    if not propuesta.strip():
+        raise HTTPException(400, "Este encuentro todavía no tiene propuesta para ajustar")
+    return _sse(get_assistant().stream_ajuste(enc, team, body.instruccion, propuesta))
 
 
 # ------------------------------------------------------------------ frontend

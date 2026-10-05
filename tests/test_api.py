@@ -26,6 +26,8 @@ def client(tmp_path, monkeypatch):
         def stream(self, messages, **kw):
             self.calls.append(messages)
             yield "# Encuentro sobre la amistad\n\n## Despertar\nSegún el programa [F1]…"
+            if "PEDIDO DE CAMBIOS" in messages[-1]["content"]:
+                yield "\n\n## Qué cambié\n- Lo acorté a 45 minutos."
 
     assistant._assistant = assistant.Assistant(store=store, retriever=R, llm=EncLLM())
     main._state.update(rag="listo")
@@ -104,3 +106,31 @@ def test_prompt_de_encuentro_incluye_contexto(client):
     assert "PROGRAMA DE LA ETAPA" in sent and "Primera etapa" in sent
     assert "solo chicas" in sent and "Cantidad de chicos: 5" in sent
     assert "PREPARAR UN ENCUENTRO" in sent
+
+
+def test_ajustar_encuentro(client):
+    from app import assistant
+    c = client
+    register(c, "agus@x.com", "Agus")
+    team = c.get("/api/teams").json()[0]
+    body = {"team_id": team["id"], "tema": "La amistad", "fichas": [], "duracion": "1 h"}
+    with c.stream("POST", "/api/encuentros/generar", json=body) as r:
+        enc = next(e for e in (json.loads(l[5:]) for l in r.iter_lines() if l.startswith("data:"))
+                   if e["type"] == "done")["encuentro"]
+    llm = assistant._assistant.llm
+    llm.calls.clear()
+    editada = enc["propuesta"] + "\n\nNota del responsable"
+    with c.stream("POST", f"/api/encuentros/{enc['id']}/ajustar",
+                  json={"instruccion": "Hacelo más corto, 45 minutos", "propuesta": editada}) as r:
+        evs = [json.loads(l[5:]) for l in r.iter_lines() if l.startswith("data:")]
+    done = next(e for e in evs if e["type"] == "done")["encuentro"]
+    prompt = llm.calls[-1][-1]["content"]
+    assert "Hacelo más corto, 45 minutos" in prompt and "Nota del responsable" in prompt  # usa la versión editada
+    assert llm.calls[-1][0]["content"].startswith("Sos el Asistente ECyD")
+    assert done["meta"]["ajustes"][-1]["instruccion"] == "Hacelo más corto, 45 minutos"
+    assert done["meta"]["version_anterior"] == editada
+    assert "Qué cambié" not in done["propuesta"] and "45 minutos" in done["meta"]["ajustes"][-1]["cambios"]
+    # otro responsable no puede ajustar
+    c2 = TestClient(c.app)
+    register(c2, "otro@x.com", "Otro")
+    assert c2.post(f"/api/encuentros/{enc['id']}/ajustar", json={"instruccion": "x y"}).status_code == 404

@@ -1070,6 +1070,93 @@
     }
   }
 
+  // ------------------------------------------------------------ ajustes con la IA
+  const AJUSTES_RAPIDOS = ["Más corto", "Más dinámico, con juegos", "Más tiempo de oración", "Para hacer al aire libre",
+    "Más simple de preparar", "Más profundo para conversar", "Menos materiales"];
+
+  function setupAjuste(box, q, enc) {
+    const instr = q("instr"), btn = q("ajustar");
+    const grow = () => { instr.style.height = "auto"; instr.style.height = Math.min(instr.scrollHeight, 160) + "px"; };
+    instr.addEventListener("input", grow);
+    instr.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); run(); } });
+    $$("[data-quick]", box).forEach(c => c.addEventListener("click", () => {
+      const t = c.dataset.quick;
+      instr.value = instr.value.trim() ? `${instr.value.trim().replace(/[.;,]$/, "")}; ${t.toLowerCase()}` : t;
+      grow(); instr.focus();
+    }));
+    btn.addEventListener("click", () => box._ajusteCtl ? box._ajusteCtl.abort() : run());
+    paintHist();
+
+    function paintHist() {
+      const aj = (enc.meta?.ajustes || []).slice(-5).reverse();
+      q("hist").innerHTML = (aj.length ? `<div class="sub-label">Cambios pedidos</div>` + aj.map(a => `
+        <div class="aj-item">${icon("edit")}<div><div>${esc(a.instruccion)}</div>${a.cambios ? `<div class="aj-cambios">${markdown(a.cambios)}</div>` : ""}</div></div>`).join("") : "")
+        + (enc.meta?.version_anterior ? `<button type="button" class="link-btn aj-undo" data-e="undo">↺ Volver a la versión anterior</button>` : "");
+      q("undo")?.addEventListener("click", undo);
+    }
+
+    function showText(text) {
+      q("text").value = text;
+      $$(".enc-tabs [data-mode]", box).forEach(x => x.classList.toggle("on", x.dataset.mode === "ver"));
+      const md = $(".enc-md", box); md.classList.remove("hidden"); q("text").classList.add("hidden");
+      md.innerHTML = markdown(text);
+    }
+    function applySaved(saved, sources) {
+      Object.assign(enc, saved);
+      showText(enc.propuesta || "");
+      if (saved.titulo) q("titulo").value = saved.titulo;
+      box._sources = sources || enc.meta?.sources || []; renderSourceBar(box);
+      paintHist(); loadEncuentros();
+    }
+
+    async function undo() {
+      const prev = enc.meta?.version_anterior; if (prev == null) return;
+      const actual = q("text").value;
+      const m = prev.match(/^#\s+(.+)$/m);
+      try {
+        const saved = await api(`/api/encuentros/${enc.id}`, { method: "PUT", body: {
+          propuesta: prev, ...(m ? { titulo: m[1].trim().slice(0, 140) } : {}), meta: { ...(enc.meta || {}), version_anterior: actual } } });
+        applySaved(saved); toast("Volviste a la versión anterior");
+      } catch (err) { toast(err.message); }
+    }
+
+    async function run() {
+      const pedido = instr.value.trim();
+      if (pedido.length < 2) { toast("Escribí qué querés cambiar."); instr.focus(); return; }
+      const actual = q("text").value, md = $(".enc-md", box);
+      showText(actual);
+      md.classList.add("regenerating");
+      const status = document.createElement("div");
+      status.className = "thinking aj-status"; status.innerHTML = `<span class="spinner"></span>Aplicando: “${esc(pedido)}”…`;
+      q("ajuste").prepend(status);
+      const ctl = box._ajusteCtl = new AbortController();
+      btn.innerHTML = icon("stop"); btn.title = "Detener"; instr.disabled = true; box.classList.add("busy");
+      let text = "", raf = 0, saved = null, sources = null, first = true;
+      const paint = () => { raf = 0; if (first) { md.classList.remove("regenerating"); first = false; } md.innerHTML = markdown(text); md.classList.add("cursor"); };
+      try {
+        const res = await fetch(`/api/encuentros/${enc.id}/ajustar`, { method: "POST", credentials: "same-origin",
+          headers: { "Content-Type": "application/json" }, body: JSON.stringify({ instruccion: pedido, propuesta: actual }), signal: ctl.signal });
+        if (res.status === 401) { showLogin(); throw new Error("La sesión venció"); }
+        if (!res.ok) { let m = res.statusText; try { m = (await res.json()).detail; } catch {} throw new Error(m); }
+        await readSSE(res, ev => {
+          if (ev.type === "delta") { text += ev.text; if (!raf) raf = requestAnimationFrame(paint); }
+          else if (ev.type === "done") { saved = ev.encuentro; sources = ev.sources; }
+          else if (ev.type === "error") throw new Error(ev.message);
+        });
+      } catch (err) {
+        if (err.name !== "AbortError") toast("No se pudo aplicar el cambio: " + err.message, 6000);
+        else toast("Cambio cancelado: se mantiene la versión anterior");
+      } finally {
+        if (raf) cancelAnimationFrame(raf);
+        box._ajusteCtl = null; status.remove();
+        md.classList.remove("cursor", "regenerating");
+        btn.innerHTML = icon("send"); btn.title = "Aplicar cambios"; instr.disabled = false; box.classList.remove("busy");
+      }
+      if (saved) { instr.value = ""; grow(); applySaved(saved, sources); toast("Propuesta actualizada"); md.scrollIntoView({ behavior: "smooth", block: "start" }); }
+      else showText(actual);
+    }
+  }
+
   // ------------------------------------------------------------ editor de un encuentro
   function renderEncuentroEditor(container, enc, opts = {}) {
     const sources = opts.sources || enc.meta?.sources || [];
@@ -1093,6 +1180,16 @@
         <div class="md enc-md">${markdown(enc.propuesta || "_Todavía no hay propuesta._")}</div>
         <textarea class="field enc-text hidden" data-e="text" rows="22">${esc(enc.propuesta || "")}</textarea>
         <div class="extras"></div>
+        <div class="ajuste" data-e="ajuste">
+          <div class="ajuste-head">${icon("sparkle")}<div><strong>Pedile cambios a la IA</strong>
+            <small>Aclarale lo que necesites y reescribe la propuesta. Siempre podés volver a la versión anterior.</small></div></div>
+          <div class="ajuste-chips">${AJUSTES_RAPIDOS.map(t => `<button type="button" class="chip" data-quick="${esc(t)}">${esc(t)}</button>`).join("")}</div>
+          <div class="ajuste-box">
+            <textarea data-e="instr" rows="1" maxlength="2000" placeholder="Ej.: son 45 minutos y vienen 3 chicos nuevos…"></textarea>
+            <button type="button" class="send-btn" data-e="ajustar" aria-label="Aplicar cambios" title="Aplicar cambios">${icon("send")}</button>
+          </div>
+          <div class="ajuste-hist" data-e="hist"></div>
+        </div>
         <div class="form-grid" style="margin-top:16px">
           <div class="field-wrap"><label >${icon("calendar")}Fecha</label><input class="field" type="date" data-e="fecha" value="${esc((enc.fecha || "").slice(0, 10))}"></div>
           <div class="field-wrap"><label >${icon("users")}Cantidad de chicos</label><input class="field" type="number" min="1" data-e="cant" value="${esc(enc.cantidad || "")}"></div>
@@ -1112,6 +1209,7 @@
     box._sources = sources;
     renderSourceBar(box);
     hydrateIcons(box);
+    setupAjuste(box, q, enc);
     $$("[data-doc]", box).forEach(b => b.addEventListener("click", () => openDoc(b.dataset.doc)));
     q("back")?.addEventListener("click", () => { encOpen = null; renderEncuentros(); });
     $$(".enc-tabs [data-mode]", box).forEach(b => b.addEventListener("click", () => {
@@ -1431,6 +1529,11 @@
       if (!state.teams.length) toast("Tip: creá tu equipo e indicá su etapa para preparar encuentros según el programa.", 6000);
     } catch (err) { if (err.message !== "No autorizado") toast(err.message); }
   }
+
+  // placeholder corto en pantallas chicas
+  const mq = window.matchMedia("(max-width: 600px)");
+  const setPh = () => { sInput.placeholder = mq.matches ? "Buscar o preguntar…" : "Buscar en documentos, conversaciones o preguntar algo…"; };
+  setPh(); mq.addEventListener?.("change", setPh);
 
   hydrateIcons(); applyTheme(); showView("inicio");
   (async () => {

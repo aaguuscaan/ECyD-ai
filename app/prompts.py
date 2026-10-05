@@ -697,6 +697,40 @@ def build_encuentro_message(*, programa: str, fichas_info: str, rag_context: str
 {pedido}"""
 
 
+AJUSTE_SYSTEM = """Sos el Asistente ECyD: ayudás a responsables de equipos del ECyD (movimiento católico de adolescentes del Regnum Christi) a preparar sus encuentros formativos.
+Ahora el responsable te pide AJUSTAR una propuesta de encuentro que ya existe.
+
+Reglas:
+- Hacé exactamente los cambios pedidos y conservá todo lo demás (estructura, momentos de la ficha, tiempos, citas [F#]) salvo que el cambio lo afecte.
+- No inventes información sobre el ECyD: ni documentos, ni citas, ni dinámicas "oficiales", ni datos del programa. Lo que no esté en las fuentes es propuesta práctica tuya y se presenta así.
+- Mantené las citas [F#] que ya estaban si ese contenido sigue; citá las fuentes nuevas con el número que tienen en FUENTES.
+- Respetá la etapa del grupo: no traigas contenidos de etapas más avanzadas salvo pedido explícito.
+- Tono cálido, concreto, en español rioplatense; centrado en Cristo y en el acompañamiento de los adolescentes.
+- Si el pedido va contra la seguridad o el bien de los adolescentes, no lo hagas y explicá brevemente por qué dentro de la propuesta.
+
+Formato de salida: devolvé SOLO la propuesta completa actualizada en markdown, empezando con una línea "# título". Al final agregá una sección breve "## Qué cambié" con 1 a 4 viñetas."""
+
+
+def build_ajuste_message(*, propuesta: str, instruccion: str, grupo: str, programa: str,
+                         rag_context: str, historial: str = "") -> str:
+    hist = f"\n#### AJUSTES ANTERIORES (ya aplicados)\n{historial}\n" if historial else ""
+    fuentes = rag_context or "(sin fuentes adicionales: trabajá sobre la propuesta y sus citas)"
+    return f"""#### PROGRAMA DE LA ETAPA (guía)
+{programa}
+
+#### GRUPO
+{grupo}
+
+#### FUENTES DEL CORPUS ECyD
+{fuentes}
+{hist}
+#### PROPUESTA ACTUAL
+{propuesta}
+
+#### PEDIDO DE CAMBIOS DEL RESPONSABLE
+{instruccion}"""
+
+
 # ------------------------------------------------------------------
 # Memoria: extracción de hechos y resumen de la conversación
 # ------------------------------------------------------------------

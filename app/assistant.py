@@ -353,6 +353,97 @@ class Assistant:
         yield {"type": "done", "encuentro": enc, "sources": sources}
 
     # ------------------------------------------------------------------
+    AJUSTE_LEVELS = [3600, 1800, 0]   # caracteres de fuentes al ajustar
+
+    def prepare_ajuste(self, enc: Dict, team: Optional[Dict], instruccion: str, propuesta: str) -> Dict:
+        perfil = (team or {}).get("perfil") or {}
+        etapa = enc.get("etapa") or parse_etapa(perfil.get("etapa"))
+        fecha = _parse_date(enc.get("fecha")) or date.today()
+        fichas_ids = [f.get("doc_id") for f in (enc.get("fichas") or []) if f.get("doc_id") in self.retriever.doc_by_id]
+        query = " ".join([instruccion, enc.get("tema") or ""] + [f.get("titulo", "") for f in enc.get("fichas") or []])
+        hits = self.retriever.search(query, etapa=etapa, top_k=4, focus_docs=fichas_ids, focus_k=2)
+        grupo = "\n".join(x for x in [
+            f"- Equipo: {(team or {}).get('nombre', '')}", f"- Etapa: {etapa or 'sin definir'}",
+            f"- Cantidad de chicos: {enc.get('cantidad') or perfil.get('cantidad_chicos') or 'sin dato'}",
+            f"- Composición: {enc.get('composicion') or perfil.get('composicion') or 'sin dato'}",
+            f"- Edades: {enc.get('edades') or perfil.get('edades') or 'sin dato'}",
+            f"- Duración: {enc.get('duracion') or perfil.get('duracion') or 'sin dato'}",
+        ] if x)
+        ajustes = (enc.get("meta") or {}).get("ajustes") or []
+        historial = "\n".join(f"- {a.get('instruccion', '')}" for a in ajustes[-4:])
+        ctx = {"hits": hits, "grupo": grupo, "historial": historial, "instruccion": instruccion.strip(),
+               "propuesta": propuesta.strip()[:14000],
+               "programa": programas.contexto_programa(etapa, fecha)}
+        ctx["messages"], ctx["max_tokens"] = self._build_ajuste(ctx, 0)
+        return ctx
+
+    def _build_ajuste(self, ctx: Dict, level: int):
+        for lvl in range(level, len(self.AJUSTE_LEVELS)):
+            chars = self.AJUSTE_LEVELS[lvl]
+            rag = self.retriever.build_context(ctx["hits"], max_chars=chars) if chars else ""
+            user = prompts.build_ajuste_message(
+                propuesta=ctx["propuesta"], instruccion=ctx["instruccion"], grupo=ctx["grupo"],
+                programa=ctx["programa"] if lvl < 2 else "", rag_context=rag, historial=ctx["historial"])
+            messages = [{"role": "system", "content": prompts.AJUSTE_SYSTEM}, {"role": "user", "content": user}]
+            used = sum(self.estimate_tokens(m["content"]) for m in messages)
+            max_tokens = max(900, min(settings.max_output_tokens, settings.token_budget - used - 250))
+            if max_tokens >= max(1800, self.estimate_tokens(ctx["propuesta"]) + 300):
+                break
+        ctx["level"] = lvl
+        return messages, max_tokens
+
+    def stream_ajuste(self, enc: Dict, team: Optional[Dict], instruccion: str, propuesta: str) -> Iterator[Dict]:
+        """Reescribe una propuesta de encuentro según las aclaraciones del responsable
+        y guarda la nueva versión (la anterior queda para poder deshacer)."""
+        ctx = self.prepare_ajuste(enc, team, instruccion, propuesta)
+        yield {"type": "meta", "sources": self.sources_payload(ctx["hits"])}
+        parts: List[str] = []
+        try:
+            level = 0
+            while True:
+                try:
+                    for piece in self.llm.stream(ctx["messages"], max_tokens=ctx["max_tokens"]):
+                        parts.append(piece)
+                        yield {"type": "delta", "text": piece}
+                    break
+                except RequestTooLarge:
+                    level = max(level, ctx.get("level", 0)) + 1
+                    if parts or level >= len(self.AJUSTE_LEVELS):
+                        raise
+                    ctx["messages"], ctx["max_tokens"] = self._build_ajuste(ctx, level)
+        except Exception as e:  # noqa: BLE001
+            log.exception("Error ajustando el encuentro")
+            yield {"type": "error", "message": str(e)}
+            return
+        nueva = "".join(parts).strip()
+        if not nueva:
+            yield {"type": "error", "message": "La IA no devolvió una propuesta."}
+            return
+        # la sección "Qué cambié" no forma parte de la propuesta: queda como nota del ajuste
+        cambios = ""
+        mc = re.search(r"\n#{1,4}\s*\**\s*Qu[eé] cambi[eé][^\n]*\n(.*)$", "\n" + nueva, re.S | re.I)
+        if mc:
+            cambios = mc.group(1).strip()[:800]
+            nueva = ("\n" + nueva)[:mc.start()].strip()
+        sources = self.sources_payload(ctx["hits"], nueva)
+        meta = dict(enc.get("meta") or {})
+        ajustes = list(meta.get("ajustes") or [])
+        ajustes.append({"instruccion": ctx["instruccion"][:500], "cambios": cambios,
+                        "fecha": date.today().isoformat()})
+        meta.update({"ajustes": ajustes[-20:], "version_anterior": propuesta, "sources": sources})
+        data = {"propuesta": nueva, "meta": meta}
+        m = re.search(r"^#\s+(.+)$", nueva, re.M)
+        if m:
+            data["titulo"] = m.group(1).strip()[:140]
+        try:
+            saved = self.store.update_encuentro(enc["id"], data)
+        except Exception as e:  # noqa: BLE001
+            log.exception("No se pudo guardar el ajuste")
+            yield {"type": "error", "message": f"Se generó el cambio pero no se pudo guardar: {e}"}
+            return
+        yield {"type": "done", "encuentro": saved, "sources": sources}
+
+    # ------------------------------------------------------------------
     def update_memory(self, ctx: Dict, answer: str) -> Optional[Dict]:
         """Extrae hechos duraderos del equipo y actualiza las notas de la
         conversación. Nunca rompe el flujo principal si falla."""
