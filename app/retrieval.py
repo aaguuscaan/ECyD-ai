@@ -4,10 +4,15 @@ Recuperación en dos etapas sobre el corpus ECyD.
     consulta
       → FAISS documentos  (qué documentos tratan el tema)
       → FAISS chunks      (qué fragmentos responden)
+      → PROGRESIÓN DE ETAPAS (si el equipo tiene etapa N):
+            · etapa N y material general (estatutos, estilo formativo): sí
+            · etapa N+1: solo como complemento (penalizada, máx. 2 fragmentos)
+            · etapa N-1: solo como complemento (penalizada, máx. 2 fragmentos)
+            · otras etapas: NO, salvo que la consulta las nombre explícitamente
       → re-ranking: similitud del fragmento
                     + afinidad del documento
-                    + etapa del equipo
-                    + autoridad de la fuente (jerarquía del prompt)
+                    + prioridad de la fuente: programa > fichas > documentos > recursos
+                    + autoridad (jerarquía del prompt)
       → diversificación (máx. N fragmentos por documento)
       → contexto numerado [F1], [F2], …
 """
@@ -29,8 +34,43 @@ log = logging.getLogger("ecyd.rag")
 
 AUTHORITY_BONUS = {1: 0.05, 2: 0.04, 3: 0.02, 4: 0.01, 5: 0.0}
 DOC_WEIGHT = 0.12
-ETAPA_BONUS = 0.04
 FOREIGN_LANG_PENALTY = 0.03
+# Prioridad de fuentes pedida: programa > fichas > documentos > recursos
+CATEGORIA_BONUS = {"programa": 0.06, "ficha": 0.04, "documento": 0.02, "recurso": 0.0}
+ETAPA_ACTUAL_BONUS = 0.06
+ETAPA_VECINA_PENALTY = 0.06     # siguiente / anterior: solo complemento
+MAX_VECINA = 2                  # fragmentos de la etapa siguiente o anterior
+FOCUS_BONUS = 0.25              # ficha elegida explícitamente por el responsable
+
+ETAPA_RE = re.compile(r"\b(?:([1-4])\s*(?:ª|ra|da|ta|era|a|°|º)?\s*etapa|etapa\s*([1-4])|"
+                      r"(primera|segunda|tercera|cuarta)\s+etapa)\b", re.I)
+_ORD = {"primera": 1, "segunda": 2, "tercera": 3, "cuarta": 4}
+
+
+def etapas_mencionadas(text: str) -> set:
+    out = set()
+    for m in ETAPA_RE.finditer(text or ""):
+        n = m.group(1) or m.group(2)
+        out.add(int(n) if n else _ORD[m.group(3).lower()])
+    return out
+
+
+def relacion_etapa(chunk_etapas: List[int], etapa: Optional[int], explicitas: set) -> str:
+    """actual | general | siguiente | anterior | explicita | fuera"""
+    if not chunk_etapas:
+        return "general"
+    if not etapa:
+        return "explicita" if (explicitas and set(chunk_etapas) & explicitas) else (
+            "fuera" if explicitas else "general")
+    if etapa in chunk_etapas:
+        return "actual"
+    if explicitas and set(chunk_etapas) & explicitas:
+        return "explicita"
+    if etapa + 1 in chunk_etapas:
+        return "siguiente"
+    if etapa - 1 in chunk_etapas:
+        return "anterior"
+    return "fuera"
 
 
 @dataclass
@@ -46,6 +86,8 @@ class Hit:
     score: float
     texto: str
     doc_score: float = 0.0
+    categoria: str = "documento"
+    relacion: str = "general"
     extra: Dict = field(default_factory=dict)
 
     def public(self, preview: int = 420) -> dict:
@@ -130,55 +172,84 @@ class Retriever:
             return {"error": str(e)}
 
     # ------------------------------------------------------------------
-    def search(self, query: str, *, etapa: Optional[int] = None, top_k: Optional[int] = None) -> List[Hit]:
+    def search(self, query: str, *, etapa: Optional[int] = None, top_k: Optional[int] = None,
+               focus_docs: Optional[List[str]] = None, focus_k: int = 3) -> List[Hit]:
+        """Busca respetando la progresión de etapas.
+
+        focus_docs: fichas/documentos elegidos por el responsable (se incluyen
+        sus fragmentos más relevantes primero, aunque sean de otra etapa)."""
         top_k = top_k or settings.top_k_chunks
         q = self.embed([query])
+        explicitas = etapas_mencionadas(query)
+        focus = set(focus_docs or [])
 
         # 1) documentos
         d_scores, d_idx = self.doc_index.search(q, settings.top_k_documents)
         doc_scores = {self.documents[i]["id"]: float(s) for s, i in zip(d_scores[0], d_idx[0]) if i >= 0}
 
-        # 2) chunks: búsqueda global + todos los chunks de los documentos preseleccionados
+        # 2) chunks: búsqueda global + chunks de los documentos preseleccionados y elegidos
         c_scores, c_idx = self.chunk_index.search(q, settings.chunk_candidates)
         sims: Dict[int, float] = {int(i): float(s) for s, i in zip(c_scores[0], c_idx[0]) if i >= 0}
-        for doc_id in doc_scores:
+        for doc_id in list(doc_scores) + list(focus):
             idxs = self.chunks_by_doc.get(doc_id, [])
             if idxs:
                 s = self.chunk_vectors[idxs] @ q[0]
                 for i, v in zip(idxs, s):
                     sims[i] = float(v)
+        if etapa:  # el programa de la etapa siempre compite
+            prog = [i for i, c in enumerate(self.chunks) if c.get("rol") == "programa" and etapa in c.get("etapas", [])]
+            if prog:
+                s = self.chunk_vectors[prog] @ q[0]
+                for i, v in zip(prog, s):
+                    sims.setdefault(i, float(v))
 
-        # 3) re-ranking
+        # 3) re-ranking con progresión de etapas
         scored = []
         for i, sim in sims.items():
             c = self.chunks[i]
+            rel = "foco" if c["doc_id"] in focus else relacion_etapa(c.get("etapas") or [], etapa, explicitas)
+            if rel == "fuera":
+                continue
             score = sim + DOC_WEIGHT * doc_scores.get(c["doc_id"], 0.0)
             score += AUTHORITY_BONUS.get(c.get("autoridad", 5), 0.0)
-            if etapa and etapa in (c.get("etapas") or []):
-                score += ETAPA_BONUS
+            score += CATEGORIA_BONUS.get(c.get("categoria", "documento"), 0.0)
+            if rel in ("actual", "explicita"):
+                score += ETAPA_ACTUAL_BONUS
+            elif rel in ("siguiente", "anterior"):
+                score -= ETAPA_VECINA_PENALTY
+            elif rel == "foco":
+                score += FOCUS_BONUS
             if c.get("idioma") and c["idioma"] != "es":
                 score -= FOREIGN_LANG_PENALTY
-            scored.append((score, sim, i))
-        scored.sort(reverse=True)
+            scored.append((score, sim, i, rel))
+        scored.sort(key=lambda x: x[0], reverse=True)
 
-        # 4) diversificación + deduplicación de texto
+        # 4) diversificación + deduplicación de texto + topes por relación
         hits: List[Hit] = []
         per_doc: Dict[str, int] = {}
+        vecinas = 0
         seen_text = set()
-        for score, sim, i in scored:
+        for score, sim, i, rel in scored:
             c = self.chunks[i]
-            if per_doc.get(c["doc_id"], 0) >= settings.max_chunks_per_doc:
+            cap = focus_k if rel == "foco" else settings.max_chunks_per_doc
+            if per_doc.get(c["doc_id"], 0) >= cap:
                 continue
+            if rel in ("siguiente", "anterior"):
+                if vecinas >= MAX_VECINA:
+                    continue
             key = re.sub(r"\W+", "", c["texto"][:200].lower())
             if key in seen_text:
                 continue
             seen_text.add(key)
+            if rel in ("siguiente", "anterior"):
+                vecinas += 1
             per_doc[c["doc_id"]] = per_doc.get(c["doc_id"], 0) + 1
             hits.append(Hit(
                 n=len(hits) + 1, chunk_id=c["id"], doc_id=c["doc_id"], titulo=c["titulo"],
                 tipo=c["tipo"], etapas=c.get("etapas") or [], autoridad=c.get("autoridad", 5),
                 similitud=round(sim, 4), score=round(score, 4), texto=self._text_with_neighbors(i),
-                doc_score=round(doc_scores.get(c["doc_id"], 0.0), 4)))
+                doc_score=round(doc_scores.get(c["doc_id"], 0.0), 4),
+                categoria=c.get("categoria", "documento"), relacion=rel))
             if len(hits) >= top_k:
                 break
         return hits
@@ -214,12 +285,19 @@ class Retriever:
         if Retriever.is_weak(hits):
             parts.append("⚠️ EVIDENCIA DÉBIL: los fragmentos recuperados tienen baja relevancia para la "
                          "consulta. No atribuyas al ECyD nada que no esté claramente en ellos.\n")
-        from .corpus import TIPOS, AUTORIDAD
+        from .corpus import CATEGORIAS, AUTORIDAD
+        rel_txt = {"actual": " (etapa del equipo)", "siguiente": " (ETAPA SIGUIENTE: solo como complemento)",
+                   "anterior": " (etapa anterior: solo como complemento)",
+                   "explicita": " (etapa pedida en la consulta)", "foco": " (elegido por el responsable)",
+                   "general": ""}
         for h in hits:
-            etapas = ", ".join(str(e) for e in h.etapas) or "general"
+            etapas = (", ".join(str(e) for e in h.etapas) or "general") + rel_txt.get(h.relacion, "")
             text = re.sub(r"\s+", " ", h.texto).strip()
+            categoria = CATEGORIAS.get(h.categoria, h.categoria)
+            if h.categoria == "programa":
+                categoria = "Programa de la etapa (Formando apóstoles, Tomo III)"
             block = (f"[F{h.n}] {h.titulo}\n"
-                     f"Tipo: {TIPOS.get(h.tipo, h.tipo)} · Etapa: {etapas} · "
+                     f"Tipo: {categoria} · Etapa: {etapas} · "
                      f"Autoridad: {h.autoridad} ({AUTORIDAD.get(h.autoridad, '')}) · Relevancia: {h.similitud:.2f}\n"
                      f"{text}\n")
             if total + len(block) > max_chars:
@@ -232,15 +310,23 @@ class Retriever:
         return "\n".join(parts)
 
     def document_list(self) -> List[dict]:
-        keys = ["id", "titulo", "tipo", "autoridad", "etapas", "idioma", "temas", "calendario",
+        keys = ["id", "titulo", "tipo", "categoria", "autoridad", "etapas", "idioma", "temas", "calendario",
                 "nivel_escolar", "num_chunks", "resumen"]
         out = []
         for d in self.documents:
             item = {k: d.get(k) for k in keys}
             item["archivo"] = d["fuente"]["archivo"]
             item["carpeta"] = d["fuente"].get("carpeta")
+            item["duplicados"] = [{"etapas": x.get("etapas"), "calendario": x.get("calendario")}
+                                  for x in d["fuente"].get("duplicados", [])]
             out.append(item)
         return out
+
+    def document_text(self, doc_id: str, max_chars: int = 0) -> str:
+        """Texto de un documento reconstruido desde sus fragmentos (para leer una ficha)."""
+        parts = [self.chunks[i]["texto"] for i in self.chunks_by_doc.get(doc_id, [])]
+        text = "\n".join(parts)
+        return text[:max_chars] if max_chars else text
 
     def stats(self) -> dict:
         return {"documentos": len(self.documents), "chunks": len(self.chunks),

@@ -67,17 +67,26 @@
   const FIELD_ICONS = {
     etapa: "layers", edades: "calendar", cantidad_chicos: "users", tema_mensual: "target",
     tema_reunion: "book", objetivo: "flag", situacion_equipo: "compass", duracion: "clock",
-    tipo_encuentro: "activity", notas: "note",
+    tipo_encuentro: "activity", notas: "note", composicion: "users",
   };
   const FIELD_PH = {
-    etapa: "Ej.: 2da etapa", edades: "Ej.: 12 a 13 años", cantidad_chicos: "Ej.: 9", duracion: "Ej.: 1 h 30 min",
+    etapa: "Etapa", edades: "Ej.: 12 a 13 años", cantidad_chicos: "Ej.: 9", duracion: "Ej.: 1 h 30 min",
     tipo_encuentro: "Ej.: reunión semanal, salida, convivencia", tema_mensual: "Ej.: La amistad",
     tema_reunion: "Ej.: Amigos que me enriquecen", objetivo: "¿Qué querés que vivan o descubran?",
     situacion_equipo: "Clima, vínculos, participación, dificultades…", notas: "Cualquier otra cosa útil",
   };
 
+  const ETAPAS = [
+    { n: 1, nombre: "Primera etapa", edades: "11-12 años" }, { n: 2, nombre: "Segunda etapa", edades: "12-13 años" },
+    { n: 3, nombre: "Tercera etapa", edades: "13-14 años" }, { n: 4, nombre: "Cuarta etapa", edades: "15-16 años" },
+  ];
+  const COMPOSICIONES = [["mixto", "Mixto"], ["solo chicas", "Solo chicas"], ["solo chicos", "Solo chicos"]];
+  const ESTADOS = { borrador: "Borrador", planificado: "Planificado", realizado: "Realizado" };
+  const CATEGORIA_DOC = { programa: "Programa", ficha: "Ficha", documento: "Documento", recurso: "Recurso" };
+
   const state = {
     config: { team_fields: [], categorias: [] },
+    user: null, programas: null, encuentros: [], month: null,
     teams: [], convs: [], memories: [], docs: null, health: null,
     teamId: load("teamId") || "",
     conversationId: null, conversation: null,
@@ -125,7 +134,34 @@
   }
   const etapasTxt = e => e && e.length ? "Etapa " + e.join(" y ") : "General";
   const currentTeam = () => state.teams.find(t => t.id === state.teamId) || null;
-  const userName = () => (load("nombre") || "").trim();
+  const userName = () => (state.user?.nombre || "").trim();
+  const parseEtapa = v => { const m = String(v || "").match(/[1-4]/); return m ? +m[0] : null; };
+  const teamEtapa = t => parseEtapa(t?.perfil?.etapa);
+  const etapaInfo = n => (state.programas?.etapas?.[n]) || ETAPAS.find(e => e.n === n) || null;
+  const docEtapas = d => [...new Set([...(d.etapas || []), ...(d.duplicados || []).flatMap(x => x.etapas || [])])].sort();
+  function fmtDay(s) {
+    if (!s) return "Sin fecha";
+    const d = new Date(String(s).slice(0, 10) + "T12:00:00");
+    return isNaN(d) ? s : d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+  }
+  const todayISO = () => { const d = new Date(); d.setMinutes(d.getMinutes() - d.getTimezoneOffset()); return d.toISOString().slice(0, 10); };
+  const cap = s => s ? s[0].toUpperCase() + s.slice(1) : "";
+
+  // lee una respuesta en streaming (SSE) y llama a onEvent por cada evento
+  async function readSSE(res, onEvent) {
+    const reader = res.body.getReader(), dec = new TextDecoder();
+    let buf = "";
+    for (;;) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      buf += dec.decode(value, { stream: true });
+      let idx;
+      while ((idx = buf.indexOf("\n\n")) >= 0) {
+        const raw = buf.slice(0, idx); buf = buf.slice(idx + 2);
+        if (raw.startsWith("data:")) onEvent(JSON.parse(raw.slice(5)));
+      }
+    }
+  }
   function initials(name) {
     const p = name.trim().split(/\s+/).filter(Boolean);
     return p.length ? (p[0][0] + (p[1]?.[0] || "")).toUpperCase() : "EC";
@@ -187,16 +223,68 @@
     return html;
   }
 
-  // ------------------------------------------------------------ acceso
-  function showLogin() { $("#login").classList.remove("hidden"); $("#login-pass").focus(); }
+  // ------------------------------------------------------------ acceso (cuentas individuales)
+  let authInfo = {};
+  function setAuthTab(tab) {
+    $$("[data-auth]").forEach(b => b.classList.toggle("on", b.dataset.auth === tab));
+    $("#login-form").classList.toggle("hidden", tab !== "login");
+    $("#register-form").classList.toggle("hidden", tab !== "register");
+    $("#login-error").textContent = "";
+    setTimeout(() => (tab === "login" ? $("#login-email") : $("#reg-nombre")).focus(), 30);
+  }
+  function showLogin() {
+    if (!$("#login").classList.contains("hidden")) return;
+    $("#login").classList.remove("hidden");
+    fetch("/api/session", { credentials: "same-origin" }).then(r => r.json()).then(s => {
+      authInfo = s;
+      $("#first-user-note").classList.toggle("hidden", !s.first_user);
+      $("#reg-codigo").classList.toggle("hidden", !s.registration_requires_code);
+      $("#reg-code-help").classList.toggle("hidden", !s.registration_requires_code);
+      $("#reg-codigo").required = !!s.registration_requires_code;
+      setAuthTab(s.first_user ? "register" : "login");
+    }).catch(() => setAuthTab("login"));
+  }
+  $$("[data-auth]").forEach(b => b.addEventListener("click", () => setAuthTab(b.dataset.auth)));
+  async function authPost(path, body) {
+    const res = await fetch(path, { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.detail || res.statusText);
+    return data;
+  }
+  function signedIn(user) {
+    if (load("uid") !== user.id) { save("teamId", null); state.teamId = ""; }
+    save("uid", user.id);
+    state.user = user;
+    $("#login").classList.add("hidden");
+    $("#login-pass").value = ""; $("#reg-pass").value = ""; $("#reg-codigo").value = "";
+    renderProfile(); boot();
+  }
   $("#login-form").addEventListener("submit", async e => {
     e.preventDefault();
     $("#login-error").textContent = "";
     try {
-      await api("/api/login", { method: "POST", body: { password: $("#login-pass").value } });
-      $("#login").classList.add("hidden"); boot();
+      const r = await authPost("/api/login", { email: $("#login-email").value.trim(), password: $("#login-pass").value });
+      signedIn(r.user);
     } catch (err) { $("#login-error").textContent = err.message; }
   });
+  $("#register-form").addEventListener("submit", async e => {
+    e.preventDefault();
+    $("#login-error").textContent = "";
+    try {
+      const r = await authPost("/api/register", {
+        nombre: $("#reg-nombre").value.trim(), email: $("#reg-email").value.trim(), password: $("#reg-pass").value,
+        rol: $("#reg-rol").value.trim(), codigo: $("#reg-codigo").value,
+      });
+      signedIn(r.user);
+      const n = r.datos_asignados || {};
+      if (n.equipos || n.conversaciones) toast(`Bienvenido/a. Quedaron en tu cuenta ${n.equipos || 0} equipo(s) y ${n.conversaciones || 0} conversación(es) que ya existían.`, 7000);
+      else toast("Cuenta creada. Empezá creando tu equipo.", 5000);
+    } catch (err) { $("#login-error").textContent = err.message; }
+  });
+  async function logout() {
+    await fetch("/api/logout", { method: "POST", credentials: "same-origin" }).catch(() => {});
+    save("teamId", null); location.reload();
+  }
 
   // ------------------------------------------------------------ tema y perfil
   function applyTheme() {
@@ -207,7 +295,7 @@
   function renderProfile() {
     const n = userName();
     $("#profile-name").textContent = n || "Tu nombre";
-    $("#profile-role").textContent = load("rol") || "Responsable de equipo";
+    $("#profile-role").textContent = state.user?.rol || "Responsable de equipo";
     $("#profile-avatar").textContent = initials(n);
     $("#greet-name").textContent = n ? `Hola, ${n.split(" ")[0]}` : "Hola";
   }
@@ -244,7 +332,7 @@
     $$(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.view === name));
     closeSidebar(); closeRail();
     $("#main").scrollTop = 0;
-    const renderers = { conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
+    const renderers = { preparar: renderPreparar, encuentros: renderEncuentros, conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
     renderers[name]?.();
     if (name === "inicio") setTimeout(() => $("#input").focus(), 50);
   }
@@ -252,6 +340,7 @@
     const a = e.target.closest("[data-view]");
     if (!a) return;
     e.preventDefault();
+    if (a.dataset.view === "encuentros") encOpen = null;
     showView(a.dataset.view);
   });
 
@@ -271,14 +360,15 @@
     sel.innerHTML = `<option value="">Sin equipo · consulta general</option>` +
       state.teams.map(t => `<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join("");
     sel.value = state.teamId;
-    renderContext(); updateHeader();
+    renderContext(); updateHeader(); loadMonth();
     await loadMemories();
   }
   function setTeam(id) {
     state.teamId = id || ""; save("teamId", state.teamId);
+    if (state.teamId && prep.teamId !== state.teamId) { prep.teamId = state.teamId; prep.selected = []; prep.temaManual = false; }
     $("#team-select").value = state.teamId;
     newConversation(false);
-    renderContext(); updateHeader(); loadMemories(); loadConversations(); pollHealth();
+    renderContext(); updateHeader(); loadMemories(); loadConversations(); loadMonth(); pollHealth();
   }
   $("#team-select").addEventListener("change", e => setTeam(e.target.value));
   $("#ctx-edit").addEventListener("click", () => { showView("equipos"); if (currentTeam()) renderTeamForm(currentTeam()); else renderTeamForm(null); });
@@ -307,11 +397,12 @@
       ${state.teams.length ? `<div class="grid-2">${state.teams.map(t => `
         <div class="team-card ${t.id === state.teamId ? "active" : ""}">
           <h3>${icon("users")}${esc(t.nombre)}${t.id === state.teamId ? ` <span class="badge red">Activo</span>` : ""}</h3>
-          <div class="row-sub">${esc(t.perfil.etapa || "Etapa sin definir")}${t.perfil.edades ? " · " + esc(t.perfil.edades) : ""}${t.perfil.cantidad_chicos ? " · " + esc(t.perfil.cantidad_chicos) + " adolescentes" : ""}</div>
+          <div class="row-sub">${esc(t.perfil.etapa || "Etapa sin definir")}${t.perfil.edades ? " · " + esc(t.perfil.edades) : ""}${t.perfil.cantidad_chicos ? " · " + esc(t.perfil.cantidad_chicos) + " adolescentes" : ""}${t.perfil.composicion ? " · " + esc(cap(t.perfil.composicion)) : ""}</div>
           ${t.perfil.tema_mensual ? `<div class="row-sub">Tema mensual: ${esc(t.perfil.tema_mensual)}</div>` : ""}
           <div class="actions">
             ${t.id === state.teamId ? "" : `<button class="btn primary small" data-use="${t.id}">Usar este equipo</button>`}
             <button class="btn small" data-edit="${t.id}">${icon("edit")}Editar</button>
+            <button class="btn small ghost" data-prep="${t.id}">${icon("sparkle")}Preparar encuentro</button>
           </div>
         </div>`).join("")}</div>`
       : `<div class="empty-state"><img src="/static/img/cruz-ecyd.svg" alt=""><p>Todavía no creaste ningún equipo.</p>
@@ -320,6 +411,7 @@
     $("#team-new-2")?.addEventListener("click", () => renderTeamForm(null));
     $$("[data-use]", v).forEach(b => b.addEventListener("click", () => { setTeam(b.dataset.use); renderTeams(); toast("Equipo activo actualizado"); }));
     $$("[data-edit]", v).forEach(b => b.addEventListener("click", () => renderTeamForm(state.teams.find(t => t.id === b.dataset.edit))));
+    $$("[data-prep]", v).forEach(b => b.addEventListener("click", () => { if (b.dataset.prep !== state.teamId) setTeam(b.dataset.prep); showView("preparar"); }));
   }
 
   function renderTeamForm(team) {
@@ -327,7 +419,18 @@
     const fields = state.config.team_fields.map(f => {
       const long = ["situacion_equipo", "objetivo", "notas"].includes(f.key);
       const val = esc(p[f.key] || "");
-      return `<div class="field-wrap ${long ? "wide" : ""}"><label for="f-${f.key}">${icon(FIELD_ICONS[f.key] || "info")}${esc(f.label)}</label>` +
+      const lbl = `<label for="f-${f.key}">${icon(FIELD_ICONS[f.key] || "info")}${esc(f.label)}</label>`;
+      if (f.key === "etapa") {
+        const cur = parseEtapa(p.etapa);
+        return `<div class="field-wrap">${lbl}<select class="field" id="f-etapa" data-k="etapa">
+          <option value="">Elegí la etapa…</option>${ETAPAS.map(e => `<option value="Etapa ${e.n}" ${cur === e.n ? "selected" : ""}>Etapa ${e.n} · ${e.nombre} (${e.edades})</option>`).join("")}</select></div>`;
+      }
+      if (f.key === "composicion") {
+        const cur = (p.composicion || "").toLowerCase();
+        return `<div class="field-wrap">${lbl}<select class="field" id="f-composicion" data-k="composicion">
+          <option value="">Sin indicar</option>${COMPOSICIONES.map(([v, l]) => `<option value="${v}" ${cur === v ? "selected" : ""}>${l}</option>`).join("")}</select></div>`;
+      }
+      return `<div class="field-wrap ${long ? "wide" : ""}">${lbl}` +
         (long ? `<textarea class="field" id="f-${f.key}" data-k="${f.key}" placeholder="${FIELD_PH[f.key] || ""}">${val}</textarea>`
               : `<input class="field" id="f-${f.key}" data-k="${f.key}" value="${val}" placeholder="${FIELD_PH[f.key] || ""}">`) + `</div>`;
     }).join("");
@@ -351,6 +454,10 @@
         </div>
       </form>`;
     $("#f-nombre").focus();
+    $("#f-etapa")?.addEventListener("change", e => {
+      const info = ETAPAS.find(x => x.n === parseEtapa(e.target.value)), ed = $("#f-edades");
+      if (info && ed && !ed.value.trim()) ed.value = info.edades;
+    });
     $("#team-cancel").addEventListener("click", renderTeams);
     $("#team-form").addEventListener("submit", async e => {
       e.preventDefault();
@@ -531,56 +638,139 @@
     $("#chat-team").textContent = t ? `Equipo: ${t.nombre}${t.perfil?.etapa ? " · " + t.perfil.etapa : ""}` : "Consulta general, sin equipo";
   }
 
-  // ------------------------------------------------------------ documentos
+  // ------------------------------------------------------------ documentos (por etapa)
+  let docTab = null;
+  async function ensureDocs() { state.docs ||= await api("/api/documents"); return state.docs; }
+  async function ensureProgramas() { state.programas ||= await api("/api/programas"); return state.programas; }
+
+  function docRow(d, extra = "") {
+    const et = docEtapas(d);
+    return `<div class="row-item clickable doc-row" data-doc="${esc(d.id)}">${icon(d.categoria === "ficha" ? "note" : d.categoria === "documento" ? "book" : "file")}
+      <div class="row-main"><div class="row-title">${esc(d.titulo)}</div>
+        <div class="row-sub"><span class="badge ${d.categoria === "ficha" || d.autoridad?.nivel <= 2 ? "red" : ""}">${esc(CATEGORIA_DOC[d.categoria] || TIPOS[d.tipo] || d.tipo)}</span><span>${etapasTxt(et)}</span>${extra}
+          ${(d.temas || []).slice(0, 3).map(t => `<span class="badge">${esc(t.replaceAll("_", " "))}</span>`).join("")}</div></div>
+      ${icon("chevron-right", "chev")}</div>`;
+  }
+  function bindDocRows(root) { $$("[data-doc]", root).forEach(r => r.addEventListener("click", e => { e.preventDefault(); openDoc(r.dataset.doc); })); }
+
   async function renderDocuments() {
     const v = $("#view-documentos");
+    docTab ||= String(teamEtapa(currentTeam()) || 1);
     v.innerHTML = `<div class="page-head"><div><h1>Documentos del ECyD</h1>
-      <p>El asistente responde a partir de estos documentos y prioriza los de mayor autoridad: Estatutos, estilo formativo, material de etapas, guías y fichas.</p></div></div>
-      <div class="filters" id="doc-filters"></div><div class="list" id="doc-list"><div class="thinking"><span class="spinner"></span>Cargando…</div></div>`;
-    try { state.docs ||= await api("/api/documents"); } catch (err) { $("#doc-list").innerHTML = `<p class="error-text">${esc(err.message)}</p>`; return; }
-    const tipos = [...new Set(state.docs.map(d => d.tipo))];
-    let fTipo = "", fEtapa = "", q = "";
-    $("#doc-filters").innerHTML = `<input class="field" type="search" id="doc-q" placeholder="Buscar por título o tema…" style="max-width:280px">
-      <button class="chip on" data-tipo="">Todos</button>${tipos.map(t => `<button class="chip" data-tipo="${t}">${esc(TIPOS[t] || t)}</button>`).join("")}
-      <span style="width:8px"></span>${[1, 2, 3, 4].map(e => `<button class="chip" data-etapa="${e}">Etapa ${e}</button>`).join("")}`;
-    const draw = () => {
-      const rows = state.docs.filter(d => (!fTipo || d.tipo === fTipo) && (!fEtapa || (d.etapas || []).includes(+fEtapa)) &&
-        (!q || [d.titulo, (d.temas || []).join(" "), TIPOS[d.tipo]].join(" ").toLowerCase().includes(q)));
-      $("#doc-list").innerHTML = `<p class="muted" style="font-size:13px;margin:0 0 4px">${rows.length} documentos</p>` + rows.map(d => `
-        <div class="row-item">${icon(d.tipo === "documento_oficial" ? "book" : "file")}
-          <div class="row-main"><div class="row-title">${esc(d.titulo)}</div>
-            <div class="row-sub"><span class="badge ${d.autoridad?.nivel <= 2 ? "red" : ""}">${esc(TIPOS[d.tipo] || d.tipo)}</span><span>${etapasTxt(d.etapas)}</span>
-              ${d.calendario?.tiempo_liturgico ? `<span>${esc(d.calendario.tiempo_liturgico.replace("_", " "))}</span>` : ""}
-              ${(d.temas || []).slice(0, 3).map(t => `<span class="badge">${esc(t.replaceAll("_", " "))}</span>`).join("")}</div></div>
-          <button class="btn small ghost" data-ask="${esc(d.titulo)}" title="Preguntar sobre este documento">${icon("chat")}<span class="hide-sm">Preguntar</span></button>
-        </div>`).join("");
-      $$("[data-ask]", v).forEach(b => b.addEventListener("click", () => {
-        newConversation(); $("#input").value = `¿Qué propone el documento “${b.dataset.ask}” y cómo puedo aprovecharlo con mi equipo?`; autosize(); $("#input").focus();
-      }));
-    };
-    $("#doc-q").addEventListener("input", e => { q = e.target.value.toLowerCase(); draw(); });
-    $$("[data-tipo]", v).forEach(ch => ch.addEventListener("click", () => { fTipo = ch.dataset.tipo; $$("[data-tipo]", v).forEach(x => x.classList.toggle("on", x === ch)); draw(); }));
-    $$("[data-etapa]", v).forEach(ch => ch.addEventListener("click", () => {
-      fEtapa = fEtapa === ch.dataset.etapa ? "" : ch.dataset.etapa;
-      $$("[data-etapa]", v).forEach(x => x.classList.toggle("on", x.dataset.etapa === fEtapa)); draw();
-    }));
-    draw();
+      <p>Organizados por etapa: el programa, las fichas de cada mes, los documentos y los recursos. El asistente busca primero en la etapa de tu grupo.</p></div></div>
+      <div class="filters">
+        <div class="seg tabs" id="doc-tabs">${[1, 2, 3, 4].map(n => `<button data-tab="${n}">Etapa ${n}</button>`).join("")}<button data-tab="general">Generales</button></div>
+        <input class="field" type="search" id="doc-q" placeholder="Buscar ficha o documento…" style="max-width:280px;margin-left:auto">
+      </div>
+      <div id="doc-body"><div class="thinking"><span class="spinner"></span>Cargando…</div></div>`;
+    try { await Promise.all([ensureDocs(), ensureProgramas()]); }
+    catch (err) { $("#doc-body").innerHTML = `<p class="error-text">${esc(err.message)}</p>`; return; }
+    const paintTabs = () => $$("#doc-tabs button").forEach(b => b.classList.toggle("on", b.dataset.tab === docTab));
+    $$("#doc-tabs button").forEach(b => b.addEventListener("click", () => { docTab = b.dataset.tab; $("#doc-q").value = ""; paintTabs(); draw(); }));
+    $("#doc-q").addEventListener("input", debounce(draw, 120));
+    paintTabs(); draw();
+
+    async function draw() {
+      const body = $("#doc-body"), q = $("#doc-q").value.trim().toLowerCase();
+      if (q) {
+        const rows = state.docs.filter(d => [d.titulo, (d.temas || []).join(" "), d.categoria, d.carpeta].join(" ").toLowerCase().includes(q));
+        body.innerHTML = `<p class="muted small-note">${rows.length} resultados en todas las etapas</p><div class="list">${rows.map(d => docRow(d)).join("")}</div>`;
+        bindDocRows(body); return;
+      }
+      if (docTab === "general") {
+        const gen = state.docs.filter(d => !docEtapas(d).length);
+        body.innerHTML = ["documento", "ficha", "recurso", "programa"].map(c => {
+          const rows = gen.filter(d => d.categoria === c);
+          return rows.length ? `<div class="section-title">${esc(CATEGORIA_DOC[c])}s generales · ${rows.length}</div><div class="list">${rows.map(d => docRow(d)).join("")}</div>` : "";
+        }).join("") || `<div class="empty-state"><p>No hay documentos generales.</p></div>`;
+        bindDocRows(body); return;
+      }
+      const n = +docTab, info = state.programas.etapas?.[docTab];
+      const deEtapa = state.docs.filter(d => docEtapas(d).includes(n));
+      const actual = await api(`/api/programa?etapa=${n}`).catch(() => null);
+      const actuales = new Set((actual?.periodos || []).map(p => p.periodo));
+      const enCal = new Set();
+      let html = "";
+      if (info) {
+        const r = info.resumen || {};
+        html += `<div class="form-card prog-card">
+          <div class="prog-head"><div><div class="prog-kicker">Programa de la etapa</div><h2>${esc(info.nombre)} <span class="muted">· ${esc(info.edades)}</span></h2></div>
+            <button class="btn primary small" data-view="preparar">${icon("sparkle")}Preparar encuentro</button></div>
+          <div class="prog-grid">
+            <div><div class="k">Alianza</div><p>${esc(r.alianza || "—")}</p></div>
+            <div><div class="k">Amor</div><p>${esc(r.amor || "—")}</p></div>
+            <div><div class="k">Virtud</div><p>${esc(r.virtud || "—")}</p></div>
+            <div><div class="k">Símbolo</div><p>${esc(r.simbolo || "—")}</p></div>
+          </div>
+          ${info.temas_centrales ? `<details class="prog-more"><summary>Temas centrales y necesidades de la etapa</summary><p>${esc(info.temas_centrales)}</p>
+            ${(info.necesidades || []).length ? `<ul class="dot-list">${info.necesidades.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""}</details>` : ""}
+          <p class="src-note">${icon("book")}Fuente: ${esc(state.programas.fuente?.titulo || "Formando apóstoles en el ECyD")}. ${esc(state.programas.nota_calendario || "")}</p>
+        </div>`;
+        html += `<div class="section-title">Fichas por mes</div><div class="cal">` + (info.calendario || []).map(p => {
+          p.fichas.forEach(f => enCal.add(f.doc_id));
+          const now = actuales.has(p.periodo);
+          return `<div class="cal-row ${now ? "now" : ""}"><div class="cal-month">${esc(cap((state.programas.periodos.find(x => x.periodo === p.periodo) || {}).label || p.periodo))}${now ? `<span class="badge red">Ahora</span>` : ""}</div>
+            <div class="cal-fichas">${p.fichas.map(f => `<button class="ficha-chip" data-doc="${esc(f.doc_id)}">${icon("note")}${esc(f.titulo)}</button>`).join("")}</div></div>`;
+        }).join("") + `</div>`;
+        const lit = info.tiempos_liturgicos || [];
+        if (lit.length) html += `<div class="section-title">Tiempos litúrgicos</div><div class="cal">${lit.map(t => `<div class="cal-row"><div class="cal-month">${esc(cap(t.tiempo_liturgico.replaceAll("_", " ")))}</div>
+          <div class="cal-fichas">${t.fichas.map(f => { enCal.add(f.doc_id); return `<button class="ficha-chip" data-doc="${esc(f.doc_id)}">${icon("note")}${esc(f.titulo)}</button>`; }).join("")}</div></div>`).join("")}</div>`;
+      }
+      const otras = deEtapa.filter(d => d.categoria === "ficha" && !enCal.has(d.id));
+      if (otras.length) html += `<div class="section-title">Otras fichas de la etapa · ${otras.length}</div><div class="list">${otras.map(d => docRow(d)).join("")}</div>`;
+      for (const c of ["documento", "recurso"]) {
+        const rows = deEtapa.filter(d => d.categoria === c || (c === "documento" && d.categoria === "programa"));
+        if (rows.length) html += `<div class="section-title">${c === "documento" ? "Documentos" : "Recursos adicionales"} · ${rows.length}</div><div class="list">${rows.map(d => docRow(d)).join("")}</div>`;
+      }
+      body.innerHTML = html || `<div class="empty-state"><p>No hay material cargado para esta etapa.</p></div>`;
+      hydrateIcons(body); bindDocRows(body);
+    }
+  }
+
+  async function openDoc(id) {
+    openPanel("Documento", `<div class="thinking"><span class="spinner"></span>Cargando…</div>`);
+    try {
+      const d = await api(`/api/documents/${encodeURIComponent(id)}`);
+      const et = docEtapas(d), grupo = teamEtapa(currentTeam());
+      const avanzada = grupo && et.length && Math.min(...et) > grupo;
+      $("#panel-title").textContent = CATEGORIA_DOC[d.categoria] || "Documento";
+      $("#panel-body").innerHTML = `
+        <h2 class="doc-title">${esc(d.titulo)}</h2>
+        <div class="source-meta"><span>${esc(TIPOS[d.tipo] || d.tipo)}</span><span>${etapasTxt(et)}</span>${d.carpeta ? `<span>${esc(d.carpeta)}</span>` : ""}</div>
+        ${avanzada ? `<div class="weak">Este material es de una etapa más avanzada que la de tu grupo (${esc(currentTeam().perfil.etapa)}). Usalo solo si tenés un motivo claro.</div>` : ""}
+        <div class="actions">
+          ${d.categoria === "ficha" ? `<button class="btn primary small" id="doc-prep">${icon("sparkle")}Preparar encuentro con esta ficha</button>` : ""}
+          <button class="btn small" id="doc-ask">${icon("chat")}Preguntar</button></div>
+        <div class="doc-text">${esc(d.texto || "Sin texto disponible.").split(/\n{2,}/).map(p => `<p>${p.replace(/-\n(?=\p{Ll})/gu, "").replace(/\n/g, " ")}</p>`).join("")}</div>`;
+      $("#doc-prep")?.addEventListener("click", () => { closePanel(); prep.preselect = d.id; showView("preparar"); });
+      $("#doc-ask").addEventListener("click", () => {
+        closePanel(); newConversation(); $("#input").value = `¿Qué propone el documento “${d.titulo}” y cómo puedo aprovecharlo con mi equipo?`; autosize(); $("#input").focus();
+      });
+    } catch (err) { $("#panel-body").innerHTML = `<p class="error-text">${esc(err.message)}</p>`; }
   }
 
   // ------------------------------------------------------------ configuración
   async function renderSettings() {
     const v = $("#view-configuracion");
     const tema = load("tema") || "auto";
-    const session = await fetch("/api/session", { credentials: "same-origin" }).then(r => r.json()).catch(() => ({}));
-    const h = state.health || {};
+    const h = state.health || {}, u = state.user || {};
     v.innerHTML = `
-      <div class="page-head"><div><h1>Configuración</h1><p>Tus datos de perfil se guardan solo en este navegador.</p></div></div>
+      <div class="page-head"><div><h1>Configuración</h1><p>Tu cuenta es personal: tus equipos, encuentros y conversaciones solo los ves vos.</p></div></div>
       <form class="form-card" id="profile-form">
         <div class="form-grid">
-          <div class="field-wrap"><label for="p-nombre">${icon("user-pin")}Tu nombre</label><input class="field" id="p-nombre" value="${esc(userName())}" placeholder="Ej.: María López"></div>
-          <div class="field-wrap"><label for="p-rol">${icon("users")}Tu rol</label><input class="field" id="p-rol" value="${esc(load("rol") || "")}" placeholder="Responsable de equipo"></div>
+          <div class="field-wrap"><label for="p-nombre">${icon("user-pin")}Tu nombre</label><input class="field" id="p-nombre" value="${esc(u.nombre || "")}" required maxlength="120"></div>
+          <div class="field-wrap"><label for="p-rol">${icon("users")}Tu rol</label><input class="field" id="p-rol" value="${esc(u.rol || "")}" placeholder="Responsable de equipo" maxlength="120"></div>
+          <div class="field-wrap wide"><label>${icon("info")}Email</label><input class="field" value="${esc(u.email || "")}" disabled></div>
         </div>
         <div class="actions" style="margin-top:14px"><button class="btn primary" type="submit">${icon("check")}Guardar perfil</button></div>
+      </form>
+      <div class="section-title">Contraseña</div>
+      <form class="form-card" id="pass-form">
+        <div class="form-grid">
+          <div class="field-wrap"><label for="pw-actual">Contraseña actual</label><input class="field" type="password" id="pw-actual" autocomplete="current-password" required></div>
+          <div class="field-wrap"><label for="pw-nueva">Contraseña nueva</label><input class="field" type="password" id="pw-nueva" autocomplete="new-password" minlength="8" required></div>
+        </div>
+        <div class="actions" style="margin-top:14px"><button class="btn" type="submit">${icon("check")}Cambiar contraseña</button></div>
       </form>
       <div class="section-title">Apariencia</div>
       <div class="form-card"><div class="seg" id="theme-seg">
@@ -594,18 +784,417 @@
         <dt>Memoria</dt><dd>${h.memoria === "supabase" ? "Base de datos en la nube (Supabase)" : "Archivo local (SQLite)"}${h.memoria_ok === false ? " — sin conexión" : ""}</dd>
         <dt>Clave configurada</dt><dd>${h.llm_configurado ? "Sí (solo en el servidor)" : "No — agregá GROQ_API_KEY al archivo .env"}</dd>
         <dt>Documentos</dt><dd>${h.corpus ? `${h.corpus.documentos} documentos · ${h.corpus.chunks} fragmentos` : esc(h.rag || "—")}</dd>
-        <dt>Índice</dt><dd>${h.corpus ? esc(h.corpus.chunker === "legacy_v1" ? "Heredado (conviene ejecutar scripts/build_index.py)" : "Actualizado") : "—"}</dd>
       </dl></div>
-      ${session.auth_required ? `<div class="actions" style="margin-top:18px"><button class="btn" id="logout">${icon("logout")}Cerrar sesión</button></div>` : ""}`;
-    $("#profile-form").addEventListener("submit", e => {
-      e.preventDefault(); save("nombre", $("#p-nombre").value.trim()); save("rol", $("#p-rol").value.trim());
-      renderProfile(); toast("Perfil guardado");
+      <div class="actions" style="margin-top:18px"><button class="btn" id="logout">${icon("logout")}Cerrar sesión</button></div>`;
+    $("#profile-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        state.user = await api("/api/me", { method: "PUT", body: { nombre: $("#p-nombre").value.trim(), rol: $("#p-rol").value.trim() } });
+        renderProfile(); toast("Perfil guardado");
+      } catch (err) { toast(err.message); }
+    });
+    $("#pass-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        await api("/api/me/password", { method: "POST", body: { actual: $("#pw-actual").value, nueva: $("#pw-nueva").value } });
+        e.target.reset(); toast("Contraseña actualizada");
+      } catch (err) { toast(err.message); }
     });
     $$("#theme-seg button").forEach(b => b.addEventListener("click", () => {
       save("tema", b.dataset.t === "auto" ? null : b.dataset.t); applyTheme();
       $$("#theme-seg button").forEach(x => x.classList.toggle("on", x === b));
     }));
-    $("#logout")?.addEventListener("click", async () => { await api("/api/logout", { method: "POST" }); location.reload(); });
+    $("#logout").addEventListener("click", logout);
+  }
+
+  // ------------------------------------------------------------ "Para este mes" (columna derecha)
+  async function loadMonth() {
+    const body = $("#month-body"), t = currentTeam();
+    state.month = null;
+    if (!t) { body.innerHTML = `<p class="ctx-empty">Elegí un equipo para ver qué propone el programa de su etapa en este momento del año.</p>`; return; }
+    if (!teamEtapa(t)) {
+      body.innerHTML = `<p class="ctx-empty">Indicá la <strong>etapa</strong> del equipo para ver las fichas que propone el programa.</p>`;
+      return;
+    }
+    try {
+      const s = state.month = await api(`/api/programa?team_id=${encodeURIComponent(t.id)}`);
+      if (!s.disponible) { body.innerHTML = `<p class="ctx-empty">No hay programa cargado para esta etapa.</p>`; return; }
+      const per = s.periodos.map(p => p.label).join(" y ");
+      body.innerHTML = `
+        <div class="month-meta">${esc(cap(s.mes))} · ${esc(s.nombre)}</div>
+        <p class="card-note">${s.receso ? `Receso de verano: el programa retoma en marzo con estas fichas.` : `Según el programa de esta etapa, para ${esc(per)}:`}</p>
+        <ul class="month-list">${s.fichas.slice(0, 5).map(f => `<li><button class="link-li" data-prep-ficha="${esc(f.doc_id)}">${icon("note")}${esc(f.titulo)}</button></li>`).join("") || `<li class="muted">Sin fichas asignadas a este período.</li>`}</ul>
+        ${s.liturgico ? `<div class="month-lit">${icon("sparkle")}<span>${esc(s.liturgico.nombre)} ${s.liturgico.en_curso ? "(en curso)" : "(se acerca)"}${s.liturgico.fichas?.length ? `: ${s.liturgico.fichas.map(f => `<button class="link-btn" data-prep-ficha="${esc(f.doc_id)}">${esc(f.titulo)}</button>`).join(", ")}` : ""}</span></div>` : ""}`;
+      $$("[data-prep-ficha]", body).forEach(b => b.addEventListener("click", () => { prep.preselect = b.dataset.prepFicha; showView("preparar"); }));
+    } catch { body.innerHTML = `<p class="ctx-empty">No se pudo cargar el programa.</p>`; }
+  }
+
+  // ------------------------------------------------------------ encuentros (datos)
+  async function loadEncuentros() {
+    state.encuentros = await api("/api/encuentros").catch(() => []);
+    return state.encuentros;
+  }
+  const encDeEquipo = id => state.encuentros.filter(e => e.team_id === id);
+  function encMeta(e) {
+    return [e.team_nombre || state.teams.find(t => t.id === e.team_id)?.nombre, e.etapa ? `Etapa ${e.etapa}` : "", fmtDay(e.fecha),
+      e.cantidad ? `${e.cantidad} chicos` : "", e.composicion ? cap(e.composicion) : "", e.duracion].filter(Boolean);
+  }
+
+  // ------------------------------------------------------------ preparar encuentro
+  const prep = { teamId: "", prog: null, selected: [], fichaInfo: {}, temaManual: false, preselect: null, controller: null };
+
+  async function renderPreparar() {
+    const v = $("#view-preparar");
+    if (prep.controller) return; // generando: no redibujar
+    if (!state.teams.length) {
+      v.innerHTML = `<div class="page-head"><div><h1>Preparar encuentro</h1></div></div>
+        <div class="empty-state"><img src="/static/img/cruz-ecyd.svg" alt=""><p>Para preparar un encuentro primero creá tu equipo e indicá su etapa.</p>
+        <button class="btn primary" id="prep-team">${icon("plus")}Crear mi equipo</button></div>`;
+      $("#prep-team").addEventListener("click", () => { showView("equipos"); renderTeamForm(null); });
+      return;
+    }
+    if (!prep.teamId || !state.teams.some(t => t.id === prep.teamId)) prep.teamId = state.teamId || state.teams[0].id;
+    if (prep.done) { prep.selected = []; prep.temaManual = false; prep.done = false; }
+    if (prep.preselect && !prep.selected.includes(prep.preselect)) { prep.selected = [prep.preselect]; prep.temaManual = false; }
+    const t = state.teams.find(x => x.id === prep.teamId), p = t.perfil || {}, etapa = teamEtapa(t);
+    v.innerHTML = `
+      <div class="page-head"><div><h1>Preparar encuentro</h1>
+        <p>Elegí el grupo, mirá qué propone el programa de su etapa para este momento del año y generá una propuesta basada en las fichas. Después la adaptás y la guardás.</p></div></div>
+
+      <div class="step-card">
+        <div class="step-head"><span class="step-n">1</span><h3>Grupo</h3></div>
+        <div class="step-row">
+          <select id="prep-team-sel" class="field">${state.teams.map(x => `<option value="${esc(x.id)}" ${x.id === t.id ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}</select>
+          <button class="btn small ghost" id="prep-edit-team">${icon("edit")}Editar datos</button>
+        </div>
+        <div class="pill-row">
+          <span class="pill ${etapa ? "on" : "warn"}">${icon("layers")}${etapa ? `Etapa ${etapa}` : "Etapa sin definir"}</span>
+          ${p.edades ? `<span class="pill">${icon("calendar")}${esc(p.edades)}</span>` : ""}
+          ${p.cantidad_chicos ? `<span class="pill">${icon("users")}${esc(p.cantidad_chicos)} chicos</span>` : ""}
+          ${p.composicion ? `<span class="pill">${icon("users")}${esc(cap(p.composicion))}</span>` : ""}
+        </div>
+        ${etapa ? "" : `<div class="weak">Sin la etapa no puedo ubicar el encuentro en el programa. <button class="link-btn" id="prep-set-etapa">Indicar etapa</button></div>`}
+        <div id="prep-hist"></div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head"><span class="step-n">2</span><h3>Tema y fichas</h3></div>
+        <div id="prep-prog"><div class="thinking"><span class="spinner"></span>Buscando el programa de la etapa…</div></div>
+        <div class="field-wrap" style="margin-top:14px"><label for="prep-tema">${icon("target")}Tema del encuentro</label>
+          <input class="field" id="prep-tema" maxlength="300" placeholder="Elegí una ficha arriba o escribí otro tema"></div>
+        <div class="field-wrap ficha-search"><label for="prep-buscar">${icon("search")}Buscar otra ficha</label>
+          <input class="field" id="prep-buscar" type="search" placeholder="Ej.: amistad, oración, servicio…" autocomplete="off">
+          <div id="prep-buscar-res" class="search-results hidden"></div></div>
+        <div id="prep-sel" class="sel-list"></div>
+      </div>
+
+      <div class="step-card">
+        <div class="step-head"><span class="step-n">3</span><h3>Datos del encuentro</h3><span class="muted small-note">Opcional: si no los cambiás, uso los del grupo.</span></div>
+        <div class="form-grid">
+          <div class="field-wrap"><label for="prep-fecha">${icon("calendar")}Fecha</label><input class="field" type="date" id="prep-fecha" value="${todayISO()}"></div>
+          <div class="field-wrap"><label for="prep-duracion">${icon("clock")}Duración</label><input class="field" id="prep-duracion" value="${esc(p.duracion || "")}" placeholder="Ej.: 1 h 30 min"></div>
+          <div class="field-wrap"><label for="prep-cantidad">${icon("users")}Cantidad de chicos</label><input class="field" type="number" min="1" max="200" id="prep-cantidad" value="${esc(parseInt(p.cantidad_chicos) || "")}"></div>
+          <div class="field-wrap"><label for="prep-comp">${icon("users")}Composición</label><select class="field" id="prep-comp">
+            <option value="">Sin indicar</option>${COMPOSICIONES.map(([val, l]) => `<option value="${val}" ${(p.composicion || "").toLowerCase() === val ? "selected" : ""}>${l}</option>`).join("")}</select></div>
+          <div class="field-wrap wide"><label for="prep-notas">${icon("note")}¿Algo a tener en cuenta?</label>
+            <textarea class="field" id="prep-notas" rows="2" maxlength="2000" placeholder="Ej.: es al aire libre, vienen dos chicos nuevos, quiero cerrar con un momento de oración…"></textarea></div>
+        </div>
+      </div>
+
+      <div class="prep-go">
+        <button class="btn primary big" id="prep-generar">${icon("sparkle")}Generar propuesta</button>
+        <span class="muted small-note">La propuesta se basa en el programa y las fichas de la etapa, y queda guardada como borrador en “Mis encuentros”.</span>
+      </div>
+      <div id="prep-out"></div>`;
+
+    $("#prep-team-sel").addEventListener("change", e => { prep.teamId = e.target.value; prep.selected = []; prep.preselect = null; prep.temaManual = false; if (e.target.value !== state.teamId) setTeam(e.target.value); renderPreparar(); });
+    const editTeam = () => { showView("equipos"); renderTeamForm(t); };
+    $("#prep-edit-team").addEventListener("click", editTeam);
+    $("#prep-set-etapa")?.addEventListener("click", editTeam);
+    $("#prep-tema").addEventListener("input", () => { prep.temaManual = !!$("#prep-tema").value.trim(); });
+    $("#prep-generar").addEventListener("click", generarEncuentro);
+    setupFichaSearch(etapa);
+    renderHistorial(t);
+
+    // programa de la etapa en este momento del año
+    const box = $("#prep-prog");
+    if (!etapa) { box.innerHTML = `<p class="muted">Cuando indiques la etapa vas a ver acá las fichas que propone el programa para este mes. Mientras tanto, podés escribir el tema.</p>`; syncSelected(); return; }
+    try {
+      const s = prep.prog = await api(`/api/programa?team_id=${encodeURIComponent(t.id)}`);
+      if (!s.disponible) { box.innerHTML = `<p class="muted">No hay programa cargado para esta etapa.</p>`; syncSelected(); return; }
+      const r = s.resumen || {};
+      const fichaBtn = (f, periodo) => { prep.fichaInfo[f.doc_id] = { ...f, periodo, etapas: [etapa] };
+        return `<button class="ficha-card" data-pick="${esc(f.doc_id)}"><span class="ficha-check">${icon("check")}</span><span class="ficha-txt"><strong>${esc(f.titulo)}</strong>
+          <small>${(f.temas || []).slice(0, 3).map(x => x.replaceAll("_", " ")).join(" · ") || "Ficha de la etapa"}</small></span>
+          <span class="icon-btn ficha-ver" data-ver="${esc(f.doc_id)}" title="Leer la ficha">${icon("book")}</span></button>`; };
+      box.innerHTML = `
+        <div class="prog-banner">${icon("compass")}<div><strong>Según el programa de la ${esc(s.nombre.toLowerCase())}</strong> (${esc(s.edades)}) — ${esc(cap(s.mes))}${s.receso ? " · receso: el programa retoma en marzo" : ""}
+          <div class="muted small-note">${esc(r.amor || "")} ${esc(r.virtud || "")}</div></div></div>
+        <div class="sub-label">Fichas para ${esc(s.periodos.map(x => x.label).join(" y "))}</div>
+        <div class="ficha-grid">${s.fichas.map(f => fichaBtn(f, f.periodo)).join("") || `<p class="muted">El programa no asigna fichas a este período.</p>`}</div>
+        ${s.liturgico?.fichas?.length ? `<div class="sub-label">${esc(s.liturgico.nombre)} ${s.liturgico.en_curso ? "· en curso" : "· se acerca"}</div>
+          <div class="ficha-grid">${s.liturgico.fichas.map(f => fichaBtn(f, s.liturgico.clave)).join("")}</div>` : ""}
+        ${s.proximo ? `<details class="prog-more"><summary>Próximo período: ${esc(s.proximo.label)}</summary>
+          <div class="ficha-grid">${s.proximo.fichas.map(f => fichaBtn(f, s.proximo.periodo)).join("")}</div></details>` : ""}
+        <p class="muted small-note">El programa es una guía: podés seguirlo o elegir otro tema. Vos decidís.</p>`;
+      $$("[data-pick]", box).forEach(b => b.addEventListener("click", e => {
+        if (e.target.closest("[data-ver]")) { e.stopPropagation(); openDoc(e.target.closest("[data-ver]").dataset.ver); return; }
+        toggleFicha(b.dataset.pick);
+      }));
+      hydrateIcons(box);
+    } catch (err) { box.innerHTML = `<p class="error-text">${esc(err.message)}</p>`; }
+    syncSelected();
+  }
+
+  function toggleFicha(id, info) {
+    if (info) prep.fichaInfo[id] = info;
+    const i = prep.selected.indexOf(id);
+    if (i >= 0) prep.selected.splice(i, 1);
+    else { if (prep.selected.length >= 3) { toast("Podés elegir hasta 3 fichas."); return; } prep.selected.push(id); }
+    syncSelected();
+  }
+
+  function fichaData(id) {
+    if (prep.fichaInfo[id]) return prep.fichaInfo[id];
+    const d = (state.docs || []).find(x => x.id === id);
+    return d ? { doc_id: d.id, titulo: d.titulo, etapas: docEtapas(d) } : { doc_id: id, titulo: "Ficha" };
+  }
+
+  function syncSelected() {
+    const box = $("#prep-sel"); if (!box) return;
+    $$("[data-pick]").forEach(b => b.classList.toggle("on", prep.selected.includes(b.dataset.pick)));
+    const etapa = teamEtapa(state.teams.find(t => t.id === prep.teamId));
+    box.innerHTML = prep.selected.map(id => {
+      const f = fichaData(id), et = f.etapas || [];
+      const adv = etapa && et.length && Math.min(...et) > etapa;
+      const otra = etapa && et.length && !et.includes(etapa);
+      return `<div class="sel-item ${adv ? "warn" : ""}">${icon("note")}<span><strong>${esc(f.titulo)}</strong>
+        ${adv ? `<small>Es de una etapa más avanzada (${etapasTxt(et)}). Usala solo si tenés un motivo claro.</small>` : otra ? `<small>Material de ${etapasTxt(et)}: se adapta a tu grupo.</small>` : ""}</span>
+        <button class="icon-btn" data-unpick="${esc(id)}" aria-label="Quitar">${icon("x")}</button></div>`;
+    }).join("");
+    $$("[data-unpick]", box).forEach(b => b.addEventListener("click", () => toggleFicha(b.dataset.unpick)));
+    const tema = $("#prep-tema");
+    if (tema && !prep.temaManual) tema.value = prep.selected.length ? fichaData(prep.selected[0]).titulo : "";
+    prep.preselect = null;
+  }
+
+  function setupFichaSearch(etapa) {
+    const inp = $("#prep-buscar"), res = $("#prep-buscar-res");
+    const run = debounce(async () => {
+      const q = inp.value.trim().toLowerCase();
+      if (!q) { res.classList.add("hidden"); return; }
+      try { await ensureDocs(); } catch { res.innerHTML = `<div class="sr-empty">Los documentos todavía se están cargando…</div>`; res.classList.remove("hidden"); return; }
+      const score = d => { const et = docEtapas(d); return et.includes(etapa) ? 0 : !et.length ? 1 : Math.min(...et) < etapa ? 2 : 3; };
+      const rows = state.docs.filter(d => ["ficha", "recurso"].includes(d.categoria) &&
+        [d.titulo, (d.temas || []).join(" ")].join(" ").toLowerCase().includes(q)).sort((a, b) => score(a) - score(b)).slice(0, 8);
+      res.innerHTML = rows.length ? rows.map(d => { const et = docEtapas(d); const adv = etapa && et.length && Math.min(...et) > etapa;
+        return `<button class="sr-item" data-add="${esc(d.id)}">${icon("note")}<span>${esc(d.titulo)}<small>${etapasTxt(et)}${et.includes(etapa) ? " · tu etapa" : adv ? " · más avanzada" : ""}</small></span></button>`; }).join("")
+        : `<div class="sr-empty">No encontré fichas con “${esc(inp.value)}”.</div>`;
+      res.classList.remove("hidden");
+      $$("[data-add]", res).forEach(b => b.addEventListener("mousedown", e => {
+        e.preventDefault(); const d = state.docs.find(x => x.id === b.dataset.add);
+        if (!prep.selected.includes(d.id)) toggleFicha(d.id, { doc_id: d.id, titulo: d.titulo, etapas: docEtapas(d) });
+        inp.value = ""; res.classList.add("hidden");
+      }));
+    }, 150);
+    inp.addEventListener("input", run);
+    inp.addEventListener("blur", () => setTimeout(() => res.classList.add("hidden"), 150));
+  }
+
+  async function renderHistorial(t) {
+    const box = $("#prep-hist"); if (!box) return;
+    await loadEncuentros();
+    const prev = encDeEquipo(t.id).slice(0, 4);
+    box.innerHTML = prev.length ? `<div class="sub-label">Lo que ya trabajó este grupo</div><div class="hist">${prev.map(e => `
+      <button class="hist-item" data-enc="${esc(e.id)}"><span class="hist-date">${esc(fmtDay(e.fecha))}</span><span class="hist-t">${esc(e.titulo || e.tema || "Encuentro")}</span>
+      <span class="badge ${e.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[e.estado] || e.estado)}</span></button>`).join("")}</div>`
+      : `<p class="muted small-note" style="margin-top:12px">Este grupo todavía no tiene encuentros guardados.</p>`;
+    $$("[data-enc]", box).forEach(b => b.addEventListener("click", () => openEncuentro(b.dataset.enc)));
+  }
+
+  async function generarEncuentro() {
+    if (prep.controller) return;
+    const tema = $("#prep-tema").value.trim();
+    if (!tema && !prep.selected.length) { toast("Elegí una ficha del programa o escribí un tema."); $("#prep-tema").focus(); return; }
+    const delPrograma = prep.selected.find(id => prep.prog?.fichas?.some(f => f.doc_id === id) || prep.prog?.liturgico?.fichas?.some(f => f.doc_id === id) || prep.prog?.proximo?.fichas?.some(f => f.doc_id === id));
+    const body = {
+      team_id: prep.teamId, tema, fichas: prep.selected, origen_tema: delPrograma ? "programa" : "otro",
+      periodo: delPrograma ? (fichaData(delPrograma).periodo || "") : "",
+      fecha: $("#prep-fecha").value || null, cantidad: parseInt($("#prep-cantidad").value) || null,
+      composicion: $("#prep-comp").value, duracion: $("#prep-duracion").value.trim(), notas: $("#prep-notas").value.trim(),
+      edades: state.teams.find(t => t.id === prep.teamId)?.perfil?.edades || "",
+    };
+    await streamEncuentro(body, $("#prep-out"));
+  }
+
+  // genera (o regenera) una propuesta y la muestra en `out`
+  async function streamEncuentro(body, out, onSaved) {
+    out.innerHTML = `<div class="form-card enc-out"><div class="weak hidden"></div><div class="md"><div class="thinking"><span class="spinner"></span>Buscando en el programa y las fichas de la etapa…</div></div><div class="extras"></div></div>`;
+    const card = $(".enc-out", out), md = $(".md", card);
+    out.scrollIntoView({ behavior: "smooth", block: "start" });
+    const btn = $("#prep-generar"); if (btn) { btn.disabled = true; btn.innerHTML = `<span class="spinner"></span>Generando…`; }
+    const controller = prep.controller = new AbortController();
+    let text = "", raf = 0, saved = null;
+    const paint = () => { raf = 0; md.innerHTML = markdown(text); md.classList.add("cursor"); };
+    try {
+      const res = await fetch("/api/encuentros/generar", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), signal: controller.signal });
+      if (res.status === 401) { showLogin(); throw new Error("La sesión venció"); }
+      if (!res.ok) { let m = res.statusText; try { m = (await res.json()).detail; } catch {} throw new Error(m); }
+      await readSSE(res, ev => {
+        if (ev.type === "meta") {
+          card._sources = ev.sources || [];
+          const w = $(".weak", card);
+          const avisos = [ev.aviso, ev.weak_evidence ? "Encontré poco material del ECyD directamente relacionado; revisá la propuesta con más cuidado." : ""].filter(Boolean);
+          if (avisos.length) { w.innerHTML = avisos.map(esc).join("<br>"); w.classList.remove("hidden"); }
+          md.innerHTML = `<div class="thinking"><span class="spinner"></span>Armando la propuesta…</div>`;
+        } else if (ev.type === "delta") { text += ev.text; if (!raf) raf = requestAnimationFrame(paint); }
+        else if (ev.type === "done") { saved = ev.encuentro; saved._sources = ev.sources; }
+        else if (ev.type === "error") throw new Error(ev.message);
+      });
+    } catch (err) {
+      if (raf) cancelAnimationFrame(raf);
+      md.classList.remove("cursor");
+      if (err.name === "AbortError") md.innerHTML = markdown(text + "\n\n_(Detenido.)_");
+      else { card.classList.add("error-card"); md.innerHTML = (text ? markdown(text) : "") + `<p class="error-text">No pude generar la propuesta: ${esc(err.message)}</p>`; }
+    } finally {
+      prep.controller = null;
+      if (btn) { btn.disabled = false; btn.innerHTML = `${icon("sparkle")}Generar otra propuesta`; }
+    }
+    if (raf) cancelAnimationFrame(raf);
+    if (saved) {
+      prep.done = true;
+      await loadEncuentros();
+      if (onSaved) onSaved(saved);
+      else { renderEncuentroEditor(out, saved, { sources: saved._sources }); toast("Propuesta guardada como borrador en “Mis encuentros”"); }
+      renderHistorial(state.teams.find(t => t.id === saved.team_id) || { id: saved.team_id });
+    }
+  }
+
+  // ------------------------------------------------------------ editor de un encuentro
+  function renderEncuentroEditor(container, enc, opts = {}) {
+    const sources = opts.sources || enc.meta?.sources || [];
+    const fichas = enc.fichas || [];
+    container.innerHTML = `
+      <div class="form-card enc-editor">
+        ${opts.back ? `<button class="link-btn back" data-e="back">← Volver a Mis encuentros</button>` : ""}
+        <div class="enc-top">
+          <input class="field enc-title" data-e="titulo" value="${esc(enc.titulo || "")}" maxlength="140" aria-label="Título">
+          <select class="field enc-estado" data-e="estado">${Object.entries(ESTADOS).map(([k, l]) => `<option value="${k}" ${enc.estado === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+        </div>
+        <div class="row-sub enc-meta">${encMeta(enc).map(x => `<span>${esc(x)}</span>`).join("<span>·</span>")}</div>
+        <div class="pill-row">
+          ${enc.tema ? `<span class="pill on">${icon("target")}${esc(enc.tema)}</span>` : ""}
+          ${enc.origen_tema === "programa" ? `<span class="pill">${icon("compass")}Sugerido por el programa</span>` : `<span class="pill">${icon("edit")}Tema elegido por el responsable</span>`}
+          ${fichas.map(f => `<button class="pill clickable" data-doc="${esc(f.doc_id)}">${icon("note")}${esc(f.titulo)}</button>`).join("")}
+        </div>
+        ${enc.meta?.aviso ? `<div class="weak">${esc(enc.meta.aviso)}</div>` : ""}
+        <div class="enc-tabs"><div class="seg"><button class="on" data-mode="ver">Ver</button><button data-mode="editar">${icon("edit")}Editar</button></div>
+          <span class="muted small-note">Es una propuesta: adaptala a tu grupo antes de usarla.</span></div>
+        <div class="md enc-md">${markdown(enc.propuesta || "_Todavía no hay propuesta._")}</div>
+        <textarea class="field enc-text hidden" data-e="text" rows="22">${esc(enc.propuesta || "")}</textarea>
+        <div class="extras"></div>
+        <div class="form-grid" style="margin-top:16px">
+          <div class="field-wrap"><label >${icon("calendar")}Fecha</label><input class="field" type="date" data-e="fecha" value="${esc((enc.fecha || "").slice(0, 10))}"></div>
+          <div class="field-wrap"><label >${icon("users")}Cantidad de chicos</label><input class="field" type="number" min="1" data-e="cant" value="${esc(enc.cantidad || "")}"></div>
+          <div class="field-wrap wide"><label >${icon("note")}Observaciones</label>
+            <textarea class="field" data-e="obs" rows="3" placeholder="¿Cómo salió? Qué funcionó, qué cambiarías, qué quedó pendiente…">${esc(enc.observaciones || "")}</textarea></div>
+        </div>
+        <div class="actions" style="margin-top:16px">
+          <button class="btn primary" data-e="save">${icon("check")}Guardar</button>
+          <button class="btn small" data-e="copy">${icon("note")}Copiar texto</button>
+          <button class="btn small" data-e="dup">${icon("plus")}Duplicar</button>
+          <span style="flex:1"></span>
+          <button class="btn danger small" data-e="del">${icon("trash")}Eliminar</button>
+        </div>
+      </div>`;
+    const box = $(".enc-editor", container);
+    const q = k => box.querySelector(`[data-e="${k}"]`);
+    box._sources = sources;
+    renderSourceBar(box);
+    hydrateIcons(box);
+    $$("[data-doc]", box).forEach(b => b.addEventListener("click", () => openDoc(b.dataset.doc)));
+    q("back")?.addEventListener("click", () => { encOpen = null; renderEncuentros(); });
+    $$(".enc-tabs [data-mode]", box).forEach(b => b.addEventListener("click", () => {
+      const edit = b.dataset.mode === "editar";
+      $$(".enc-tabs [data-mode]", box).forEach(x => x.classList.toggle("on", x === b));
+      if (!edit) $(".enc-md", box).innerHTML = markdown(q("text").value);
+      $(".enc-md", box).classList.toggle("hidden", edit); q("text").classList.toggle("hidden", !edit);
+      if (edit) q("text").focus();
+    }));
+    q("save").addEventListener("click", async () => {
+      try {
+        const upd = await api(`/api/encuentros/${enc.id}`, { method: "PUT", body: {
+          titulo: q("titulo").value.trim() || enc.titulo, estado: q("estado").value, fecha: q("fecha").value || null,
+          cantidad: parseInt(q("cant").value) || null, propuesta: q("text").value, observaciones: q("obs").value } });
+        Object.assign(enc, upd); await loadEncuentros(); toast("Encuentro guardado");
+      } catch (err) { toast(err.message); }
+    });
+    q("copy").addEventListener("click", async () => {
+      try { await navigator.clipboard.writeText(q("text").value); toast("Texto copiado"); } catch { toast("No se pudo copiar"); }
+    });
+    q("dup").addEventListener("click", async () => {
+      const keys = ["team_id", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad", "composicion", "edades", "duracion"];
+      const body = Object.fromEntries(keys.filter(k => enc[k] != null && enc[k] !== "").map(k => [k, enc[k]]));
+      Object.assign(body, { titulo: (enc.titulo || "Encuentro") + " (copia)", propuesta: q("text").value, estado: "borrador" });
+      try { const c = await api("/api/encuentros", { method: "POST", body }); await loadEncuentros(); toast("Copia creada"); openEncuentro(c.id); }
+      catch (err) { toast(err.message); }
+    });
+    q("del").addEventListener("click", async () => {
+      if (!confirm(`¿Eliminar “${enc.titulo || "este encuentro"}”? No se puede deshacer.`)) return;
+      await api(`/api/encuentros/${enc.id}`, { method: "DELETE" });
+      await loadEncuentros(); toast("Encuentro eliminado");
+      encOpen = null; showView("encuentros");
+    });
+  }
+
+  // ------------------------------------------------------------ mis encuentros
+  let encOpen = null;
+  const encFilter = { team: "", etapa: "", estado: "", q: "" };
+  async function openEncuentro(id) { encOpen = id; showView("encuentros"); }
+
+  async function renderEncuentros() {
+    const v = $("#view-encuentros");
+    if (encOpen) {
+      v.innerHTML = `<div class="thinking"><span class="spinner"></span>Cargando…</div>`;
+      try { const e = await api(`/api/encuentros/${encOpen}`); renderEncuentroEditor(v, e, { back: true }); }
+      catch (err) { encOpen = null; v.innerHTML = `<p class="error-text">${esc(err.message)}</p>`; }
+      return;
+    }
+    v.innerHTML = `
+      <div class="page-head"><div><h1>Mis encuentros</h1><p>Todo lo que preparaste, por grupo. Sirve para no repetir temas y para ver cómo fue avanzando cada equipo.</p></div>
+        <span class="spacer"></span><button class="btn primary" data-view="preparar">${icon("sparkle")}Preparar encuentro</button></div>
+      <div class="filters">
+        <select class="field" id="ef-team" style="max-width:220px"><option value="">Todos los grupos</option>${state.teams.map(t => `<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join("")}</select>
+        <span class="chip-group">${[1, 2, 3, 4].map(n => `<button class="chip" data-ef-etapa="${n}">Etapa ${n}</button>`).join("")}</span>
+        <span class="chip-group">${Object.entries(ESTADOS).map(([k, l]) => `<button class="chip" data-ef-estado="${k}">${l}</button>`).join("")}</span>
+        <input class="field" type="search" id="ef-q" placeholder="Buscar por título o tema…" style="max-width:240px">
+      </div>
+      <div class="list" id="enc-list"><div class="thinking"><span class="spinner"></span>Cargando…</div></div>`;
+    hydrateIcons(v);
+    $("#ef-team").value = encFilter.team; $("#ef-q").value = encFilter.q;
+    const paint = () => {
+      $$("[data-ef-etapa]", v).forEach(b => b.classList.toggle("on", b.dataset.efEtapa === encFilter.etapa));
+      $$("[data-ef-estado]", v).forEach(b => b.classList.toggle("on", b.dataset.efEstado === encFilter.estado));
+      const q = encFilter.q.toLowerCase();
+      const rows = state.encuentros.filter(e => (!encFilter.team || e.team_id === encFilter.team) && (!encFilter.etapa || String(e.etapa) === encFilter.etapa)
+        && (!encFilter.estado || e.estado === encFilter.estado) && (!q || [e.titulo, e.tema, ...(e.fichas || []).map(f => f.titulo)].join(" ").toLowerCase().includes(q)));
+      $("#enc-list").innerHTML = rows.length ? rows.map(e => `
+        <div class="row-item clickable" data-open-enc="${esc(e.id)}">
+          <div class="enc-date"><span>${e.fecha ? new Date(e.fecha.slice(0, 10) + "T12:00").getDate() : "—"}</span><small>${e.fecha ? new Date(e.fecha.slice(0, 10) + "T12:00").toLocaleDateString("es-AR", { month: "short" }) : ""}</small></div>
+          <div class="row-main"><div class="row-title">${esc(e.titulo || e.tema || "Encuentro")}</div>
+            <div class="row-sub">${encMeta(e).filter((x, i) => i !== 2).map(x => `<span>${esc(x)}</span>`).join("<span>·</span>")}
+              ${(e.fichas || []).slice(0, 2).map(f => `<span class="badge">${esc(f.titulo)}</span>`).join("")}</div></div>
+          <span class="badge ${e.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[e.estado] || e.estado)}</span>
+        </div>`).join("")
+        : `<div class="empty-state"><img src="/static/img/cruz-ecyd.svg" alt=""><p>${state.encuentros.length ? "No hay encuentros con esos filtros." : "Todavía no preparaste ningún encuentro."}</p>
+           <button class="btn primary" data-view="preparar">${icon("sparkle")}Preparar el primero</button></div>`;
+      $$("[data-open-enc]", v).forEach(r => r.addEventListener("click", () => openEncuentro(r.dataset.openEnc)));
+    };
+    $("#ef-team").addEventListener("change", e => { encFilter.team = e.target.value; paint(); });
+    $("#ef-q").addEventListener("input", e => { encFilter.q = e.target.value; paint(); });
+    $$("[data-ef-etapa]", v).forEach(b => b.addEventListener("click", () => { encFilter.etapa = encFilter.etapa === b.dataset.efEtapa ? "" : b.dataset.efEtapa; paint(); }));
+    $$("[data-ef-estado]", v).forEach(b => b.addEventListener("click", () => { encFilter.estado = encFilter.estado === b.dataset.efEstado ? "" : b.dataset.efEstado; paint(); }));
+    await loadEncuentros(); paint();
   }
 
   // ------------------------------------------------------------ búsqueda global
@@ -619,6 +1208,7 @@
     const convs = state.convs.filter(c => c.titulo.toLowerCase().includes(ql)).slice(0, 4);
     const mems = state.memories.filter(m => m.texto.toLowerCase().includes(ql)).slice(0, 3);
     const docs = (state.docs || []).filter(d => [d.titulo, (d.temas || []).join(" ")].join(" ").toLowerCase().includes(ql)).slice(0, 5);
+    const encs = state.encuentros.filter(e => [e.titulo, e.tema].join(" ").toLowerCase().includes(ql)).slice(0, 3);
     sItems = [{ kind: "ask", q }];
     let html = `<button class="sr-item" data-i="0">${icon("sparkle")}<span>Preguntar al asistente: <strong>${esc(q)}</strong></span></button>`;
     const group = (title, arr, kind, ic, label, sub) => {
@@ -626,9 +1216,10 @@
       html += `<div class="sr-group">${title}</div>`;
       arr.forEach(x => { sItems.push({ kind, x }); html += `<button class="sr-item" data-i="${sItems.length - 1}">${icon(ic)}<span>${esc(label(x))}<small>${esc(sub(x))}</small></span></button>`; });
     };
+    group("Mis encuentros", encs, "enc", "calendar", e => e.titulo || e.tema || "Encuentro", e => `${e.team_nombre || ""} · ${fmtDay(e.fecha)}`);
     group("Conversaciones", convs, "conv", "chat", c => c.titulo, c => fmtDate(c.updated_at));
     group("Memoria del equipo", mems, "mem", "brain", m => m.texto, m => CAT_LABELS[m.categoria] || m.categoria);
-    group("Documentos", docs, "doc", "file", d => d.titulo, d => `${TIPOS[d.tipo] || d.tipo} · ${etapasTxt(d.etapas)}`);
+    group("Documentos y fichas", docs, "doc", "file", d => d.titulo, d => `${CATEGORIA_DOC[d.categoria] || TIPOS[d.tipo] || d.tipo} · ${etapasTxt(docEtapas(d))}`);
     sBox.innerHTML = html; sBox.classList.remove("hidden"); sFocus = 0; paintFocus();
     $$(".sr-item", sBox).forEach(b => b.addEventListener("mousedown", e => { e.preventDefault(); pick(+b.dataset.i); }));
   }, 120);
@@ -639,7 +1230,8 @@
     if (it.kind === "ask") { showView("inicio"); sendMessage(it.q); }
     else if (it.kind === "conv") openConversation(it.x.id);
     else if (it.kind === "mem") showView("memoria");
-    else if (it.kind === "doc") { newConversation(); $("#input").value = `¿Qué propone el documento “${it.x.titulo}” y cómo puedo aprovecharlo con mi equipo?`; autosize(); }
+    else if (it.kind === "doc") openDoc(it.x.id);
+    else if (it.kind === "enc") openEncuentro(it.x.id);
   }
   sInput.addEventListener("input", runSearch);
   sInput.addEventListener("keydown", e => {
@@ -758,10 +1350,10 @@
       else if (e.target.closest(".src-more")) openSources(src);
     });
   }
-  $("#thread").addEventListener("click", e => {
+  document.addEventListener("click", e => {
     const b = e.target.closest(".cite");
     if (!b) return;
-    const el = b.closest(".msg");
+    const el = b.closest(".msg, .enc-editor, .enc-out");
     if (el?._sources?.length) openSources(el._sources, b.dataset.n);
   });
 
@@ -801,35 +1393,24 @@
       });
       if (res.status === 401) { showLogin(); throw new Error("La sesión venció"); }
       if (!res.ok) { let m = res.statusText; try { m = (await res.json()).detail; } catch {} throw new Error(m); }
-      const reader = res.body.getReader(), dec = new TextDecoder();
-      let buf = "";
-      for (;;) {
-        const { value, done } = await reader.read();
-        if (done) break;
-        buf += dec.decode(value, { stream: true });
-        let idx;
-        while ((idx = buf.indexOf("\n\n")) >= 0) {
-          const raw = buf.slice(0, idx); buf = buf.slice(idx + 2);
-          if (!raw.startsWith("data:")) continue;
-          const ev = JSON.parse(raw.slice(5));
-          if (ev.type === "meta") {
-            const isNew = !state.conversationId;
-            state.conversationId = ev.conversation.id; state.conversation = ev.conversation;
-            sources = ev.sources; view.setWeak(ev.weak_evidence); view.thinking("Pensando la respuesta…");
-            updateHeader(); if (isNew) loadConversations();
-          } else if (ev.type === "delta") {
-            answer += ev.text; if (!raf) raf = requestAnimationFrame(paint);
-          } else if (ev.type === "done") {
-            if (raf) { cancelAnimationFrame(raf); raf = 0; }
-            view.setText(answer, false); view.setSources(ev.sources || sources); view.setTime(); setBusy(false);
-          } else if (ev.type === "memory") {
-            view.memoryNote(ev);
-          } else if (ev.type === "error") {
-            if (answer) { view.setText(answer + "\n\n_(La respuesta se interrumpió.)_"); view.setSources(sources); }
-            else view.error(ev.message);
-          }
+      await readSSE(res, ev => {
+        if (ev.type === "meta") {
+          const isNew = !state.conversationId;
+          state.conversationId = ev.conversation.id; state.conversation = ev.conversation;
+          sources = ev.sources; view.setWeak(ev.weak_evidence); view.thinking("Pensando la respuesta…");
+          updateHeader(); if (isNew) loadConversations();
+        } else if (ev.type === "delta") {
+          answer += ev.text; if (!raf) raf = requestAnimationFrame(paint);
+        } else if (ev.type === "done") {
+          if (raf) { cancelAnimationFrame(raf); raf = 0; }
+          view.setText(answer, false); view.setSources(ev.sources || sources); view.setTime(); setBusy(false);
+        } else if (ev.type === "memory") {
+          view.memoryNote(ev);
+        } else if (ev.type === "error") {
+          if (answer) { view.setText(answer + "\n\n_(La respuesta se interrumpió.)_"); view.setSources(sources); }
+          else view.error(ev.message);
         }
-      }
+      });
     } catch (err) {
       if (err.name === "AbortError") { view.setText(answer ? answer + "\n\n_(Detenido.)_" : "_(Detenido.)_"); view.setSources(sources); }
       else view.error(err.message);
@@ -843,18 +1424,23 @@
     try {
       state.config = await api("/api/config");
       applyHeroPhoto(state.config.portada);
-      await loadTeams(); await loadConversations();
+      ensureProgramas().catch(() => {});
+      await loadTeams(); await loadConversations(); loadEncuentros();
       updateHeader(); pollHealth();
-      if (!state.teams.length) toast("Tip: creá tu equipo para recibir respuestas personalizadas.", 6000);
+      if (state.view !== "inicio") showView(state.view);
+      if (!state.teams.length) toast("Tip: creá tu equipo e indicá su etapa para preparar encuentros según el programa.", 6000);
     } catch (err) { if (err.message !== "No autorizado") toast(err.message); }
   }
 
-  hydrateIcons(); applyTheme(); renderProfile(); showView("inicio");
+  hydrateIcons(); applyTheme(); showView("inicio");
   (async () => {
     try {
       const s = await (await fetch("/api/session", { credentials: "same-origin" })).json();
-      if (s.auth_required && !s.authenticated) { showLogin(); return; }
-    } catch {}
-    boot();
+      if (!s.authenticated) { showLogin(); return; }
+      if (load("uid") !== s.user.id) { save("teamId", null); state.teamId = ""; }
+      save("uid", s.user.id);
+      state.user = s.user;
+    } catch { showLogin(); return; }
+    renderProfile(); boot();
   })();
 })();

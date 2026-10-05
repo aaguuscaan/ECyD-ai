@@ -480,6 +480,16 @@ Podés usar esos rótulos como subtítulos o marcarlo en el texto ("El material 
 
 Proponé actividades solo cuando tengan un sentido formativo claro para lo que se busca.
 
+==== 22b. PROGRAMA Y PROGRESIÓN DE ETAPAS ====
+
+Recibís el PROGRAMA de la etapa del equipo (Formando apóstoles en el ECyD, Tomo III) y las fichas previstas para este momento del año.
+
+El programa es una guía, no una restricción: "Según el programa de esta etapa, se recomienda X. Si querés seguir esa línea, te propongo Y". Si el responsable quiere otro tema, preparalo igual y aclará si es complementario o diferente de lo previsto. El responsable conserva siempre la decisión final.
+
+Respetá la progresión de etapas: priorizá el material de la etapa del equipo; usá la etapa siguiente solo como complemento cuando sea realmente necesario (y decilo); no recomiendes fichas de etapas más avanzadas salvo pedido explícito.
+
+Prioridad de fuentes: 1) programa de la etapa; 2) fichas de la etapa; 3) documentos oficiales; 4) recursos complementarios; 5) historial del grupo; 6) lo que cuenta el responsable.
+
 ==== 23. INSTRUCCIÓN FINAL ====
 
 Respondé la consulta ayudando al responsable a comprender verdaderamente el estilo formativo del ECyD.
@@ -553,6 +563,9 @@ Recibís el contexto del equipo, la memoria del equipo, notas de la conversació
 Las fuentes vienen numeradas [F1], [F2]… con título, tipo, etapa y autoridad. Al afirmar algo del material ECyD citá al final de la frase con EXACTAMENTE ese formato: [F2] o [F1][F3] (nunca **F2**, (F2) ni "F2 dice"). Solo números que existan. No pongas entre comillas frases que no estén literalmente en el fragmento. Algunos textos vienen de OCR con errores: interpretá con prudencia. Las fichas son de México: adaptalas sin alterar su contenido. Si se indica EVIDENCIA DÉBIL, decilo al comienzo y no atribuyas nada al ECyD.
 Distinguí siempre: A) lo que dice el material ECyD (con cita); B) la interpretación formativa ("Desde estos principios…"); C) la propuesta práctica del asistente ("Como propuesta práctica…"), que no es metodología oficial. Proponé actividades solo si tienen un sentido formativo claro.
 
+== 11. PROGRAMA Y PROGRESIÓN DE ETAPAS ==
+Recibís el PROGRAMA de la etapa del equipo (Formando apóstoles, Tomo III) y las fichas previstas para este momento del año. Usalo como guía ("Según el programa de esta etapa…"), no como restricción: si el responsable quiere otro tema, ayudalo igual y aclará si es complementario o distinto de lo previsto. El responsable decide. Respetá la progresión: priorizá el material de la etapa del equipo; la etapa siguiente solo como complemento cuando haga falta (decilo); no recomiendes fichas de etapas más avanzadas salvo pedido explícito. Orden de fuentes: programa de la etapa > fichas de la etapa > documentos oficiales > recursos complementarios > historial del grupo > lo que cuenta el responsable. Si algo no está en los materiales, decilo.
+
 == INSTRUCCIÓN FINAL ==
 Ayudá al responsable a comprender qué está formando y por qué, cómo mirar al adolescente, qué vive y necesita descubrir, su propio papel, el lugar de Cristo, qué proceso y qué convicción acompaña, cómo llevarlo a la vida y cómo seguir acompañando después. La respuesta tiene que formar al responsable mientras la lee.
 """
@@ -570,6 +583,7 @@ TEAM_FIELDS = [
     ("etapa", "Etapa del ECyD"),
     ("edades", "Edades de los adolescentes"),
     ("cantidad_chicos", "Cantidad de adolescentes"),
+    ("composicion", "Composición del grupo"),
     ("tema_mensual", "Tema mensual"),
     ("tema_reunion", "Tema de la próxima reunión"),
     ("objetivo", "Objetivo que se quiere lograr"),
@@ -604,9 +618,33 @@ def format_memory(memories: List[dict]) -> str:
     return "\n".join(f"- ({m.get('categoria', 'general')}) {m['texto']}" for m in memories)
 
 
+def format_encuentros(encuentros: List[dict], max_items: int = 6) -> str:
+    if not encuentros:
+        return "Todavía no hay encuentros guardados para este grupo."
+    lines = []
+    for e in encuentros[:max_items]:
+        fichas = ", ".join(f"«{f.get('titulo')}»" for f in e.get("fichas") or []) or "sin ficha"
+        fecha = (e.get("fecha") or e.get("created_at") or "")[:10]
+        obs = f" · obs.: {e['observaciones'][:120]}" if e.get("observaciones") else ""
+        lines.append(f"- {fecha} · {e.get('titulo') or e.get('tema')} · tema: {e.get('tema') or '—'} · "
+                     f"fichas: {fichas} · estado: {e.get('estado', 'borrador')}{obs}")
+    return "\n".join(lines)
+
+
 def build_user_message(*, query: str, team_context: str, memory: str,
-                       notes: str, rag_context: str) -> str:
-    return f"""#### CONTEXTO DEL EQUIPO (cargado por el responsable; no es fuente documental)
+                       notes: str, rag_context: str, programa: str = "", encuentros: str = "") -> str:
+    prog = f"""#### PROGRAMA DE LA ETAPA Y MOMENTO DEL AÑO (guía, no restricción)
+{programa}
+
+""" if programa else ""
+    enc = f"""#### ENCUENTROS ANTERIORES DEL GRUPO
+{encuentros}
+
+""" if encuentros else ""
+    return f"""{prog}#### FUENTES RECUPERADAS DEL CORPUS ECyD
+{rag_context}
+
+{enc}#### CONTEXTO DEL EQUIPO (cargado por el responsable; no es fuente documental)
 {team_context}
 
 #### MEMORIA DEL EQUIPO (de conversaciones anteriores; no es fuente documental)
@@ -615,11 +653,48 @@ def build_user_message(*, query: str, team_context: str, memory: str,
 #### NOTAS DE ESTA CONVERSACIÓN
 {notes or "Es el comienzo de la conversación."}
 
+#### CONSULTA DEL RESPONSABLE
+{query}"""
+
+
+# ------------------------------------------------------------------
+# Preparación de encuentros
+# ------------------------------------------------------------------
+
+ENCUENTRO_INSTRUCCIONES = """==== TAREA: PREPARAR UN ENCUENTRO ====
+Prepará una propuesta de encuentro para este grupo, lista para que el responsable la adapte.
+
+1. Empezá con 2-4 líneas de UBICACIÓN: cómo se relaciona el tema con el programa de la etapa y con este momento del año ("Según el programa de esta etapa…"). Si el tema no es el previsto, decí con naturalidad si es complementario o distinto, sin desalentarlo. Si el grupo ya trabajó este tema o esta ficha (ver encuentros anteriores), decilo y proponé una continuación o un enfoque diferente.
+2. Si hay una ficha elegida, SEGUÍ SU METODOLOGÍA Y SUS MOMENTOS tal como aparecen en el material (por ejemplo Antes/Importante, Despertar, Responder, Acompañar, Rincón de la oración, Convicciones y decisiones, Modelo de vida), citándola [F#]. No reemplaces la estructura de la ficha por una plantilla genérica.
+3. Si no hay ficha, usá como referencia esta estructura, adaptándola a lo que sugieran los materiales: Título · Objetivo · Idea central · Duración aproximada · Materiales · Introducción · Dinámica/actividad · Desarrollo · Preguntas para conversar · Momento de reflexión · Cierre · Oración o propuesta espiritual (si corresponde según el material ECyD).
+4. ADAPTÁ al grupo: cantidad de chicos (una dinámica para 5 no es igual que para 25: subgrupos, tiempos, espacio), composición (mixto, solo chicas o solo chicos), edades y duración disponible. Si falta un dato importante, hacé una suposición razonable y mencionála.
+5. Distinguí lo que viene del material ECyD [F#] de lo que es propuesta práctica tuya. No inventes dinámicas "oficiales", citas ni datos.
+6. Usá subtítulos claros (##) y tiempos estimados por momento. Empezá con una línea "# " con el título del encuentro. Sé concreto y aplicable."""
+
+
+def build_encuentro_message(*, programa: str, fichas_info: str, rag_context: str, grupo: str,
+                            encuentros: str, aviso: str, pedido: str, memory: str = "") -> str:
+    aviso_txt = f"\n⚠️ {aviso}\n" if aviso else ""
+    mem = f"\n#### MEMORIA DEL EQUIPO (no es fuente documental)\n{memory}\n" if memory else ""
+    return f"""{ENCUENTRO_INSTRUCCIONES}
+
+#### PROGRAMA DE LA ETAPA Y MOMENTO DEL AÑO (guía, no restricción)
+{programa}
+
+#### FICHAS / DOCUMENTOS ELEGIDOS
+{fichas_info}
+
 #### FUENTES RECUPERADAS DEL CORPUS ECyD
 {rag_context}
 
-#### CONSULTA DEL RESPONSABLE
-{query}"""
+#### ENCUENTROS ANTERIORES DEL GRUPO
+{encuentros}{aviso_txt}
+
+#### GRUPO
+{grupo}
+{mem}
+#### PEDIDO DEL RESPONSABLE
+{pedido}"""
 
 
 # ------------------------------------------------------------------

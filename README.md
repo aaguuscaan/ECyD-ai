@@ -22,13 +22,16 @@ app/
   retrieval.py   RAG en dos etapas (FAISS) + re-ranking + contexto [F1]…
   prompts.py     prompt formativo ECyD (sistema) + armado del mensaje
   llm.py         cliente Groq (streaming, reintentos, modelo de respaldo); Gemini opcional
-  memory.py      SQLite: equipos, memoria, conversaciones, mensajes, notas
-  assistant.py   orquestación de cada consulta + actualización de memoria
+  memory.py      SQLite/Supabase: cuentas, equipos, memoria, conversaciones, notas, encuentros
+  auth.py        cuentas individuales (scrypt + cookie firmada) y código de registro
+  programas.py   programa por etapa, temas por mes y tiempos litúrgicos
+  assistant.py   orquestación de cada consulta, preparación de encuentros y memoria
   main.py        API web (FastAPI) y servidor de la interfaz
 web/             interfaz (HTML/CSS/JS, sin dependencias externas)
 scripts/
   ingest_corpus.py  PDFs → data/corpus.json (con OCR)
   build_index.py    corpus → chunks + índices FAISS (+ --check)
+  build_programas.py  programa por etapa + calendario de fichas → data/programas.json
   migrate_v1.py     migra los datos del formato anterior (ya ejecutado)
   search.py         buscador de consola para revisar la recuperación
 data/
@@ -74,6 +77,37 @@ de `web/styles.css`.
 Foto de portada opcional: guardá una imagen como `web/img/portada.jpg` y aparece en el
 inicio.
 
+## Cuentas, etapas y encuentros
+
+**Cuentas.** Cada responsable entra con su email y contraseña. Sus equipos, encuentros y
+conversaciones son solo suyos (el servidor verifica el dueño en cada pedido). Para crear
+una cuenta hace falta el **código de acceso**: `REGISTRATION_CODE`, o si no está definido,
+el `APP_PASSWORD` de siempre. La **primera cuenta** que se crea adopta los datos que ya
+existían (equipos, conversaciones) de la época de la contraseña compartida.
+
+**Material por etapa.** Cada documento tiene `categoria` (`programa`, `ficha`, `documento`,
+`recurso`) y sus `etapas`. La vista *Documentos* lo organiza por Etapa 1–4: programa
+(Alianza, amor, virtud, símbolo, temas centrales), fichas por mes, documentos y recursos.
+
+**Programa y temas por mes.** `scripts/build_programas.py` extrae de *Formando apóstoles en
+el ECyD* (Tomo III) la sección de cada etapa y arma el calendario a partir de las carpetas
+de fichas por mes (ciclo mexicano → ciclo argentino: septiembre→marzo … junio→diciembre;
+enero/febrero = receso) más los tiempos litúrgicos (Cuaresma, Pascua, Cristo Rey, Navidad),
+calculados por fecha. No se inventan temas: si una etapa no tiene fichas en un período, se dice.
+
+**Progresión de etapas.** La búsqueda prioriza la etapa del grupo, admite la siguiente solo
+como complemento (máx. 2 fragmentos, rotulados), nunca etapas posteriores salvo que la
+consulta las nombre explícitamente. Orden de autoridad: programa > fichas > documentos >
+recursos > historial del grupo > información del responsable.
+
+**Preparar encuentro.** Grupo → etapa → programa del momento del año → ficha sugerida (o
+tema propio) → la IA lee las fichas, el programa y los encuentros anteriores del grupo
+(avisa si un tema o ficha se repite) → propone el encuentro siguiendo la metodología de la
+ficha → el responsable lo edita y lo guarda en *Mis encuentros* (borrador / planificado /
+realizado, con observaciones).
+
+Después de cambiar PDFs o el índice: `python scripts/build_programas.py`.
+
 ## Memoria
 
 | Nivel | Dónde | Qué guarda | Cómo se borra |
@@ -102,7 +136,7 @@ del ECyD, `python scripts/ingest_corpus.py` y luego `build_index.py`.
 
 - **Vercel** corre la app (FastAPI, `app/main.py`, configurada en `vercel.json`).
 - **Supabase** guarda la memoria: equipos, recuerdos, conversaciones y notas
-  (tablas `teams`, `memories`, `conversations`, `messages`). Las tablas tienen RLS: solo
+  (tablas `users`, `teams`, `memories`, `conversations`, `messages`, `encuentros`). Las tablas tienen RLS: solo
   aceptan pedidos del servidor que traen el secreto `ECYD_DB_SECRET`; la clave pública de
   Supabase sola no da acceso a nada.
 - **Búsqueda**: el mismo modelo de embeddings en versión ONNX cuantizada (~120 MB, con
@@ -114,11 +148,12 @@ Variables de entorno en Vercel:
 
 | Variable | Qué es |
 |---|---|
+| `REGISTRATION_CODE` | código para crear cuentas (si falta, se usa `APP_PASSWORD`) |
 | `GROQ_API_KEY` | clave de Groq |
 | `SUPABASE_URL` | `https://<proyecto>.supabase.co` |
 | `SUPABASE_KEY` | clave publicable de Supabase (`sb_publishable_…`) |
 | `ECYD_DB_SECRET` | secreto del servidor (su hash está en `private.app_secret`) |
-| `APP_PASSWORD` | contraseña para entrar a la web (recomendado) |
+| `APP_PASSWORD` | código de registro heredado (antes era la contraseña compartida) |
 | `SECRET_KEY` | cadena aleatoria para firmar la sesión |
 
 Sin las variables de Supabase la app usa SQLite local (`data/memoria.db`), así que en tu
@@ -135,7 +170,8 @@ docker compose up -d --build     # http://servidor:8000
 Montá un volumen en `/data` si no usás Supabase.
 
 **Importante:** la memoria guarda información sobre adolescentes. Mantené el repositorio
-**privado**, definí siempre `APP_PASSWORD` y usá HTTPS.
+**privado**, definí siempre un código de registro (`REGISTRATION_CODE` o `APP_PASSWORD`),
+`SECRET_KEY`, y usá HTTPS.
 
 ## Límites de Groq (plan gratuito)
 

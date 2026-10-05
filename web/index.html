@@ -12,15 +12,33 @@
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <!-- Acceso -->
+  <!-- Acceso: cada responsable tiene su cuenta -->
   <div id="login" class="overlay hidden">
-    <form id="login-form" class="login-card">
+    <div class="login-card">
       <img src="/static/img/cruz-ecyd.svg" alt="" class="login-cross">
       <h1 class="wordmark">Asistente <span>ECyD</span></h1>
-      <input id="login-pass" type="password" placeholder="Contraseña de acceso" autocomplete="current-password" required>
-      <button class="btn primary" type="submit">Entrar</button>
+      <p class="login-sub">Tu espacio para preparar los encuentros de tu equipo.</p>
+      <div class="seg auth-tabs" role="tablist">
+        <button type="button" data-auth="login" class="on">Ingresar</button>
+        <button type="button" data-auth="register">Crear cuenta</button>
+      </div>
+      <form id="login-form" class="auth-form">
+        <input id="login-email" type="email" placeholder="Email" autocomplete="username" required>
+        <input id="login-pass" type="password" placeholder="Contraseña" autocomplete="current-password" required>
+        <button class="btn primary" type="submit">Entrar</button>
+      </form>
+      <form id="register-form" class="auth-form hidden">
+        <p id="first-user-note" class="auth-note hidden">Sos la primera persona en crear una cuenta: los equipos y conversaciones que ya existían van a quedar en tu cuenta.</p>
+        <input id="reg-nombre" type="text" placeholder="Tu nombre" autocomplete="name" required maxlength="120">
+        <input id="reg-email" type="email" placeholder="Email" autocomplete="email" required>
+        <input id="reg-pass" type="password" placeholder="Contraseña (mínimo 8 caracteres)" autocomplete="new-password" minlength="8" required>
+        <input id="reg-rol" type="text" placeholder="Tu rol (opcional): responsable, coordinador…" maxlength="120">
+        <input id="reg-codigo" type="password" placeholder="Código de acceso del ECyD" autocomplete="off">
+        <button class="btn primary" type="submit">Crear cuenta</button>
+        <p class="auth-note" id="reg-code-help">El código de acceso te lo da quien administra el asistente.</p>
+      </form>
       <p id="login-error" class="error-text"></p>
-    </form>
+    </div>
   </div>
 
   <div class="app">
@@ -32,6 +50,8 @@
       </a>
       <nav class="nav" aria-label="Secciones">
         <a href="#" class="nav-item" data-view="inicio"><i data-icon="home"></i>Inicio</a>
+        <a href="#" class="nav-item nav-cta" data-view="preparar"><i data-icon="sparkle"></i>Preparar encuentro</a>
+        <a href="#" class="nav-item" data-view="encuentros"><i data-icon="calendar"></i>Mis encuentros</a>
         <a href="#" class="nav-item" data-view="conversaciones"><i data-icon="chat"></i>Conversaciones</a>
         <a href="#" class="nav-item" data-view="equipos"><i data-icon="users"></i>Mis equipos</a>
         <a href="#" class="nav-item" data-view="documentos"><i data-icon="file"></i>Documentos</a>
@@ -104,8 +124,8 @@
                 <div class="quick">
                   <button class="quick-card" data-prompt="¿Qué dicen los documentos del ECyD sobre formar convicciones en los adolescentes?">
                     <i data-icon="book"></i><span><strong>Documentos ECyD</strong><small>¿Qué dicen sobre formar convicciones?</small></span><i data-icon="chevron-right" class="chev"></i></button>
-                  <button class="quick-card" data-prompt="Quiero preparar la reunión de este mes con mi equipo. ¿Por dónde empiezo?">
-                    <i data-icon="users"></i><span><strong>Mi equipo</strong><small>Preparar la reunión de este mes</small></span><i data-icon="chevron-right" class="chev"></i></button>
+                  <button class="quick-card" data-view="preparar">
+                    <i data-icon="users"></i><span><strong>Preparar encuentro</strong><small>Según el programa de tu etapa</small></span><i data-icon="chevron-right" class="chev"></i></button>
                   <button class="quick-card" data-prompt="Un adolescente de mi equipo se está aislando del grupo. ¿Cómo lo acompaño?">
                     <i data-icon="heart"></i><span><strong>Acompañar</strong><small>Un chico se está aislando del grupo</small></span><i data-icon="chevron-right" class="chev"></i></button>
                   <button class="quick-card" data-prompt="Dame ideas con sentido formativo para una actividad al aire libre que fortalezca la vida de equipo.">
@@ -124,6 +144,8 @@
         </section>
 
         <!-- ===== Otras vistas (se completan desde app.js) ===== -->
+        <section class="view page hidden" id="view-preparar"></section>
+        <section class="view page hidden" id="view-encuentros"></section>
         <section class="view page hidden" id="view-conversaciones"></section>
         <section class="view page hidden" id="view-equipos"></section>
         <section class="view page hidden" id="view-documentos"></section>
@@ -143,6 +165,15 @@
         </div>
         <select id="team-select" aria-label="Equipo activo"></select>
         <div id="ctx-list" class="ctx-list"></div>
+      </section>
+
+      <section class="card" id="month-card">
+        <div class="card-head">
+          <i data-icon="calendar"></i><h3>Para este mes</h3>
+          <button class="link-btn" data-view="documentos">Programa</button>
+        </div>
+        <div id="month-body"></div>
+        <button class="btn primary small full" data-view="preparar"><i data-icon="sparkle"></i>Preparar encuentro</button>
       </section>
 
       <section class="card">

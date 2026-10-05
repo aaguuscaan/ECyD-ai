@@ -61,6 +61,7 @@ def chunk_record(doc, orden, texto):
         "orden": orden,
         "titulo": doc["titulo"],
         "tipo": doc["tipo"],
+        "categoria": doc.get("categoria") or C.detect_categoria(doc),
         "etapas": doc["etapas"],
         "autoridad": doc["autoridad"]["nivel"],
         "idioma": doc["idioma"],

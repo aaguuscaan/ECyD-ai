@@ -1,5 +1,11 @@
 """
-Memoria persistente (SQLite). Tres niveles separados:
+Memoria persistente (SQLite local o Supabase). Datos por RESPONSABLE:
+
+  0. Cuentas                 → tabla `users` (cada responsable ve solo lo suyo)
+  4. Encuentros preparados   → tabla `encuentros` (etapa, tema, fichas, grupo,
+                               propuesta, observaciones…)
+
+y tres niveles de memoria:
 
   1. Memoria del equipo      → tabla `teams` (perfil) + tabla `memories`
                                (hechos duraderos: editables y borrables)
@@ -62,7 +68,49 @@ CREATE TABLE IF NOT EXISTS messages (
     created_at      TEXT NOT NULL
 );
 CREATE INDEX IF NOT EXISTS idx_msg_conv ON messages(conversation_id, id);
+CREATE TABLE IF NOT EXISTS users (
+    id            TEXT PRIMARY KEY,
+    email         TEXT NOT NULL UNIQUE,
+    nombre        TEXT NOT NULL DEFAULT '',
+    rol           TEXT NOT NULL DEFAULT 'Responsable de equipo',
+    password_hash TEXT NOT NULL,
+    created_at    TEXT NOT NULL,
+    updated_at    TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS encuentros (
+    id              TEXT PRIMARY KEY,
+    user_id         TEXT,
+    team_id         TEXT REFERENCES teams(id) ON DELETE SET NULL,
+    titulo          TEXT NOT NULL DEFAULT 'Encuentro',
+    fecha           TEXT,
+    etapa           INTEGER,
+    tema            TEXT NOT NULL DEFAULT '',
+    origen_tema     TEXT NOT NULL DEFAULT 'otro',
+    periodo         TEXT NOT NULL DEFAULT '',
+    fichas          TEXT NOT NULL DEFAULT '[]',
+    cantidad        INTEGER,
+    composicion     TEXT NOT NULL DEFAULT '',
+    edades          TEXT NOT NULL DEFAULT '',
+    duracion        TEXT NOT NULL DEFAULT '',
+    propuesta       TEXT NOT NULL DEFAULT '',
+    observaciones   TEXT NOT NULL DEFAULT '',
+    estado          TEXT NOT NULL DEFAULT 'borrador',
+    conversation_id TEXT,
+    meta            TEXT NOT NULL DEFAULT '{}',
+    created_at      TEXT NOT NULL,
+    updated_at      TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_enc_user ON encuentros(user_id, fecha);
+CREATE INDEX IF NOT EXISTS idx_enc_team ON encuentros(team_id, fecha);
 """
+
+# Columnas agregadas después de la primera versión (migración segura, aditiva)
+MIGRATIONS = [("teams", "user_id", "TEXT"), ("conversations", "user_id", "TEXT")]
+
+ENCUENTRO_FIELDS = ["titulo", "fecha", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad",
+                    "composicion", "edades", "duracion", "propuesta", "observaciones", "estado",
+                    "conversation_id", "meta", "team_id"]
+ESTADOS = ["borrador", "planificado", "realizado"]
 
 CATEGORIAS = ["equipo", "adolescente", "proceso", "preferencia", "pendiente", "general"]
 
@@ -79,6 +127,10 @@ class MemoryStore:
             Path(self.path).parent.mkdir(parents=True, exist_ok=True)
         with self._conn() as c:
             c.executescript(SCHEMA)
+            for table, col, typ in MIGRATIONS:
+                cols = {r["name"] for r in c.execute(f"PRAGMA table_info({table})")}
+                if col not in cols:
+                    c.execute(f"ALTER TABLE {table} ADD COLUMN {col} {typ}")
 
     @contextmanager
     def _conn(self):
@@ -98,22 +150,28 @@ class MemoryStore:
         d["auto_memoria"] = bool(d["auto_memoria"])
         return d
 
-    def list_teams(self) -> List[Dict]:
+    def list_teams(self, user_id: Optional[str] = None) -> List[Dict]:
         with self._conn() as c:
-            return [self._team(r) for r in c.execute("SELECT * FROM teams ORDER BY nombre COLLATE NOCASE")]
+            if user_id:
+                rows = c.execute("SELECT * FROM teams WHERE user_id=? ORDER BY nombre COLLATE NOCASE", (user_id,))
+            else:
+                rows = c.execute("SELECT * FROM teams ORDER BY nombre COLLATE NOCASE")
+            return [self._team(r) for r in rows]
 
     def get_team(self, team_id: str) -> Optional[Dict]:
         with self._conn() as c:
             r = c.execute("SELECT * FROM teams WHERE id=?", (team_id,)).fetchone()
             return self._team(r) if r else None
 
-    def create_team(self, nombre: str, perfil: Optional[dict] = None, auto_memoria: bool = True) -> Dict:
+    def create_team(self, nombre: str, perfil: Optional[dict] = None, auto_memoria: bool = True,
+                    user_id: Optional[str] = None) -> Dict:
         tid = uuid.uuid4().hex[:12]
         now = _now()
         with self._conn() as c:
-            c.execute("INSERT INTO teams VALUES (?,?,?,?,?,?)",
+            c.execute("INSERT INTO teams (id, nombre, perfil, auto_memoria, created_at, updated_at, user_id) "
+                      "VALUES (?,?,?,?,?,?,?)",
                       (tid, nombre.strip() or "Mi equipo", json.dumps(perfil or {}, ensure_ascii=False),
-                       int(auto_memoria), now, now))
+                       int(auto_memoria), now, now, user_id))
         return self.get_team(tid)
 
     def update_team(self, team_id: str, *, nombre=None, perfil=None, auto_memoria=None) -> Optional[Dict]:
@@ -168,11 +226,13 @@ class MemoryStore:
             return c.execute("DELETE FROM memories WHERE team_id=?", (team_id,)).rowcount
 
     # ---------------------------------------------------------- conversaciones
-    def create_conversation(self, team_id: Optional[str], titulo: str = "Nueva conversación") -> Dict:
+    def create_conversation(self, team_id: Optional[str], titulo: str = "Nueva conversación",
+                            user_id: Optional[str] = None) -> Dict:
         cid = uuid.uuid4().hex
         now = _now()
         with self._conn() as c:
-            c.execute("INSERT INTO conversations VALUES (?,?,?,?,?,?)", (cid, team_id, titulo, "", now, now))
+            c.execute("INSERT INTO conversations (id, team_id, titulo, notas, created_at, updated_at, user_id) "
+                      "VALUES (?,?,?,?,?,?,?)", (cid, team_id, titulo, "", now, now, user_id))
         return self.get_conversation(cid)
 
     def get_conversation(self, cid: str) -> Optional[Dict]:
@@ -180,13 +240,17 @@ class MemoryStore:
             r = c.execute("SELECT * FROM conversations WHERE id=?", (cid,)).fetchone()
             return dict(r) if r else None
 
-    def list_conversations(self, team_id: Optional[str] = None, limit: int = 100) -> List[Dict]:
+    def list_conversations(self, team_id: Optional[str] = None, limit: int = 100,
+                           user_id: Optional[str] = None) -> List[Dict]:
         q = ("SELECT c.*, (SELECT COUNT(*) FROM messages m WHERE m.conversation_id=c.id) AS mensajes "
-             "FROM conversations c ")
+             "FROM conversations c WHERE 1=1 ")
         args: list = []
         if team_id:
-            q += "WHERE c.team_id=? "
+            q += "AND c.team_id=? "
             args.append(team_id)
+        if user_id:
+            q += "AND c.user_id=? "
+            args.append(user_id)
         q += "ORDER BY c.updated_at DESC LIMIT ?"
         args.append(limit)
         with self._conn() as c:
@@ -233,10 +297,134 @@ class MemoryStore:
             out.append(d)
         return out
 
+    # ---------------------------------------------------------- cuentas
+    def create_user(self, email: str, nombre: str, password_hash: str, rol: str = "") -> Dict:
+        uid = uuid.uuid4().hex
+        now = _now()
+        with self._conn() as c:
+            c.execute("INSERT INTO users (id, email, nombre, rol, password_hash, created_at, updated_at) "
+                      "VALUES (?,?,?,?,?,?,?)",
+                      (uid, email.strip().lower(), nombre.strip(), rol or "Responsable de equipo",
+                       password_hash, now, now))
+        return self.get_user(uid)
+
+    def get_user(self, user_id: str) -> Optional[Dict]:
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM users WHERE id=?", (user_id,)).fetchone()
+            return dict(r) if r else None
+
+    def get_user_by_email(self, email: str) -> Optional[Dict]:
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM users WHERE email=?", (email.strip().lower(),)).fetchone()
+            return dict(r) if r else None
+
+    def update_user(self, user_id: str, **fields) -> Optional[Dict]:
+        allowed = {k: v for k, v in fields.items() if k in ("nombre", "rol", "password_hash") and v is not None}
+        if allowed:
+            sets = ", ".join(f"{k}=?" for k in allowed)
+            with self._conn() as c:
+                c.execute(f"UPDATE users SET {sets}, updated_at=? WHERE id=?",
+                          (*allowed.values(), _now(), user_id))
+        return self.get_user(user_id)
+
+    def count_users(self) -> int:
+        with self._conn() as c:
+            return c.execute("SELECT COUNT(*) FROM users").fetchone()[0]
+
+    def claim_orphans(self, user_id: str) -> Dict[str, int]:
+        """Asigna al responsable los datos creados antes de que existieran cuentas."""
+        with self._conn() as c:
+            t = c.execute("UPDATE teams SET user_id=? WHERE user_id IS NULL", (user_id,)).rowcount
+            v = c.execute("UPDATE conversations SET user_id=? WHERE user_id IS NULL", (user_id,)).rowcount
+            e = c.execute("UPDATE encuentros SET user_id=? WHERE user_id IS NULL", (user_id,)).rowcount
+        return {"equipos": t, "conversaciones": v, "encuentros": e}
+
+    # ---------------------------------------------------------- encuentros
+    def _enc(self, row) -> Dict[str, Any]:
+        d = dict(row)
+        d["fichas"] = json.loads(d.get("fichas") or "[]")
+        d["meta"] = json.loads(d.get("meta") or "{}")
+        return d
+
+    def create_encuentro(self, user_id: Optional[str], data: Dict[str, Any]) -> Dict:
+        eid = uuid.uuid4().hex
+        now = _now()
+        row = _encuentro_row(data)
+        cols = ["id", "user_id", "created_at", "updated_at", *row.keys()]
+        vals = [eid, user_id, now, now, *[json.dumps(v, ensure_ascii=False) if k in ("fichas", "meta") else v
+                                         for k, v in row.items()]]
+        with self._conn() as c:
+            c.execute(f"INSERT INTO encuentros ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
+        return self.get_encuentro(eid)
+
+    def get_encuentro(self, eid: str) -> Optional[Dict]:
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM encuentros WHERE id=?", (eid,)).fetchone()
+            return self._enc(r) if r else None
+
+    def list_encuentros(self, user_id: Optional[str] = None, team_id: Optional[str] = None,
+                        limit: int = 200) -> List[Dict]:
+        q, args = "SELECT * FROM encuentros WHERE 1=1 ", []
+        if user_id:
+            q += "AND user_id=? "
+            args.append(user_id)
+        if team_id:
+            q += "AND team_id=? "
+            args.append(team_id)
+        q += "ORDER BY COALESCE(fecha, created_at) DESC, created_at DESC LIMIT ?"
+        args.append(limit)
+        with self._conn() as c:
+            return [self._enc(r) for r in c.execute(q, args)]
+
+    def update_encuentro(self, eid: str, data: Dict[str, Any]) -> Optional[Dict]:
+        row = _encuentro_row(data, partial=True)
+        if row:
+            sets = ", ".join(f"{k}=?" for k in row)
+            vals = [json.dumps(v, ensure_ascii=False) if k in ("fichas", "meta") else v for k, v in row.items()]
+            with self._conn() as c:
+                c.execute(f"UPDATE encuentros SET {sets}, updated_at=? WHERE id=?", (*vals, _now(), eid))
+        return self.get_encuentro(eid)
+
+    def delete_encuentro(self, eid: str) -> bool:
+        with self._conn() as c:
+            return c.execute("DELETE FROM encuentros WHERE id=?", (eid,)).rowcount > 0
+
     def export_team(self, team_id: str) -> Dict:
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),
+                "encuentros": self.list_encuentros(team_id=team_id, limit=10000),
                 "conversaciones": [dict(c, mensajes=self.get_messages(c["id"]))
                                    for c in self.list_conversations(team_id, limit=10000)]}
+
+
+def _encuentro_row(data: Dict[str, Any], partial: bool = False) -> Dict[str, Any]:
+    """Normaliza los campos de un encuentro (tipos y valores permitidos)."""
+    row: Dict[str, Any] = {}
+    for k in ENCUENTRO_FIELDS:
+        if k not in data:
+            continue
+        v = data[k]
+        if k in ("etapa", "cantidad"):
+            try:
+                v = int(v) if v not in (None, "") else None
+            except (TypeError, ValueError):
+                v = None
+        elif k in ("fichas",):
+            v = [{"doc_id": str(f.get("doc_id", "")), "titulo": str(f.get("titulo", ""))[:200]}
+                 for f in (v or []) if isinstance(f, dict)]
+        elif k == "meta":
+            v = v if isinstance(v, dict) else {}
+        elif k == "estado":
+            v = v if v in ESTADOS else "borrador"
+        elif k == "origen_tema":
+            v = v if v in ("programa", "otro") else "otro"
+        elif k in ("team_id", "conversation_id", "fecha"):
+            v = (str(v).strip() or None) if v is not None else None
+        else:
+            v = "" if v is None else str(v)
+        row[k] = v
+    if not partial:
+        row.setdefault("titulo", "Encuentro")
+    return row
 
 
 class SupabaseMemoryStore:
@@ -277,16 +465,19 @@ class SupabaseMemoryStore:
         return rows[0] if rows else None
 
     # ---------------------------------------------------------- equipos
-    def list_teams(self):
-        return self._req("GET", "/teams", params={"select": "*", "order": "nombre.asc"})
+    def list_teams(self, user_id=None):
+        params = {"select": "*", "order": "nombre.asc"}
+        if user_id:
+            params["user_id"] = f"eq.{user_id}"
+        return self._req("GET", "/teams", params=params)
 
     def get_team(self, team_id):
         return self._one(self._req("GET", "/teams", params={"id": f"eq.{team_id}", "select": "*"}))
 
-    def create_team(self, nombre, perfil=None, auto_memoria=True):
+    def create_team(self, nombre, perfil=None, auto_memoria=True, user_id=None):
         now = _now()
         row = {"id": uuid.uuid4().hex[:12], "nombre": nombre.strip() or "Mi equipo", "perfil": perfil or {},
-               "auto_memoria": bool(auto_memoria), "created_at": now, "updated_at": now}
+               "auto_memoria": bool(auto_memoria), "created_at": now, "updated_at": now, "user_id": user_id}
         return self._one(self._req("POST", "/teams", json_body=row, returning=True))
 
     def update_team(self, team_id, *, nombre=None, perfil=None, auto_memoria=None):
@@ -335,19 +526,21 @@ class SupabaseMemoryStore:
         return len(self._req("DELETE", "/memories", params={"team_id": f"eq.{team_id}"}, returning=True))
 
     # ---------------------------------------------------------- conversaciones
-    def create_conversation(self, team_id, titulo="Nueva conversación"):
+    def create_conversation(self, team_id, titulo="Nueva conversación", user_id=None):
         now = _now()
         row = {"id": uuid.uuid4().hex, "team_id": team_id, "titulo": titulo, "notas": "",
-               "created_at": now, "updated_at": now}
+               "created_at": now, "updated_at": now, "user_id": user_id}
         return self._one(self._req("POST", "/conversations", json_body=row, returning=True))
 
     def get_conversation(self, cid):
         return self._one(self._req("GET", "/conversations", params={"id": f"eq.{cid}", "select": "*"}))
 
-    def list_conversations(self, team_id=None, limit=100):
+    def list_conversations(self, team_id=None, limit=100, user_id=None):
         params = {"select": "*,messages(count)", "order": "updated_at.desc", "limit": str(limit)}
         if team_id:
             params["team_id"] = f"eq.{team_id}"
+        if user_id:
+            params["user_id"] = f"eq.{user_id}"
         rows = self._req("GET", "/conversations", params=params)
         for r in rows:
             m = r.pop("messages", None) or [{}]
@@ -383,8 +576,72 @@ class SupabaseMemoryStore:
         rows = self._req("GET", "/messages", params=params)
         return list(reversed(rows)) if limit else rows
 
+    # ---------------------------------------------------------- cuentas
+    def create_user(self, email, nombre, password_hash, rol=""):
+        now = _now()
+        row = {"id": uuid.uuid4().hex, "email": email.strip().lower(), "nombre": nombre.strip(),
+               "rol": rol or "Responsable de equipo", "password_hash": password_hash,
+               "created_at": now, "updated_at": now}
+        return self._one(self._req("POST", "/users", json_body=row, returning=True))
+
+    def get_user(self, user_id):
+        return self._one(self._req("GET", "/users", params={"id": f"eq.{user_id}", "select": "*"}))
+
+    def get_user_by_email(self, email):
+        return self._one(self._req("GET", "/users", params={"email": f"eq.{email.strip().lower()}",
+                                                           "select": "*"}))
+
+    def update_user(self, user_id, **fields):
+        patch = {k: v for k, v in fields.items() if k in ("nombre", "rol", "password_hash") and v is not None}
+        if not patch:
+            return self.get_user(user_id)
+        patch["updated_at"] = _now()
+        return self._one(self._req("PATCH", "/users", params={"id": f"eq.{user_id}"}, json_body=patch,
+                                   returning=True))
+
+    def count_users(self):
+        return len(self._req("GET", "/users", params={"select": "id", "limit": "1000"}))
+
+    def claim_orphans(self, user_id):
+        out = {}
+        for table, key in (("teams", "equipos"), ("conversations", "conversaciones"), ("encuentros", "encuentros")):
+            rows = self._req("PATCH", f"/{table}", params={"user_id": "is.null"},
+                             json_body={"user_id": user_id}, returning=True)
+            out[key] = len(rows)
+        return out
+
+    # ---------------------------------------------------------- encuentros
+    def create_encuentro(self, user_id, data):
+        now = _now()
+        row = {"id": uuid.uuid4().hex, "user_id": user_id, "created_at": now, "updated_at": now,
+               **_encuentro_row(data)}
+        return self._one(self._req("POST", "/encuentros", json_body=row, returning=True))
+
+    def get_encuentro(self, eid):
+        return self._one(self._req("GET", "/encuentros", params={"id": f"eq.{eid}", "select": "*"}))
+
+    def list_encuentros(self, user_id=None, team_id=None, limit=200):
+        params = {"select": "*", "order": "fecha.desc.nullslast,created_at.desc", "limit": str(limit)}
+        if user_id:
+            params["user_id"] = f"eq.{user_id}"
+        if team_id:
+            params["team_id"] = f"eq.{team_id}"
+        return self._req("GET", "/encuentros", params=params)
+
+    def update_encuentro(self, eid, data):
+        patch = _encuentro_row(data, partial=True)
+        if not patch:
+            return self.get_encuentro(eid)
+        patch["updated_at"] = _now()
+        return self._one(self._req("PATCH", "/encuentros", params={"id": f"eq.{eid}"}, json_body=patch,
+                                   returning=True))
+
+    def delete_encuentro(self, eid):
+        return bool(self._req("DELETE", "/encuentros", params={"id": f"eq.{eid}"}, returning=True))
+
     def export_team(self, team_id):
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),
+                "encuentros": self.list_encuentros(team_id=team_id, limit=10000),
                 "conversaciones": [dict(c, mensajes=self.get_messages(c["id"]))
                                    for c in self.list_conversations(team_id, limit=10000)]}
 

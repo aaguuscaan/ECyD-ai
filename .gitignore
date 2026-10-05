@@ -11,3 +11,4 @@ _para_borrar/
 Claude outputs/
 .vercel/
 .fuse_hidden*
+data/.session_secret

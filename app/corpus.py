@@ -303,6 +303,30 @@ def clean_title(archivo: str) -> str:
     return stem
 
 
+# Organización del contenido dentro de cada etapa
+CATEGORIAS = {
+    "programa": "Programa de la etapa",
+    "ficha": "Fichas",
+    "documento": "Documentos",
+    "recurso": "Recursos adicionales",
+}
+
+
+def detect_categoria(doc: Dict[str, Any]) -> str:
+    """Categoría del documento: ficha / documento / recurso.
+    ('programa' corresponde a las secciones por etapa de 'Formando apóstoles',
+    que se arman en scripts/build_programas.py.)"""
+    tipo = doc.get("tipo")
+    t = norm(doc.get("titulo", ""))
+    if tipo == "ficha":
+        if any(k in t for k in ("anexo", "panel", "rally")):
+            return "recurso"
+        return "ficha"
+    if tipo in ("documento_oficial", "ensayo"):
+        return "documento"
+    return "recurso"
+
+
 def autoridad(nivel: int) -> Dict[str, Any]:
     return {"nivel": nivel, "descripcion": AUTORIDAD.get(nivel, "")}
 
@@ -398,6 +422,8 @@ def build_document(*, doc_id: str, archivo: str, ruta: str, texto: str,
         apply_overrides(doc, overrides)
     if doc["temas_origen"] == "automatico":
         doc["temas"] = detect_temas(doc["titulo"], texto)
+    if "categoria" not in doc.get("overrides", []):
+        doc["categoria"] = detect_categoria(doc)
     return doc
 
 
@@ -460,6 +486,7 @@ def build_corpus(docs: List[Dict[str, Any]], origen: str) -> Dict[str, Any]:
 def document_public(doc: Dict[str, Any]) -> Dict[str, Any]:
     """Metadata del documento sin el texto completo."""
     d = {k: v for k, v in doc.items() if k != "texto"}
+    d.setdefault("categoria", detect_categoria(doc))
     d["resumen"] = re.sub(r"\s+", " ", doc.get("texto", ""))[:280]
     return d
 
