@@ -163,8 +163,9 @@ def nuevo_codigo() -> str:
 
 
 def norm_codigo(codigo: str) -> str:
+    """'nxca cjz7', 'NXCACJZ7' o 'NXCA-CJZ7' → 'NXCA-CJZ7'. Devuelve '' si no tiene forma de código."""
     c = "".join(ch for ch in (codigo or "").upper() if ch.isalnum())
-    return f"{c[:4]}-{c[4:]}" if len(c) == 8 else (codigo or "").strip().upper()
+    return f"{c[:4]}-{c[4:]}" if len(c) == 8 else ""
 
 ENCUENTRO_FIELDS = ["titulo", "fecha", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad",
                     "composicion", "edades", "duracion", "propuesta", "observaciones", "estado",
@@ -510,6 +511,8 @@ class MemoryStore:
             return dict(r) if r else None
 
     def get_community_by_code(self, codigo: str) -> Optional[Dict]:
+        if not norm_codigo(codigo):
+            return None
         with self._conn() as c:
             r = c.execute("SELECT * FROM communities WHERE codigo=?", (norm_codigo(codigo),)).fetchone()
             return dict(r) if r else None
@@ -915,6 +918,8 @@ class SupabaseMemoryStore:
         return self._one(self._req("GET", "/communities", params={"id": f"eq.{cid}", "select": "*"}))
 
     def get_community_by_code(self, codigo):
+        if not norm_codigo(codigo):
+            return None
         return self._one(self._req("GET", "/communities", params={"codigo": f"eq.{norm_codigo(codigo)}", "select": "*"}))
 
     def update_community(self, cid, **fields):

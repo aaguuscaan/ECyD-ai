@@ -233,6 +233,27 @@
 
   // ------------------------------------------------------------ acceso (cuentas individuales)
   let authInfo = {};
+  // invitación por enlace: https://…/?comunidad=ABCD-2345
+  const normCodigo = c => { const x = String(c || "").toUpperCase().replace(/[^A-Z0-9]/g, ""); return x.length === 8 ? `${x.slice(0, 4)}-${x.slice(4)}` : ""; };
+  let invite = "";
+  try {
+    const qp = new URLSearchParams(location.search);
+    invite = normCodigo(qp.get("comunidad")) || sessionStorage.getItem("ecyd.invite") || "";
+    if (qp.has("comunidad")) { history.replaceState(null, "", location.pathname); }
+    if (invite) sessionStorage.setItem("ecyd.invite", invite);
+  } catch {}
+  const clearInvite = () => { invite = ""; try { sessionStorage.removeItem("ecyd.invite"); } catch {} };
+
+  async function procesarInvitacion(yaUnida) {
+    if (yaUnida) { clearInvite(); com.id = yaUnida.id; save("comunidadId", yaUnida.id); toast(`Te sumaste a ${yaUnida.nombre}. La coordinación te va a asignar tu equipo.`, 7000); showView("comunidad"); return; }
+    if (!invite) return;
+    try {
+      const c = await api("/api/comunidades/unirse", { method: "POST", body: { codigo: invite } });
+      com.id = c.id; save("comunidadId", c.id);
+      toast(`Te sumaste a ${c.nombre}.`, 6000); showView("comunidad");
+    } catch (err) { toast("No se pudo usar la invitación: " + err.message, 8000); }
+    clearInvite();
+  }
   function setAuthTab(tab) {
     $$("[data-auth]").forEach(b => b.classList.toggle("on", b.dataset.auth === tab));
     $("#login-form").classList.toggle("hidden", tab !== "login");
@@ -246,10 +267,13 @@
     fetch("/api/session", { credentials: "same-origin" }).then(r => r.json()).then(s => {
       authInfo = s;
       $("#first-user-note").classList.toggle("hidden", !s.first_user);
+      const inv = $("#invite-note");
+      inv.classList.toggle("hidden", !invite);
+      if (invite) { inv.innerHTML = `Te invitaron a una comunidad del asistente (código <strong>${esc(invite)}</strong>). Creá tu cuenta, o ingresá si ya tenés una, y te sumamos automáticamente.`; $("#reg-codigo").value = invite; }
       $("#reg-codigo").classList.toggle("hidden", !s.registration_requires_code);
       $("#reg-code-help").classList.toggle("hidden", !s.registration_requires_code);
       $("#reg-codigo").required = !!s.registration_requires_code;
-      setAuthTab(s.first_user ? "register" : "login");
+      setAuthTab(s.first_user || invite ? "register" : "login");
     }).catch(() => setAuthTab("login"));
   }
   $$("[data-auth]").forEach(b => b.addEventListener("click", () => setAuthTab(b.dataset.auth)));
@@ -259,13 +283,14 @@
     if (!res.ok) throw new Error(data.detail || res.statusText);
     return data;
   }
-  function signedIn(user) {
+  async function signedIn(user, unida) {
     if (load("uid") !== user.id) { save("teamId", null); state.teamId = ""; }
     save("uid", user.id);
     state.user = user;
     $("#login").classList.add("hidden");
     $("#login-pass").value = ""; $("#reg-pass").value = ""; $("#reg-codigo").value = "";
-    renderProfile(); boot();
+    renderProfile(); await boot();
+    await procesarInvitacion(unida);
   }
   $("#login-form").addEventListener("submit", async e => {
     e.preventDefault();
@@ -281,12 +306,12 @@
     try {
       const r = await authPost("/api/register", {
         nombre: $("#reg-nombre").value.trim(), email: $("#reg-email").value.trim(), password: $("#reg-pass").value,
-        rol: $("#reg-rol").value.trim(), codigo: $("#reg-codigo").value,
+        rol: $("#reg-rol").value.trim(), codigo: $("#reg-codigo").value.trim(), comunidad: invite,
       });
-      signedIn(r.user);
+      signedIn(r.user, r.comunidad);
       const n = r.datos_asignados || {};
       if (n.equipos || n.conversaciones) toast(`Bienvenido/a. Quedaron en tu cuenta ${n.equipos || 0} equipo(s) y ${n.conversaciones || 0} conversación(es) que ya existían.`, 7000);
-      else toast("Cuenta creada. Empezá creando tu equipo.", 5000);
+      else if (!r.comunidad) toast("Cuenta creada. Empezá creando tu equipo o sumate a tu comunidad.", 5000);
     } catch (err) { $("#login-error").textContent = err.message; }
   });
   async function logout() {
@@ -1460,10 +1485,10 @@
 
       ${coord ? `<div class="invite-card">
         <div class="invite-txt">${icon("share")}<div><strong>Invitá a los responsables</strong>
-          <small>Se registran en el asistente, entran a <em>Comunidad</em> y ponen este código.</small></div></div>
+          <small>Mandales el enlace: se crean la cuenta y quedan adentro. También pueden poner el código al registrarse o en <em>Comunidad → Unirme</em>.</small></div></div>
         <div class="invite-code"><code id="com-code">${esc(d.codigo)}</code>
-          <button class="icon-btn" id="com-copy" title="Copiar código">${icon("copy")}</button>
-          <a class="btn small" id="com-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Sumate a ${d.nombre} en el Asistente ECyD: ${location.origin} → Comunidad → código ${d.codigo}`)}">${icon("share")}WhatsApp</a>
+          <button class="btn small" id="com-copy" title="Copiar el enlace de invitación">${icon("copy")}Copiar enlace</button>
+          <a class="btn small" id="com-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Sumate a ${d.nombre} en el Asistente ECyD. Entrá a este enlace, creá tu cuenta y quedás adentro: ${location.origin}/?comunidad=${d.codigo}`)}">${icon("share")}WhatsApp</a>
           <button class="icon-btn" id="com-regen" title="Generar un código nuevo (el anterior deja de funcionar)">${icon("refresh")}</button></div>
       </div>` : ""}
 
@@ -1540,7 +1565,10 @@
     $$("[data-prep-team]", v).forEach(b => b.addEventListener("click", async () => {
       await loadTeams(); setTeam(b.dataset.prepTeam); prep.teamId = b.dataset.prepTeam; showView("preparar");
     }));
-    $("#com-copy")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(d.codigo); toast("Código copiado"); } catch { toast(d.codigo); } });
+    $("#com-copy")?.addEventListener("click", async () => {
+      const link = `${location.origin}/?comunidad=${d.codigo}`;
+      try { await navigator.clipboard.writeText(link); toast("Enlace de invitación copiado"); } catch { toast(link, 9000); }
+    });
     $("#com-regen")?.addEventListener("click", async () => {
       if (!confirm("¿Generar un código nuevo? El código actual deja de funcionar (quienes ya entraron siguen en la comunidad).")) return;
       await api(`/api/comunidades/${d.id}/codigo`, { method: "POST" }); renderComunidad(); toast("Código nuevo generado");
@@ -2092,6 +2120,7 @@
       save("uid", s.user.id);
       state.user = s.user;
     } catch { showLogin(); return; }
-    renderProfile(); boot();
+    renderProfile(); await boot();
+    await procesarInvitacion();
   })();
 })();

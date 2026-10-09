@@ -284,3 +284,27 @@ def test_chat_responsables(client):
     assert b.delete(f"/api/chats/mensajes/{m2['id']}").json()["ok"]
     mb = b.post(f"/api/chats/comunidad/{com['id']}/mensajes", json={"texto": "spam"}).json()
     assert c.delete(f"/api/chats/mensajes/{mb['id']}").json()["ok"]
+
+
+def test_codigos_de_comunidad(client):
+    c = client
+    register(c, "coord@x.com", "Coordi")
+    com = c.post("/api/comunidades", json={"nombre": "ECyD Mano Amiga"}).json()
+    # 1) registrarse con el código de la comunidad (sin el código general) → queda adentro
+    a = TestClient(c.app)
+    r = register(a, "ana@x.com", "Ana", codigo=com["codigo"].lower().replace("-", " "))
+    assert r.status_code == 200 and r.json()["comunidad"]["nombre"] == "ECyD Mano Amiga"
+    assert [x["nombre"] for x in a.get("/api/comunidades").json()] == ["ECyD Mano Amiga"]
+    # 2) enlace de invitación + código general
+    b = TestClient(c.app)
+    r = b.post("/api/register", json={"email": "b@x.com", "password": "clave-segura", "nombre": "Beto",
+                                      "codigo": "codigo-ecyd", "comunidad": com["codigo"]})
+    assert r.json()["comunidad"]["id"] == com["id"]
+    # 3) códigos equivocados: mensajes claros
+    r = TestClient(c.app).post("/api/register", json={"email": "z@x.com", "password": "clave-segura",
+                                                       "nombre": "Z", "codigo": "ZZZZ-9999"})
+    assert r.status_code == 403 and "invitación de tu comunidad" in r.json()["detail"]
+    j = b.post("/api/comunidades/unirse", json={"codigo": "codigo-ecyd"})
+    assert j.status_code == 400 and "crear cuentas" in j.json()["detail"]
+    assert b.post("/api/comunidades/unirse", json={"codigo": "hola"}).status_code == 404
+    assert len(c.get(f"/api/comunidades/{com['id']}").json()["miembros"]) == 3

@@ -837,3 +837,5 @@ i.ri { width: 15px; height: 15px; vertical-align: -3px; margin-right: 4px; color
 }
 .icon-btn.has-dot { position: relative; }
 .icon-btn.has-dot::after { content: ""; position: absolute; top: 7px; right: 7px; width: 9px; height: 9px; border-radius: 50%; background: var(--ecyd); box-shadow: 0 0 0 2px var(--bg); }
+.invite-note { background: var(--ecyd-tint-2); color: var(--ecyd-deep); border-radius: 10px; padding: 8px 10px; text-align: left; }
+:root[data-theme="dark"] .invite-note { color: var(--text); }

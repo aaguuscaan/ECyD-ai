@@ -131,6 +131,7 @@ class RegisterIn(LoginIn):
     nombre: str = Field(..., max_length=120)
     rol: str = Field("", max_length=120)
     codigo: str = Field("", max_length=200)
+    comunidad: str = Field("", max_length=20)   # código de invitación (desde un enlace)
 
 
 @app.get("/api/session")
@@ -149,19 +150,34 @@ def register(body: RegisterIn, request: Request):
     ip = request.client.host if request.client else "?"
     if auth.too_many_attempts("reg:" + ip, limit=8):
         raise HTTPException(429, "Demasiados intentos. Probá de nuevo en unos minutos.")
+    store = get_store()
     code = auth.registration_code()
-    if code and not hmac.compare_digest(body.codigo.strip(), code):
-        raise HTTPException(403, "El código de acceso no es correcto. Pedíselo a quien administra el asistente.")
+    # Sirve el código de acceso del ECyD o el código de invitación de una comunidad.
+    comunidad = None
+    for c in (body.comunidad, body.codigo):
+        if c and c.strip() and not comunidad:
+            try:
+                comunidad = store.get_community_by_code(c)
+            except Exception:  # noqa: BLE001
+                comunidad = None
+    codigo_ok = not code or hmac.compare_digest(body.codigo.strip(), code)
+    if not codigo_ok and not comunidad:
+        raise HTTPException(403, "El código no es correcto. Usá el código de acceso del ECyD o el código de "
+                                 "invitación de tu comunidad (ej.: ABCD-2345).")
     err = auth.validate_new_account(body.email, body.password, body.nombre)
     if err:
         raise HTTPException(400, err)
-    store = get_store()
     if store.get_user_by_email(body.email):
         raise HTTPException(409, "Ya existe una cuenta con ese email. Iniciá sesión.")
     primera = store.count_users() == 0
     user = store.create_user(body.email, body.nombre, auth.hash_password(body.password), body.rol)
     adoptados = store.claim_orphans(user["id"]) if primera else {}
-    resp = JSONResponse({"ok": True, "user": auth.public_user(user), "datos_asignados": adoptados})
+    unida = None
+    if comunidad:
+        store.set_community_member(comunidad["id"], user["id"], "responsable")
+        unida = {"id": comunidad["id"], "nombre": comunidad["nombre"]}
+    resp = JSONResponse({"ok": True, "user": auth.public_user(user), "datos_asignados": adoptados,
+                         "comunidad": unida})
     _set_session(resp, user["id"])
     return resp
 
@@ -770,7 +786,12 @@ def unirse_comunidad(body: UnirseIn, request: Request):
     store = get_store()
     c = store.get_community_by_code(body.codigo)
     if not c:
-        raise HTTPException(404, "No hay ninguna comunidad con ese código. Revisalo con tu coordinador.")
+        code = auth.registration_code()
+        if code and hmac.compare_digest(body.codigo.strip(), code):
+            raise HTTPException(400, "Ese es el código para crear cuentas en el asistente. Para unirte a una "
+                                     "comunidad pedile a tu coordinador el código de la comunidad (ej.: ABCD-2345).")
+        raise HTTPException(404, "No hay ninguna comunidad con ese código. Revisalo con tu coordinador "
+                                 "(tiene el formato ABCD-2345).")
     rol = _community_rol(c["id"], uid)
     if not rol:
         store.set_community_member(c["id"], uid, "responsable")

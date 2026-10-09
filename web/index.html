@@ -18,6 +18,7 @@
       <img src="/static/img/cruz-ecyd.svg" alt="" class="login-cross">
       <h1 class="wordmark">Asistente <span>ECyD</span></h1>
       <p class="login-sub">Tu espacio para preparar los encuentros de tu equipo.</p>
+      <p id="invite-note" class="auth-note invite-note hidden"></p>
       <div class="seg auth-tabs" role="tablist">
         <button type="button" data-auth="login" class="on">Ingresar</button>
         <button type="button" data-auth="register">Crear cuenta</button>
@@ -33,9 +34,9 @@
         <input id="reg-email" type="email" placeholder="Email" autocomplete="email" required>
         <input id="reg-pass" type="password" placeholder="Contraseña (mínimo 8 caracteres)" autocomplete="new-password" minlength="8" required>
         <input id="reg-rol" type="text" placeholder="Tu rol (opcional): responsable, coordinador…" maxlength="120">
-        <input id="reg-codigo" type="password" placeholder="Código de acceso del ECyD" autocomplete="off">
+        <input id="reg-codigo" type="text" placeholder="Código de acceso o de tu comunidad" autocomplete="off" autocapitalize="characters" spellcheck="false">
         <button class="btn primary" type="submit">Crear cuenta</button>
-        <p class="auth-note" id="reg-code-help">El código de acceso te lo da quien administra el asistente.</p>
+        <p class="auth-note" id="reg-code-help">Sirve el código de acceso del ECyD o el código de invitación de tu comunidad (ej.: ABCD-2345), que te pasa tu coordinador.</p>
       </form>
       <p id="login-error" class="error-text"></p>
     </div>
