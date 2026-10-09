@@ -14,6 +14,7 @@ def client(tmp_path, monkeypatch):
     from app.retrieval import Retriever
     from tests.test_backend import FakeLLM
     monkeypatch.setattr(memory.settings, "app_password", "codigo-ecyd")
+    auth._attempts.clear()
     store = MemoryStore(tmp_path / "m.db")
     # datos "viejos" sin dueño (antes de que existieran cuentas)
     old = store.create_team("Equipo viejo", {"etapa": "1ra etapa"})
@@ -134,3 +135,80 @@ def test_ajustar_encuentro(client):
     c2 = TestClient(c.app)
     register(c2, "otro@x.com", "Otro")
     assert c2.post(f"/api/encuentros/{enc['id']}/ajustar", json={"instruccion": "x y"}).status_code == 404
+
+
+def test_comunidades_y_permisos(client):
+    c = client
+    register(c, "coord@x.com", "Coordi")
+    resp = TestClient(c.app); register(resp, "resp@x.com", "Resp")
+    otro = TestClient(c.app); register(otro, "otro@x.com", "Otro")
+    ajeno = TestClient(c.app); register(ajeno, "ajeno@x.com", "Ajeno")
+
+    com = c.post("/api/comunidades", json={"nombre": "ECyD Mano Amiga", "lugar": "Pilar"}).json()
+    assert com["rol"] == "coordinador" and len(com["codigo"]) == 9
+    assert resp.post("/api/comunidades/unirse", json={"codigo": "XXXX-XXXX"}).status_code == 404
+    j = resp.post("/api/comunidades/unirse", json={"codigo": com["codigo"].lower().replace("-", "")}).json()
+    assert j["rol"] == "responsable" and "codigo" not in j        # solo la coordinación ve el código
+    otro.post("/api/comunidades/unirse", json={"codigo": com["codigo"]})
+    ids = {m["nombre"]: m["user_id"] for m in c.get(f"/api/comunidades/{com['id']}").json()["miembros"]}
+
+    # la coordinación crea un equipo de etapa 2 con dos co-responsables
+    t = c.post(f"/api/comunidades/{com['id']}/equipos",
+               json={"nombre": "Etapa 2 · varones", "etapa": 2, "responsables": [ids["Resp"], ids["Otro"]]}).json()
+    assert t["perfil"]["etapa"] == "Etapa 2" and t["perfil"]["edades"] == "12-13 años"
+    assert {r["nombre"] for r in t["responsables"]} == {"Resp", "Otro"}
+    # no se puede asignar a alguien de afuera
+    assert c.put(f"/api/comunidades/{com['id']}/equipos/{t['id']}",
+                 json={"responsables": [ids["Resp"], "zzz"]}).status_code == 400
+
+    # los co-responsables lo ven y comparten memoria y encuentros
+    assert [x["id"] for x in resp.get("/api/teams").json()] == [t["id"]]
+    resp.post(f"/api/teams/{t['id']}/memories", json={"texto": "Juan está pasando un momento difícil"})
+    assert len(otro.get(f"/api/teams/{t['id']}/memories").json()) == 1
+    enc = resp.post("/api/encuentros", json={"team_id": t["id"], "titulo": "La amistad", "fecha": "2026-10-20",
+                                            "propuesta": "# La amistad", "observaciones": "Juan no vino"}).json()
+    assert [e["id"] for e in otro.get("/api/encuentros").json()] == [enc["id"]]
+    assert otro.put(f"/api/encuentros/{enc['id']}", json={"estado": "planificado"}).status_code == 200
+
+    # la coordinación ve la planificación pero no la memoria ni las observaciones
+    assert t["id"] not in [x["id"] for x in c.get("/api/teams").json()]
+    assert c.get(f"/api/teams/{t['id']}/memories").status_code == 404
+    e = c.get(f"/api/encuentros/{enc['id']}").json()
+    assert e["solo_lectura"] and e["observaciones"] == "" and e["propuesta"] == "# La amistad"
+    assert c.put(f"/api/encuentros/{enc['id']}", json={"estado": "realizado"}).status_code == 404
+    panel = c.get(f"/api/comunidades/{com['id']}", params={"mes": "2026-10"}).json()
+    eq = panel["equipos"][0]
+    assert eq["etapa"] == 2 and eq["encuentros_mes"][0]["titulo"] == "La amistad" and eq["programa_mes"]
+    assert panel["resumen"]["con_plan"] == 1 and "email" in panel["miembros"][0]
+    assert "email" not in resp.get(f"/api/comunidades/{com['id']}").json()["miembros"][0]
+
+    # PDF: el responsable lo baja con lo que tiene en pantalla; la coordinación, sin observaciones
+    r = resp.post(f"/api/encuentros/{enc['id']}/pdf", json={"propuesta": "# La amistad\n\n## Despertar\n- Juego [F1]"})
+    assert r.status_code == 200 and r.content.startswith(b"%PDF") and "la-amistad.pdf" in r.headers["content-disposition"]
+    assert c.post(f"/api/encuentros/{enc['id']}/pdf", json={}).content.startswith(b"%PDF")
+    assert ajeno.post(f"/api/encuentros/{enc['id']}/pdf", json={}).status_code == 404
+
+    # alguien de afuera no ve nada
+    assert ajeno.get(f"/api/comunidades/{com['id']}").status_code == 404
+    assert ajeno.get(f"/api/encuentros/{enc['id']}").status_code == 404
+    assert ajeno.get(f"/api/teams/{t['id']}/memories").status_code == 404
+
+    # un responsable que crea un equipo queda como su responsable (no puede asignar a otros)
+    t2 = resp.post(f"/api/comunidades/{com['id']}/equipos",
+                   json={"nombre": "Etapa 1", "etapa": 1, "responsables": [ids["Otro"]]}).json()
+    assert [r["nombre"] for r in t2["responsables"]] == ["Resp"]
+
+    # mover un equipo personal a la comunidad
+    p = ajeno.post("/api/teams", json={"nombre": "Mi equipo"}).json()
+    assert ajeno.post(f"/api/teams/{p['id']}/comunidad", json={"community_id": com["id"]}).status_code == 404
+    ajeno.post("/api/comunidades/unirse", json={"codigo": com["codigo"]})
+    m = ajeno.post(f"/api/teams/{p['id']}/comunidad", json={"community_id": com["id"]}).json()
+    assert m["comunidad"]["nombre"] == "ECyD Mano Amiga" and [r["nombre"] for r in m["responsables"]] == ["Ajeno"]
+
+    # roles: no puede quedar sin coordinador; quitar a alguien lo saca de sus equipos
+    assert c.delete(f"/api/comunidades/{com['id']}/miembros/{ids['Coordi']}").status_code == 400
+    assert resp.delete(f"/api/comunidades/{com['id']}/miembros/{ids['Otro']}").status_code == 403
+    assert c.delete(f"/api/comunidades/{com['id']}/miembros/{ids['Otro']}").json()["ok"]
+    assert otro.get("/api/teams").json() == []
+    assert c.put(f"/api/comunidades/{com['id']}/miembros/{ids['Resp']}", json={"rol": "coordinador"}).json()["ok"]
+    assert "codigo" in resp.get("/api/comunidades").json()[0]

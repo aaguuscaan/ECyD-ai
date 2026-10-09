@@ -45,6 +45,13 @@
     sparkle: P(["M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"]),
     logout: P(["M15 4h3.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H15", "M10 8l-4 4 4 4M6 12h10"]),
     info: P(['<circle cx="12" cy="12" r="8.5"/>', "M12 11v5M12 8h.01"]),
+    community: P(['<circle cx="12" cy="7" r="2.6"/>', '<circle cx="5.5" cy="10" r="2.1"/>', '<circle cx="18.5" cy="10" r="2.1"/>',
+      "M7.5 20c0-2.8 2-4.8 4.5-4.8s4.5 2 4.5 4.8", "M2 19c0-2.2 1.5-3.8 3.5-3.8 1 0 1.8.3 2.5.9", "M22 19c0-2.2-1.5-3.8-3.5-3.8-1 0-1.8.3-2.5.9"]),
+    copy: P(['<rect x="8" y="8" width="12" height="12" rx="2"/>', "M16 8V5.5A1.5 1.5 0 0 0 14.5 4h-9A1.5 1.5 0 0 0 4 5.5v9A1.5 1.5 0 0 0 5.5 16H8"]),
+    share: P(['<circle cx="18" cy="5" r="2.5"/>', '<circle cx="6" cy="12" r="2.5"/>', '<circle cx="18" cy="19" r="2.5"/>', "m8.2 10.8 7.6-4.4M8.2 13.2l7.6 4.4"]),
+    refresh: P(["M20 11a8 8 0 1 0-2.3 5.7", "M20 5v6h-6"]),
+    pdf: P(["M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z", "M14 3v5h5", "M12 11v6m-3-3 3 3 3-3"]),
+    "chevron-left": P(["m15 6-6 6 6 6"]),
   };
   function icon(name, cls = "") {
     return `<i data-icon="${name}" class="${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg></i>`;
@@ -332,7 +339,7 @@
     $$(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.view === name));
     closeSidebar(); closeRail();
     $("#main").scrollTop = 0;
-    const renderers = { preparar: renderPreparar, encuentros: renderEncuentros, conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
+    const renderers = { comunidad: renderComunidad, preparar: renderPreparar, encuentros: renderEncuentros, conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
     renderers[name]?.();
     if (name === "inicio") setTimeout(() => $("#input").focus(), 50);
   }
@@ -382,10 +389,11 @@
       return;
     }
     const fields = state.config.team_fields.filter(f => (t.perfil[f.key] || "").trim());
-    list.innerHTML = fields.length ? fields.map(f => `
+    const comLine = t.comunidad ? `<div class="ctx-item">${icon("community")}<div><div class="k">Comunidad</div><div class="v">${esc(t.comunidad.nombre)}${t.responsables?.length ? " · " + t.responsables.map(r => esc(r.nombre.split(" ")[0])).join(", ") : ""}</div></div></div>` : "";
+    list.innerHTML = comLine + (fields.length ? fields.map(f => `
       <div class="ctx-item">${icon(FIELD_ICONS[f.key] || "info")}
         <div><div class="k">${esc(f.label)}</div><div class="v">${esc(t.perfil[f.key])}</div></div></div>`).join("")
-      : `<p class="ctx-empty">Todavía no cargaste datos de este equipo. Tocá <strong>Editar</strong> para completar etapa, edades, tema mensual y objetivo.</p>`;
+      : `<p class="ctx-empty">Todavía no cargaste datos de este equipo. Tocá <strong>Editar</strong> para completar etapa, edades, tema mensual y objetivo.</p>`);
   }
 
   function renderTeams() {
@@ -399,6 +407,8 @@
           <h3>${icon("users")}${esc(t.nombre)}${t.id === state.teamId ? ` <span class="badge red">Activo</span>` : ""}</h3>
           <div class="row-sub">${esc(t.perfil.etapa || "Etapa sin definir")}${t.perfil.edades ? " · " + esc(t.perfil.edades) : ""}${t.perfil.cantidad_chicos ? " · " + esc(t.perfil.cantidad_chicos) + " adolescentes" : ""}${t.perfil.composicion ? " · " + esc(cap(t.perfil.composicion)) : ""}</div>
           ${t.perfil.tema_mensual ? `<div class="row-sub">Tema mensual: ${esc(t.perfil.tema_mensual)}</div>` : ""}
+          ${t.comunidad ? `<div class="row-sub">${icon("community", "ri")}${esc(t.comunidad.nombre)}${t.responsables?.length > 1 ? ` · con ${t.responsables.filter(r => r.user_id !== state.user?.id).map(r => esc(r.nombre.split(" ")[0])).join(", ")}` : ""}</div>`
+            : (com.list.length ? `<div class="row-sub"><button class="link-btn" data-mover="${t.id}">${icon("community", "ri")}Llevar a una comunidad</button></div>` : "")}
           <div class="actions">
             ${t.id === state.teamId ? "" : `<button class="btn primary small" data-use="${t.id}">Usar este equipo</button>`}
             <button class="btn small" data-edit="${t.id}">${icon("edit")}Editar</button>
@@ -412,6 +422,16 @@
     $$("[data-use]", v).forEach(b => b.addEventListener("click", () => { setTeam(b.dataset.use); renderTeams(); toast("Equipo activo actualizado"); }));
     $$("[data-edit]", v).forEach(b => b.addEventListener("click", () => renderTeamForm(state.teams.find(t => t.id === b.dataset.edit))));
     $$("[data-prep]", v).forEach(b => b.addEventListener("click", () => { if (b.dataset.prep !== state.teamId) setTeam(b.dataset.prep); showView("preparar"); }));
+    $$("[data-mover]", v).forEach(b => b.addEventListener("click", () => {
+      const t = state.teams.find(x => x.id === b.dataset.mover);
+      openPanel("Llevar a una comunidad", `<p class="help">“${esc(t.nombre)}” pasa a ser un equipo de la comunidad. Vos seguís como responsable, con su memoria y sus encuentros. La coordinación va a ver su planificación (no la memoria) y puede sumar co-responsables.</p>
+        <select class="field" id="mv-com">${com.list.map(c => `<option value="${esc(c.id)}">${esc(c.nombre)}</option>`).join("")}</select>
+        <div class="actions"><button class="btn primary" id="mv-ok">${icon("check")}Llevar a la comunidad</button></div>`);
+      $("#mv-ok").addEventListener("click", async () => {
+        try { await api(`/api/teams/${t.id}/comunidad`, { method: "POST", body: { community_id: $("#mv-com").value } }); closePanel(); await loadTeams(); renderTeams(); toast("Equipo sumado a la comunidad"); }
+        catch (err) { toast(err.message); }
+      });
+    }));
   }
 
   function renderTeamForm(team) {
@@ -1157,16 +1177,38 @@
     }
   }
 
+  // ------------------------------------------------------------ PDF
+  async function descargarPDF(enc, propuesta, titulo) {
+    toast("Preparando el PDF…", 8000);
+    try {
+      const res = await fetch(`/api/encuentros/${enc.id}/pdf`, { method: "POST", credentials: "same-origin",
+        headers: { "Content-Type": "application/json" }, body: JSON.stringify({ propuesta, titulo: (titulo || "").trim() || null }) });
+      if (res.status === 401) { showLogin(); throw new Error("La sesión venció"); }
+      if (!res.ok) { let m = res.statusText; try { m = (await res.json()).detail; } catch {} throw new Error(m); }
+      const blob = await res.blob();
+      const name = (res.headers.get("Content-Disposition") || "").match(/filename="([^"]+)"/)?.[1] || "encuentro.pdf";
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 30000);
+      toast("PDF descargado");
+    } catch (err) { toast("No se pudo crear el PDF: " + err.message, 6000); }
+  }
+
   // ------------------------------------------------------------ editor de un encuentro
   function renderEncuentroEditor(container, enc, opts = {}) {
     const sources = opts.sources || enc.meta?.sources || [];
     const fichas = enc.fichas || [];
+    const ro = !!enc.solo_lectura;
+    const backTxt = opts.back === "comunidad" ? "← Volver a la comunidad" : "← Volver a Mis encuentros";
     container.innerHTML = `
-      <div class="form-card enc-editor">
-        ${opts.back ? `<button class="link-btn back" data-e="back">← Volver a Mis encuentros</button>` : ""}
+      <div class="form-card enc-editor ${ro ? "read-only" : ""}">
+        ${opts.back ? `<button class="link-btn back" data-e="back">${backTxt}</button>` : ""}
+        ${ro ? `<div class="ro-note">${icon("info")}Lo ves en modo lectura como coordinación de la comunidad. Solo los responsables del equipo pueden editarlo.</div>` : ""}
         <div class="enc-top">
-          <input class="field enc-title" data-e="titulo" value="${esc(enc.titulo || "")}" maxlength="140" aria-label="Título">
-          <select class="field enc-estado" data-e="estado">${Object.entries(ESTADOS).map(([k, l]) => `<option value="${k}" ${enc.estado === k ? "selected" : ""}>${l}</option>`).join("")}</select>
+          ${ro ? `<h2 class="enc-title-ro">${esc(enc.titulo || "Encuentro")}</h2><span class="badge ${enc.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[enc.estado] || "")}</span>`
+            : `<input class="field enc-title" data-e="titulo" value="${esc(enc.titulo || "")}" maxlength="140" aria-label="Título">
+          <select class="field enc-estado" data-e="estado">${Object.entries(ESTADOS).map(([k, l]) => `<option value="${k}" ${enc.estado === k ? "selected" : ""}>${l}</option>`).join("")}</select>`}
         </div>
         <div class="row-sub enc-meta">${encMeta(enc).map(x => `<span>${esc(x)}</span>`).join("<span>·</span>")}</div>
         <div class="pill-row">
@@ -1175,11 +1217,13 @@
           ${fichas.map(f => `<button class="pill clickable" data-doc="${esc(f.doc_id)}">${icon("note")}${esc(f.titulo)}</button>`).join("")}
         </div>
         ${enc.meta?.aviso ? `<div class="weak">${esc(enc.meta.aviso)}</div>` : ""}
-        <div class="enc-tabs"><div class="seg"><button class="on" data-mode="ver">Ver</button><button data-mode="editar">${icon("edit")}Editar</button></div>
-          <span class="muted small-note">Es una propuesta: adaptala a tu grupo antes de usarla.</span></div>
+        <div class="enc-tabs">${ro ? "" : `<div class="seg"><button class="on" data-mode="ver">Ver</button><button data-mode="editar">${icon("edit")}Editar</button></div>`}
+          <span class="muted small-note">Es una propuesta: adaptala a tu grupo antes de usarla.</span>
+          <span style="flex:1"></span><button class="btn small" data-e="pdf">${icon("pdf")}Descargar PDF</button></div>
         <div class="md enc-md">${markdown(enc.propuesta || "_Todavía no hay propuesta._")}</div>
         <textarea class="field enc-text hidden" data-e="text" rows="22">${esc(enc.propuesta || "")}</textarea>
         <div class="extras"></div>
+        ${ro ? `<div class="actions" style="margin-top:16px"><button class="btn small" data-e="copy">${icon("copy")}Copiar texto</button></div></div>` : `
         <div class="ajuste" data-e="ajuste">
           <div class="ajuste-head">${icon("sparkle")}<div><strong>Pedile cambios a la IA</strong>
             <small>Aclarale lo que necesites y reescribe la propuesta. Siempre podés volver a la versión anterior.</small></div></div>
@@ -1203,15 +1247,19 @@
           <span style="flex:1"></span>
           <button class="btn danger small" data-e="del">${icon("trash")}Eliminar</button>
         </div>
-      </div>`;
+      </div>`}`;
     const box = $(".enc-editor", container);
     const q = k => box.querySelector(`[data-e="${k}"]`);
     box._sources = sources;
     renderSourceBar(box);
     hydrateIcons(box);
-    setupAjuste(box, q, enc);
+    if (!ro) setupAjuste(box, q, enc);
     $$("[data-doc]", box).forEach(b => b.addEventListener("click", () => openDoc(b.dataset.doc)));
-    q("back")?.addEventListener("click", () => { encOpen = null; renderEncuentros(); });
+    q("back")?.addEventListener("click", () => {
+      encOpen = null;
+      if (opts.back === "comunidad") showView("comunidad"); else renderEncuentros();
+    });
+    q("pdf")?.addEventListener("click", () => descargarPDF(enc, ro ? enc.propuesta : q("text")?.value ?? enc.propuesta, ro ? enc.titulo : q("titulo")?.value));
     $$(".enc-tabs [data-mode]", box).forEach(b => b.addEventListener("click", () => {
       const edit = b.dataset.mode === "editar";
       $$(".enc-tabs [data-mode]", box).forEach(x => x.classList.toggle("on", x === b));
@@ -1219,7 +1267,7 @@
       $(".enc-md", box).classList.toggle("hidden", edit); q("text").classList.toggle("hidden", !edit);
       if (edit) q("text").focus();
     }));
-    q("save").addEventListener("click", async () => {
+    q("save")?.addEventListener("click", async () => {
       try {
         const upd = await api(`/api/encuentros/${enc.id}`, { method: "PUT", body: {
           titulo: q("titulo").value.trim() || enc.titulo, estado: q("estado").value, fecha: q("fecha").value || null,
@@ -1227,17 +1275,17 @@
         Object.assign(enc, upd); await loadEncuentros(); toast("Encuentro guardado");
       } catch (err) { toast(err.message); }
     });
-    q("copy").addEventListener("click", async () => {
+    q("copy")?.addEventListener("click", async () => {
       try { await navigator.clipboard.writeText(q("text").value); toast("Texto copiado"); } catch { toast("No se pudo copiar"); }
     });
-    q("dup").addEventListener("click", async () => {
+    q("dup")?.addEventListener("click", async () => {
       const keys = ["team_id", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad", "composicion", "edades", "duracion"];
       const body = Object.fromEntries(keys.filter(k => enc[k] != null && enc[k] !== "").map(k => [k, enc[k]]));
       Object.assign(body, { titulo: (enc.titulo || "Encuentro") + " (copia)", propuesta: q("text").value, estado: "borrador" });
       try { const c = await api("/api/encuentros", { method: "POST", body }); await loadEncuentros(); toast("Copia creada"); openEncuentro(c.id); }
       catch (err) { toast(err.message); }
     });
-    q("del").addEventListener("click", async () => {
+    q("del")?.addEventListener("click", async () => {
       if (!confirm(`¿Eliminar “${enc.titulo || "este encuentro"}”? No se puede deshacer.`)) return;
       await api(`/api/encuentros/${enc.id}`, { method: "DELETE" });
       await loadEncuentros(); toast("Encuentro eliminado");
@@ -1248,13 +1296,14 @@
   // ------------------------------------------------------------ mis encuentros
   let encOpen = null;
   const encFilter = { team: "", etapa: "", estado: "", q: "" };
-  async function openEncuentro(id) { encOpen = id; showView("encuentros"); }
+  let encFrom = "encuentros";
+  async function openEncuentro(id, from = "encuentros") { encOpen = id; encFrom = from; showView("encuentros"); }
 
   async function renderEncuentros() {
     const v = $("#view-encuentros");
     if (encOpen) {
       v.innerHTML = `<div class="thinking"><span class="spinner"></span>Cargando…</div>`;
-      try { const e = await api(`/api/encuentros/${encOpen}`); renderEncuentroEditor(v, e, { back: true }); }
+      try { const e = await api(`/api/encuentros/${encOpen}`); renderEncuentroEditor(v, e, { back: encFrom }); }
       catch (err) { encOpen = null; v.innerHTML = `<p class="error-text">${esc(err.message)}</p>`; }
       return;
     }
@@ -1293,6 +1342,234 @@
     $$("[data-ef-etapa]", v).forEach(b => b.addEventListener("click", () => { encFilter.etapa = encFilter.etapa === b.dataset.efEtapa ? "" : b.dataset.efEtapa; paint(); }));
     $$("[data-ef-estado]", v).forEach(b => b.addEventListener("click", () => { encFilter.estado = encFilter.estado === b.dataset.efEstado ? "" : b.dataset.efEstado; paint(); }));
     await loadEncuentros(); paint();
+  }
+
+  // ------------------------------------------------------------ comunidades
+  const com = { list: [], id: load("comunidadId") || "", data: null, mes: null };
+  const ROL_TXT = { coordinador: "Coordinación", responsable: "Responsable" };
+  const MESES = ["enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre", "noviembre", "diciembre"];
+  const mesActual = () => todayISO().slice(0, 7);
+  const mesTxt = m => { const [y, mm] = m.split("-").map(Number); return `${cap(MESES[mm - 1])} ${y}`; };
+  const mesMover = (m, d) => { let [y, mm] = m.split("-").map(Number); mm += d; if (mm < 1) { mm = 12; y--; } if (mm > 12) { mm = 1; y++; } return `${y}-${String(mm).padStart(2, "0")}`; };
+
+  async function loadComunidades() {
+    com.list = await api("/api/comunidades").catch(() => []);
+    if (!com.list.some(c => c.id === com.id)) { com.id = com.list[0]?.id || ""; save("comunidadId", com.id); }
+    return com.list;
+  }
+
+  async function renderComunidad() {
+    const v = $("#view-comunidad");
+    v.innerHTML = `<div class="thinking"><span class="spinner"></span>Cargando…</div>`;
+    await loadComunidades();
+    if (!com.list.length) return renderSinComunidad(v);
+    com.mes ||= mesActual();
+    try { com.data = await api(`/api/comunidades/${com.id}?mes=${com.mes}`); }
+    catch (err) { v.innerHTML = `<p class="error-text">${esc(err.message)}</p>`; return; }
+    const d = com.data, coord = d.rol === "coordinador", r = d.resumen;
+    const porEtapa = [1, 2, 3, 4, null].map(n => ({ n, equipos: d.equipos.filter(e => (e.etapa || null) === n) })).filter(g => g.n || g.equipos.length);
+    v.innerHTML = `
+      <div class="page-head com-head"><div>
+        ${com.list.length > 1 ? `<select class="field com-switch" id="com-switch">${com.list.map(c => `<option value="${esc(c.id)}" ${c.id === d.id ? "selected" : ""}>${esc(c.nombre)}</option>`).join("")}</select>` : ""}
+        <h1>${esc(d.nombre)}</h1>
+        <p>${d.lugar ? esc(d.lugar) + " · " : ""}<span class="badge red">${ROL_TXT[d.rol]}</span> · ${r.miembros} ${r.miembros === 1 ? "miembro" : "miembros"} · ${r.equipos} ${r.equipos === 1 ? "equipo" : "equipos"}</p></div>
+        <span class="spacer"></span>
+        <button class="btn primary" id="com-new-team">${icon("plus")}Nuevo equipo</button>
+      </div>
+
+      ${coord ? `<div class="invite-card">
+        <div class="invite-txt">${icon("share")}<div><strong>Invitá a los responsables</strong>
+          <small>Se registran en el asistente, entran a <em>Comunidad</em> y ponen este código.</small></div></div>
+        <div class="invite-code"><code id="com-code">${esc(d.codigo)}</code>
+          <button class="icon-btn" id="com-copy" title="Copiar código">${icon("copy")}</button>
+          <a class="btn small" id="com-wa" target="_blank" rel="noopener" href="https://wa.me/?text=${encodeURIComponent(`Sumate a ${d.nombre} en el Asistente ECyD: ${location.origin} → Comunidad → código ${d.codigo}`)}">${icon("share")}WhatsApp</a>
+          <button class="icon-btn" id="com-regen" title="Generar un código nuevo (el anterior deja de funcionar)">${icon("refresh")}</button></div>
+      </div>` : ""}
+
+      <div class="month-bar">
+        <button class="icon-btn" id="mes-prev" aria-label="Mes anterior">${icon("chevron-left")}</button>
+        <strong>${mesTxt(d.mes)}</strong>
+        <button class="icon-btn" id="mes-next" aria-label="Mes siguiente">${icon("chevron-right")}</button>
+        ${d.mes !== mesActual() ? `<button class="link-btn" id="mes-hoy">Volver a este mes</button>` : ""}
+      </div>
+      <div class="stats">
+        <div class="stat"><span>${r.con_plan}/${r.equipos}</span><small>equipos con encuentro este mes</small></div>
+        <div class="stat"><span>${r.encuentros_mes}</span><small>encuentros preparados</small></div>
+        <div class="stat"><span>${r.realizados_mes}</span><small>ya realizados</small></div>
+        <div class="stat ${r.sin_responsable ? "warn" : ""}"><span>${r.sin_responsable}</span><small>equipos sin responsable</small></div>
+      </div>
+
+      ${d.equipos.length ? porEtapa.map(g => `
+        <div class="etapa-block">
+          <div class="etapa-title"><span class="etapa-n">${g.n || "?"}</span><h2>${g.n ? `Etapa ${g.n}` : "Sin etapa"}</h2>
+            <span class="muted small-note">${g.n ? esc((ETAPAS.find(e => e.n === g.n) || {}).edades || "") : ""}</span></div>
+          ${g.equipos.length ? `<div class="com-grid">${g.equipos.map(e => teamCardCom(e, coord)).join("")}</div>`
+            : `<p class="muted small-note etapa-empty">Todavía no hay equipos de esta etapa.</p>`}
+        </div>`).join("")
+      : `<div class="empty-state"><img src="/static/img/cruz-ecyd.svg" alt=""><p>La comunidad todavía no tiene equipos.${coord ? " Creá los equipos de cada etapa y asigná sus responsables." : ""}</p></div>`}
+
+      <div class="section-title">Miembros</div>
+      <div class="list">${d.miembros.map(m => `
+        <div class="row-item member-row">
+          <span class="avatar sm">${esc(initials(m.nombre || "?"))}</span>
+          <div class="row-main"><div class="row-title">${esc(m.nombre)}${m.user_id === state.user?.id ? ` <span class="muted">(vos)</span>` : ""}</div>
+            <div class="row-sub"><span>${ROL_TXT[m.rol]}</span>${m.email ? `<span>·</span><span>${esc(m.email)}</span>` : ""}
+              <span>·</span><span>${d.equipos.filter(e => e.responsables.some(x => x.user_id === m.user_id)).map(e => esc(e.nombre)).join(", ") || "sin equipo asignado"}</span></div></div>
+          ${coord && m.user_id !== state.user?.id ? `<div class="row-actions">
+            <button class="btn small ghost" data-rol="${esc(m.user_id)}" data-to="${m.rol === "coordinador" ? "responsable" : "coordinador"}">${m.rol === "coordinador" ? "Quitar coordinación" : "Hacer coordinador"}</button>
+            <button class="icon-btn" data-quitar="${esc(m.user_id)}" title="Quitar de la comunidad" aria-label="Quitar">${icon("trash")}</button></div>` : ""}
+        </div>`).join("")}</div>
+
+      <div class="actions com-foot">
+        <button class="btn small" id="com-otra">${icon("plus")}Crear o unirme a otra comunidad</button>
+        ${coord ? `<button class="btn small" id="com-edit">${icon("edit")}Editar comunidad</button>` : ""}
+        <span style="flex:1"></span>
+        <button class="btn small ghost" id="com-salir">${icon("logout")}Salir de la comunidad</button>
+        ${coord ? `<button class="btn danger small" id="com-del">${icon("trash")}Eliminar comunidad</button>` : ""}
+      </div>`;
+    hydrateIcons(v);
+    bindComunidad(v, d, coord);
+  }
+
+  function teamCardCom(e, coord) {
+    const soy = e.acceso === "responsable";
+    return `<div class="com-team ${e.encuentros_mes.length ? "" : "pending"}">
+      <div class="com-team-head"><h3>${esc(e.nombre)}</h3>
+        ${coord ? `<button class="icon-btn" data-edit-team="${esc(e.id)}" title="Editar equipo" aria-label="Editar equipo">${icon("edit")}</button>` : ""}</div>
+      <div class="row-sub">${[e.edades, e.cantidad ? `${esc(e.cantidad)} chicos` : ""].filter(Boolean).map(esc).join(" · ") || "&nbsp;"}</div>
+      <div class="resp-row">${e.responsables.length ? e.responsables.map(r => `<span class="resp-chip" title="${esc(r.nombre)}"><span class="avatar xs">${esc(initials(r.nombre))}</span>${esc(r.nombre.split(" ")[0])}</span>`).join("")
+        : `<span class="pill warn">${icon("info")}Sin responsable</span>`}</div>
+      <div class="com-encs">${e.encuentros_mes.length ? e.encuentros_mes.map(x => `
+        <button class="com-enc" data-enc="${esc(x.id)}"><span>${esc(fmtDay(x.fecha))}</span><strong>${esc(x.titulo || x.tema || "Encuentro")}</strong>
+          <span class="badge ${x.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[x.estado] || x.estado)}</span></button>`).join("")
+        : `<div class="com-empty">${icon("calendar")}<span>Sin encuentro este mes${e.programa_mes.length ? `<small>El programa sugiere: ${e.programa_mes.slice(0, 2).map(esc).join(" · ")}</small>` : ""}</span></div>`}</div>
+      <div class="com-team-foot"><span class="muted small-note">${e.ultimo ? `Último: ${esc(fmtDay(e.ultimo))}` : "Sin encuentros todavía"}</span>
+        ${soy ? `<button class="btn small primary" data-prep-team="${esc(e.id)}">${icon("sparkle")}Preparar</button>` : ""}</div>
+    </div>`;
+  }
+
+  function bindComunidad(v, d, coord) {
+    $("#com-switch")?.addEventListener("change", e => { com.id = e.target.value; save("comunidadId", com.id); com.mes = null; renderComunidad(); });
+    $("#mes-prev").addEventListener("click", () => { com.mes = mesMover(d.mes, -1); renderComunidad(); });
+    $("#mes-next").addEventListener("click", () => { com.mes = mesMover(d.mes, 1); renderComunidad(); });
+    $("#mes-hoy")?.addEventListener("click", () => { com.mes = mesActual(); renderComunidad(); });
+    $("#com-new-team").addEventListener("click", () => teamFormCom(d, null));
+    $$("[data-edit-team]", v).forEach(b => b.addEventListener("click", () => teamFormCom(d, d.equipos.find(e => e.id === b.dataset.editTeam))));
+    $$("[data-enc]", v).forEach(b => b.addEventListener("click", () => openEncuentro(b.dataset.enc, "comunidad")));
+    $$("[data-prep-team]", v).forEach(b => b.addEventListener("click", async () => {
+      await loadTeams(); setTeam(b.dataset.prepTeam); prep.teamId = b.dataset.prepTeam; showView("preparar");
+    }));
+    $("#com-copy")?.addEventListener("click", async () => { try { await navigator.clipboard.writeText(d.codigo); toast("Código copiado"); } catch { toast(d.codigo); } });
+    $("#com-regen")?.addEventListener("click", async () => {
+      if (!confirm("¿Generar un código nuevo? El código actual deja de funcionar (quienes ya entraron siguen en la comunidad).")) return;
+      await api(`/api/comunidades/${d.id}/codigo`, { method: "POST" }); renderComunidad(); toast("Código nuevo generado");
+    });
+    $$("[data-rol]", v).forEach(b => b.addEventListener("click", async () => {
+      try { await api(`/api/comunidades/${d.id}/miembros/${b.dataset.rol}`, { method: "PUT", body: { rol: b.dataset.to } }); renderComunidad(); }
+      catch (err) { toast(err.message); }
+    }));
+    $$("[data-quitar]", v).forEach(b => b.addEventListener("click", async () => {
+      const m = d.miembros.find(x => x.user_id === b.dataset.quitar);
+      if (!confirm(`¿Quitar a ${m?.nombre || "esta persona"} de la comunidad? También deja de ser responsable de sus equipos.`)) return;
+      try { await api(`/api/comunidades/${d.id}/miembros/${b.dataset.quitar}`, { method: "DELETE" }); renderComunidad(); toast("Miembro quitado"); }
+      catch (err) { toast(err.message); }
+    }));
+    $("#com-otra").addEventListener("click", () => openPanel("Otra comunidad", comunidadForms(true)) || bindComunidadForms($("#panel-body")));
+    $("#com-edit")?.addEventListener("click", () => {
+      openPanel("Editar comunidad", `<form id="com-edit-form" class="stack">
+        <div class="field-wrap"><label>Nombre</label><input class="field" id="ce-nombre" value="${esc(d.nombre)}" required minlength="2" maxlength="100"></div>
+        <div class="field-wrap"><label>Lugar</label><input class="field" id="ce-lugar" value="${esc(d.lugar || "")}" maxlength="120"></div>
+        <div class="actions"><button class="btn primary" type="submit">${icon("check")}Guardar</button></div></form>`);
+      $("#com-edit-form").addEventListener("submit", async e => {
+        e.preventDefault();
+        try { await api(`/api/comunidades/${d.id}`, { method: "PUT", body: { nombre: $("#ce-nombre").value.trim(), lugar: $("#ce-lugar").value.trim() } }); closePanel(); renderComunidad(); }
+        catch (err) { toast(err.message); }
+      });
+    });
+    $("#com-salir").addEventListener("click", async () => {
+      if (!confirm(`¿Salir de ${d.nombre}? Dejás de ver la comunidad y sus equipos.`)) return;
+      try { await api(`/api/comunidades/${d.id}/miembros/${state.user.id}`, { method: "DELETE" }); com.id = ""; await loadTeams(); renderComunidad(); toast("Saliste de la comunidad"); }
+      catch (err) { toast(err.message); }
+    });
+    $("#com-del")?.addEventListener("click", async () => {
+      if (!confirm(`¿Eliminar ${d.nombre}? Los equipos NO se borran: quedan como equipos de sus responsables.`)) return;
+      await api(`/api/comunidades/${d.id}`, { method: "DELETE" }); com.id = ""; await loadTeams(); renderComunidad(); toast("Comunidad eliminada");
+    });
+  }
+
+  function teamFormCom(d, team) {
+    const coord = d.rol === "coordinador";
+    const sel = new Set((team?.responsables || []).map(r => r.user_id));
+    openPanel(team ? "Editar equipo" : "Nuevo equipo de la comunidad", `
+      <form id="tc-form" class="stack">
+        <div class="field-wrap"><label for="tc-nombre">Nombre del equipo</label>
+          <input class="field" id="tc-nombre" required maxlength="80" value="${esc(team?.nombre || "")}" placeholder="Ej.: Etapa 2 · chicas"></div>
+        <div class="field-wrap"><label for="tc-etapa">Etapa</label><select class="field" id="tc-etapa">
+          <option value="">Elegí la etapa…</option>${ETAPAS.map(e => `<option value="${e.n}" ${team?.etapa === e.n ? "selected" : ""}>Etapa ${e.n} · ${e.nombre} (${e.edades})</option>`).join("")}</select></div>
+        ${coord ? `<div class="field-wrap"><label>Responsables</label>
+          <p class="help">Pueden ser varios. Ellos usan el equipo (memoria, encuentros, chat). La coordinación ve la planificación, no la memoria.</p>
+          <div class="check-list">${d.miembros.map(m => `<label class="check-item"><input type="checkbox" value="${esc(m.user_id)}" ${sel.has(m.user_id) ? "checked" : ""}>
+            <span class="avatar xs">${esc(initials(m.nombre))}</span><span>${esc(m.nombre)}${m.user_id === state.user?.id ? " (vos)" : ""}</span></label>`).join("")}</div></div>`
+          : `<p class="help">Vas a quedar como responsable de este equipo. La coordinación puede sumar a otros responsables.</p>`}
+        <div class="actions"><button class="btn primary" type="submit">${icon("check")}${team ? "Guardar" : "Crear equipo"}</button>
+          ${team ? `<span style="flex:1"></span><button class="btn danger small" type="button" id="tc-del">${icon("trash")}Eliminar equipo</button>` : ""}</div>
+      </form>`);
+    $("#tc-nombre").focus();
+    $("#tc-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const etapa = parseInt($("#tc-etapa").value) || null;
+      const responsables = coord ? $$("#tc-form .check-item input:checked").map(x => x.value) : undefined;
+      try {
+        if (team) await api(`/api/comunidades/${d.id}/equipos/${team.id}`, { method: "PUT", body: { nombre: $("#tc-nombre").value.trim(), etapa, responsables } });
+        else await api(`/api/comunidades/${d.id}/equipos`, { method: "POST", body: { nombre: $("#tc-nombre").value.trim(), etapa, responsables: responsables || [] } });
+        closePanel(); await loadTeams(); renderComunidad(); toast(team ? "Equipo actualizado" : "Equipo creado");
+      } catch (err) { toast(err.message); }
+    });
+    $("#tc-del")?.addEventListener("click", async () => {
+      if (!confirm(`¿Eliminar “${team.nombre}”? Se borran también su memoria y sus conversaciones. No se puede deshacer.`)) return;
+      try { await api(`/api/teams/${team.id}`, { method: "DELETE" }); closePanel(); await loadTeams(); renderComunidad(); toast("Equipo eliminado"); }
+      catch (err) { toast(err.message); }
+    });
+  }
+
+  function comunidadForms(compact) {
+    return `<div class="${compact ? "stack" : "grid-2 com-start"}">
+      <form class="form-card" id="cf-crear">
+        <h3>${icon("community")}Crear una comunidad</h3>
+        <p class="help">Para coordinadores: armás los equipos de cada etapa e invitás a los responsables con un código.</p>
+        <input class="field" id="cf-nombre" required minlength="2" maxlength="100" placeholder="Ej.: ECyD Mano Amiga">
+        <input class="field" id="cf-lugar" maxlength="120" placeholder="Colegio, parroquia o ciudad (opcional)">
+        <button class="btn primary" type="submit">${icon("plus")}Crear comunidad</button>
+      </form>
+      <form class="form-card" id="cf-unirse">
+        <h3>${icon("share")}Unirme con un código</h3>
+        <p class="help">Si tu coordinador ya creó la comunidad, pedile el código de invitación.</p>
+        <input class="field code-input" id="cf-codigo" required maxlength="12" placeholder="ABCD-2345" autocomplete="off" autocapitalize="characters">
+        <button class="btn primary" type="submit">${icon("check")}Unirme</button>
+      </form></div>`;
+  }
+  function bindComunidadForms(root) {
+    hydrateIcons(root);
+    $("#cf-crear", root).addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        const c = await api("/api/comunidades", { method: "POST", body: { nombre: $("#cf-nombre", root).value.trim(), lugar: $("#cf-lugar", root).value.trim() } });
+        com.id = c.id; save("comunidadId", c.id); closePanel(); showView("comunidad"); toast("Comunidad creada. Ahora creá los equipos e invitá a los responsables.", 6000);
+      } catch (err) { toast(err.message); }
+    });
+    $("#cf-unirse", root).addEventListener("submit", async e => {
+      e.preventDefault();
+      try {
+        const c = await api("/api/comunidades/unirse", { method: "POST", body: { codigo: $("#cf-codigo", root).value.trim() } });
+        com.id = c.id; save("comunidadId", c.id); closePanel(); showView("comunidad"); toast(`Te sumaste a ${c.nombre}. La coordinación te va a asignar tu equipo.`, 6000);
+      } catch (err) { toast(err.message); }
+    });
+  }
+  function renderSinComunidad(v) {
+    v.innerHTML = `<div class="page-head"><div><h1>Comunidad</h1>
+      <p>Una comunidad (por ejemplo, <em>ECyD Mano Amiga</em>) reúne los equipos de todas las etapas y a sus responsables. La coordinación ve cómo va la planificación de cada equipo; la memoria de cada equipo queda solo para sus responsables.</p></div></div>
+      ${comunidadForms(false)}`;
+    bindComunidadForms(v);
   }
 
   // ------------------------------------------------------------ búsqueda global
@@ -1523,7 +1800,7 @@
       state.config = await api("/api/config");
       applyHeroPhoto(state.config.portada);
       ensureProgramas().catch(() => {});
-      await loadTeams(); await loadConversations(); loadEncuentros();
+      await loadTeams(); await loadConversations(); loadEncuentros(); loadComunidades();
       updateHeader(); pollHealth();
       if (state.view !== "inicio") showView(state.view);
       if (!state.teams.length) toast("Tip: creá tu equipo e indicá su etapa para preparar encuentros según el programa.", 6000);

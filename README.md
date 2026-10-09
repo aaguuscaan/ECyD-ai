@@ -24,6 +24,7 @@ app/
   llm.py         cliente Groq (streaming, reintentos, modelo de respaldo); Gemini opcional
   memory.py      SQLite/Supabase: cuentas, equipos, memoria, conversaciones, notas, encuentros
   auth.py        cuentas individuales (scrypt + cookie firmada) y código de registro
+  pdf.py         exportación de encuentros a PDF
   programas.py   programa por etapa, temas por mes y tiempos litúrgicos
   assistant.py   orquestación de cada consulta, preparación de encuentros y memoria
   main.py        API web (FastAPI) y servidor de la interfaz
@@ -85,6 +86,19 @@ una cuenta hace falta el **código de acceso**: `REGISTRATION_CODE`, o si no est
 el `APP_PASSWORD` de siempre. La **primera cuenta** que se crea adopta los datos que ya
 existían (equipos, conversaciones) de la época de la contraseña compartida.
 
+**Comunidades.** Una comunidad (ej. *ECyD Mano Amiga*) reúne los equipos de las cuatro
+etapas. Quien la crea queda como **coordinación** y comparte un código de invitación
+(`ABCD-2345`); los responsables se suman con ese código. La coordinación crea los equipos
+de cada etapa y asigna uno o varios **co-responsables**, que comparten la memoria, los
+encuentros y el historial del equipo (las conversaciones siguen siendo personales). La
+coordinación ve la planificación de cada equipo por mes (encuentros, estado, qué sugiere el
+programa) y puede leer las propuestas, pero **no** la memoria ni las observaciones, que
+pueden tener información de los adolescentes. Un equipo personal se puede llevar a una
+comunidad desde *Mis equipos*.
+
+**PDF.** Cada encuentro se descarga como PDF (`POST /api/encuentros/{id}/pdf`, generado con
+ReportLab en `app/pdf.py`, con la cruz y el rojo del Manual de imagen).
+
 **Material por etapa.** Cada documento tiene `categoria` (`programa`, `ficha`, `documento`,
 `recurso`) y sus `etapas`. La vista *Documentos* lo organiza por Etapa 1–4: programa
 (Alianza, amor, virtud, símbolo, temas centrales), fichas por mes, documentos y recursos.
@@ -136,7 +150,8 @@ del ECyD, `python scripts/ingest_corpus.py` y luego `build_index.py`.
 
 - **Vercel** corre la app (FastAPI, `app/main.py`, configurada en `vercel.json`).
 - **Supabase** guarda la memoria: equipos, recuerdos, conversaciones y notas
-  (tablas `users`, `teams`, `memories`, `conversations`, `messages`, `encuentros`). Las tablas tienen RLS: solo
+  (tablas `users`, `teams`, `memories`, `conversations`, `messages`, `encuentros`,
+  `communities`, `community_members`, `team_members`). Las tablas tienen RLS: solo
   aceptan pedidos del servidor que traen el secreto `ECYD_DB_SECRET`; la clave pública de
   Supabase sola no da acceso a nada.
 - **Búsqueda**: el mismo modelo de embeddings en versión ONNX cuantizada (~120 MB, con

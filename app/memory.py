@@ -102,10 +102,49 @@ CREATE TABLE IF NOT EXISTS encuentros (
 );
 CREATE INDEX IF NOT EXISTS idx_enc_user ON encuentros(user_id, fecha);
 CREATE INDEX IF NOT EXISTS idx_enc_team ON encuentros(team_id, fecha);
+CREATE TABLE IF NOT EXISTS communities (
+    id          TEXT PRIMARY KEY,
+    nombre      TEXT NOT NULL,
+    lugar       TEXT NOT NULL DEFAULT '',
+    codigo      TEXT NOT NULL UNIQUE,
+    created_by  TEXT,
+    created_at  TEXT NOT NULL,
+    updated_at  TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS community_members (
+    community_id TEXT NOT NULL REFERENCES communities(id) ON DELETE CASCADE,
+    user_id      TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    rol          TEXT NOT NULL DEFAULT 'responsable',
+    created_at   TEXT NOT NULL,
+    PRIMARY KEY (community_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_cm_user ON community_members(user_id);
+CREATE TABLE IF NOT EXISTS team_members (
+    team_id     TEXT NOT NULL REFERENCES teams(id) ON DELETE CASCADE,
+    user_id     TEXT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    created_at  TEXT NOT NULL,
+    PRIMARY KEY (team_id, user_id)
+);
+CREATE INDEX IF NOT EXISTS idx_tm_user ON team_members(user_id);
 """
 
 # Columnas agregadas después de la primera versión (migración segura, aditiva)
-MIGRATIONS = [("teams", "user_id", "TEXT"), ("conversations", "user_id", "TEXT")]
+MIGRATIONS = [("teams", "user_id", "TEXT"), ("conversations", "user_id", "TEXT"), ("teams", "community_id", "TEXT")]
+ROLES_COMUNIDAD = ["coordinador", "responsable"]
+_KEEP = object()  # "no cambiar" en update_team
+
+
+def nuevo_codigo() -> str:
+    """Código de invitación legible (sin 0/O/1/I): ABCD-2345."""
+    import secrets
+    alfabeto = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"
+    c = "".join(secrets.choice(alfabeto) for _ in range(8))
+    return f"{c[:4]}-{c[4:]}"
+
+
+def norm_codigo(codigo: str) -> str:
+    c = "".join(ch for ch in (codigo or "").upper() if ch.isalnum())
+    return f"{c[:4]}-{c[4:]}" if len(c) == 8 else (codigo or "").strip().upper()
 
 ENCUENTRO_FIELDS = ["titulo", "fecha", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad",
                     "composicion", "edades", "duracion", "propuesta", "observaciones", "estado",
@@ -150,13 +189,19 @@ class MemoryStore:
         d["auto_memoria"] = bool(d["auto_memoria"])
         return d
 
-    def list_teams(self, user_id: Optional[str] = None) -> List[Dict]:
+    def list_teams(self, user_id: Optional[str] = None, community_id: Optional[str] = None,
+                   ids: Optional[List[str]] = None) -> List[Dict]:
+        q, args = "SELECT * FROM teams WHERE 1=1 ", []
+        if user_id:
+            q += "AND user_id=? "; args.append(user_id)
+        if community_id:
+            q += "AND community_id=? "; args.append(community_id)
+        if ids is not None:
+            if not ids:
+                return []
+            q += f"AND id IN ({','.join('?' * len(ids))}) "; args += list(ids)
         with self._conn() as c:
-            if user_id:
-                rows = c.execute("SELECT * FROM teams WHERE user_id=? ORDER BY nombre COLLATE NOCASE", (user_id,))
-            else:
-                rows = c.execute("SELECT * FROM teams ORDER BY nombre COLLATE NOCASE")
-            return [self._team(r) for r in rows]
+            return [self._team(r) for r in c.execute(q + "ORDER BY nombre COLLATE NOCASE", args)]
 
     def get_team(self, team_id: str) -> Optional[Dict]:
         with self._conn() as c:
@@ -174,15 +219,17 @@ class MemoryStore:
                        int(auto_memoria), now, now, user_id))
         return self.get_team(tid)
 
-    def update_team(self, team_id: str, *, nombre=None, perfil=None, auto_memoria=None) -> Optional[Dict]:
+    def update_team(self, team_id: str, *, nombre=None, perfil=None, auto_memoria=None,
+                    community_id=_KEEP) -> Optional[Dict]:
         team = self.get_team(team_id)
         if not team:
             return None
+        cid = team.get("community_id") if community_id is _KEEP else community_id
         with self._conn() as c:
-            c.execute("UPDATE teams SET nombre=?, perfil=?, auto_memoria=?, updated_at=? WHERE id=?",
+            c.execute("UPDATE teams SET nombre=?, perfil=?, auto_memoria=?, community_id=?, updated_at=? WHERE id=?",
                       ((nombre or team["nombre"]).strip(),
                        json.dumps(perfil if perfil is not None else team["perfil"], ensure_ascii=False),
-                       int(team["auto_memoria"] if auto_memoria is None else auto_memoria), _now(), team_id))
+                       int(team["auto_memoria"] if auto_memoria is None else auto_memoria), cid, _now(), team_id))
         return self.get_team(team_id)
 
     def delete_team(self, team_id: str) -> bool:
@@ -363,11 +410,20 @@ class MemoryStore:
             return self._enc(r) if r else None
 
     def list_encuentros(self, user_id: Optional[str] = None, team_id: Optional[str] = None,
-                        limit: int = 200) -> List[Dict]:
+                        limit: int = 200, team_ids: Optional[List[str]] = None) -> List[Dict]:
+        """user_id + team_ids: los del responsable O los de sus equipos (co-responsables)."""
         q, args = "SELECT * FROM encuentros WHERE 1=1 ", []
-        if user_id:
+        if user_id and team_ids:
+            q += f"AND (user_id=? OR team_id IN ({','.join('?' * len(team_ids))})) "
+            args += [user_id, *team_ids]
+        elif user_id:
             q += "AND user_id=? "
             args.append(user_id)
+        elif team_ids is not None:
+            if not team_ids:
+                return []
+            q += f"AND team_id IN ({','.join('?' * len(team_ids))}) "
+            args += list(team_ids)
         if team_id:
             q += "AND team_id=? "
             args.append(team_id)
@@ -388,6 +444,92 @@ class MemoryStore:
     def delete_encuentro(self, eid: str) -> bool:
         with self._conn() as c:
             return c.execute("DELETE FROM encuentros WHERE id=?", (eid,)).rowcount > 0
+
+    # ---------------------------------------------------------- comunidades
+    def create_community(self, nombre: str, lugar: str, user_id: str) -> Dict:
+        cid, now = uuid.uuid4().hex[:12], _now()
+        with self._conn() as c:
+            for _ in range(5):
+                codigo = nuevo_codigo()
+                if not c.execute("SELECT 1 FROM communities WHERE codigo=?", (codigo,)).fetchone():
+                    break
+            c.execute("INSERT INTO communities (id, nombre, lugar, codigo, created_by, created_at, updated_at) "
+                      "VALUES (?,?,?,?,?,?,?)", (cid, nombre.strip(), (lugar or "").strip(), codigo, user_id, now, now))
+            c.execute("INSERT INTO community_members (community_id, user_id, rol, created_at) VALUES (?,?,?,?)",
+                      (cid, user_id, "coordinador", now))
+        return self.get_community(cid)
+
+    def get_community(self, cid: str) -> Optional[Dict]:
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM communities WHERE id=?", (cid,)).fetchone()
+            return dict(r) if r else None
+
+    def get_community_by_code(self, codigo: str) -> Optional[Dict]:
+        with self._conn() as c:
+            r = c.execute("SELECT * FROM communities WHERE codigo=?", (norm_codigo(codigo),)).fetchone()
+            return dict(r) if r else None
+
+    def update_community(self, cid: str, **fields) -> Optional[Dict]:
+        fields = {k: v for k, v in fields.items() if k in ("nombre", "lugar", "codigo") and v is not None}
+        if fields:
+            sets = ", ".join(f"{k}=?" for k in fields)
+            with self._conn() as c:
+                c.execute(f"UPDATE communities SET {sets}, updated_at=? WHERE id=?", (*fields.values(), _now(), cid))
+        return self.get_community(cid)
+
+    def delete_community(self, cid: str) -> bool:
+        with self._conn() as c:
+            c.execute("UPDATE teams SET community_id=NULL WHERE community_id=?", (cid,))
+            return c.execute("DELETE FROM communities WHERE id=?", (cid,)).rowcount > 0
+
+    def list_user_communities(self, user_id: str) -> List[Dict]:
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(
+                "SELECT c.*, m.rol FROM communities c JOIN community_members m ON m.community_id=c.id "
+                "WHERE m.user_id=? ORDER BY c.nombre COLLATE NOCASE", (user_id,))]
+
+    def list_community_members(self, cid: str) -> List[Dict]:
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(
+                "SELECT m.user_id, m.rol, m.created_at, u.nombre, u.email FROM community_members m "
+                "JOIN users u ON u.id=m.user_id WHERE m.community_id=? ORDER BY u.nombre COLLATE NOCASE", (cid,))]
+
+    def set_community_member(self, cid: str, user_id: str, rol: str = "responsable") -> None:
+        rol = rol if rol in ROLES_COMUNIDAD else "responsable"
+        with self._conn() as c:
+            c.execute("INSERT INTO community_members (community_id, user_id, rol, created_at) VALUES (?,?,?,?) "
+                      "ON CONFLICT(community_id, user_id) DO UPDATE SET rol=excluded.rol", (cid, user_id, rol, _now()))
+
+    def remove_community_member(self, cid: str, user_id: str) -> bool:
+        with self._conn() as c:
+            c.execute("DELETE FROM team_members WHERE user_id=? AND team_id IN "
+                      "(SELECT id FROM teams WHERE community_id=?)", (user_id, cid))
+            return c.execute("DELETE FROM community_members WHERE community_id=? AND user_id=?",
+                             (cid, user_id)).rowcount > 0
+
+    # ---------------------------------------------------------- responsables de cada equipo
+    def list_team_members(self, team_ids: List[str]) -> List[Dict]:
+        if not team_ids:
+            return []
+        with self._conn() as c:
+            return [dict(r) for r in c.execute(
+                f"SELECT t.team_id, t.user_id, u.nombre, u.email FROM team_members t JOIN users u ON u.id=t.user_id "
+                f"WHERE t.team_id IN ({','.join('?' * len(team_ids))}) ORDER BY u.nombre COLLATE NOCASE", list(team_ids))]
+
+    def member_team_ids(self, user_id: str) -> List[str]:
+        with self._conn() as c:
+            return [r["team_id"] for r in c.execute("SELECT team_id FROM team_members WHERE user_id=?", (user_id,))]
+
+    def add_team_member(self, team_id: str, user_id: str) -> None:
+        with self._conn() as c:
+            c.execute("INSERT OR IGNORE INTO team_members (team_id, user_id, created_at) VALUES (?,?,?)",
+                      (team_id, user_id, _now()))
+
+    def set_team_members(self, team_id: str, user_ids: List[str]) -> None:
+        with self._conn() as c:
+            c.execute("DELETE FROM team_members WHERE team_id=?", (team_id,))
+            c.executemany("INSERT OR IGNORE INTO team_members (team_id, user_id, created_at) VALUES (?,?,?)",
+                          [(team_id, u, _now()) for u in dict.fromkeys(user_ids)])
 
     def export_team(self, team_id: str) -> Dict:
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),
@@ -448,8 +590,9 @@ class SupabaseMemoryStore:
         self.http = httpx.Client(base_url=self.base, headers=headers, timeout=20)
 
     # ---------------------------------------------------------- HTTP
-    def _req(self, method, path, *, params=None, json_body=None, returning=False):
-        headers = {"Prefer": "return=representation"} if returning else {}
+    def _req(self, method, path, *, params=None, json_body=None, returning=False, prefer=""):
+        pref = [p for p in (("return=representation" if returning else ""), prefer) if p]
+        headers = {"Prefer": ",".join(pref)} if pref else {}
         for attempt in range(3):
             try:
                 r = self.http.request(method, path, params=params, json=json_body, headers=headers)
@@ -465,10 +608,16 @@ class SupabaseMemoryStore:
         return rows[0] if rows else None
 
     # ---------------------------------------------------------- equipos
-    def list_teams(self, user_id=None):
+    def list_teams(self, user_id=None, community_id=None, ids=None):
         params = {"select": "*", "order": "nombre.asc"}
         if user_id:
             params["user_id"] = f"eq.{user_id}"
+        if community_id:
+            params["community_id"] = f"eq.{community_id}"
+        if ids is not None:
+            if not ids:
+                return []
+            params["id"] = f"in.({','.join(ids)})"
         return self._req("GET", "/teams", params=params)
 
     def get_team(self, team_id):
@@ -480,8 +629,10 @@ class SupabaseMemoryStore:
                "auto_memoria": bool(auto_memoria), "created_at": now, "updated_at": now, "user_id": user_id}
         return self._one(self._req("POST", "/teams", json_body=row, returning=True))
 
-    def update_team(self, team_id, *, nombre=None, perfil=None, auto_memoria=None):
+    def update_team(self, team_id, *, nombre=None, perfil=None, auto_memoria=None, community_id=_KEEP):
         patch = {"updated_at": _now()}
+        if community_id is not _KEEP:
+            patch["community_id"] = community_id
         if nombre:
             patch["nombre"] = nombre.strip()
         if perfil is not None:
@@ -620,10 +771,16 @@ class SupabaseMemoryStore:
     def get_encuentro(self, eid):
         return self._one(self._req("GET", "/encuentros", params={"id": f"eq.{eid}", "select": "*"}))
 
-    def list_encuentros(self, user_id=None, team_id=None, limit=200):
+    def list_encuentros(self, user_id=None, team_id=None, limit=200, team_ids=None):
         params = {"select": "*", "order": "fecha.desc.nullslast,created_at.desc", "limit": str(limit)}
-        if user_id:
+        if user_id and team_ids:
+            params["or"] = f"(user_id.eq.{user_id},team_id.in.({','.join(team_ids)}))"
+        elif user_id:
             params["user_id"] = f"eq.{user_id}"
+        elif team_ids is not None:
+            if not team_ids:
+                return []
+            params["team_id"] = f"in.({','.join(team_ids)})"
         if team_id:
             params["team_id"] = f"eq.{team_id}"
         return self._req("GET", "/encuentros", params=params)
@@ -638,6 +795,84 @@ class SupabaseMemoryStore:
 
     def delete_encuentro(self, eid):
         return bool(self._req("DELETE", "/encuentros", params={"id": f"eq.{eid}"}, returning=True))
+
+    # ---------------------------------------------------------- comunidades
+    def create_community(self, nombre, lugar, user_id):
+        now = _now()
+        row = {"id": uuid.uuid4().hex[:12], "nombre": nombre.strip(), "lugar": (lugar or "").strip(),
+               "codigo": nuevo_codigo(), "created_by": user_id, "created_at": now, "updated_at": now}
+        com = self._one(self._req("POST", "/communities", json_body=row, returning=True))
+        self.set_community_member(com["id"], user_id, "coordinador")
+        return com
+
+    def get_community(self, cid):
+        return self._one(self._req("GET", "/communities", params={"id": f"eq.{cid}", "select": "*"}))
+
+    def get_community_by_code(self, codigo):
+        return self._one(self._req("GET", "/communities", params={"codigo": f"eq.{norm_codigo(codigo)}", "select": "*"}))
+
+    def update_community(self, cid, **fields):
+        patch = {k: v for k, v in fields.items() if k in ("nombre", "lugar", "codigo") and v is not None}
+        if not patch:
+            return self.get_community(cid)
+        patch["updated_at"] = _now()
+        return self._one(self._req("PATCH", "/communities", params={"id": f"eq.{cid}"}, json_body=patch,
+                                   returning=True))
+
+    def delete_community(self, cid):
+        self._req("PATCH", "/teams", params={"community_id": f"eq.{cid}"}, json_body={"community_id": None})
+        return bool(self._req("DELETE", "/communities", params={"id": f"eq.{cid}"}, returning=True))
+
+    def list_user_communities(self, user_id):
+        rows = self._req("GET", "/community_members", params={"user_id": f"eq.{user_id}",
+                                                               "select": "rol,communities(*)"})
+        out = [{**r["communities"], "rol": r["rol"]} for r in rows if r.get("communities")]
+        return sorted(out, key=lambda c: c["nombre"].lower())
+
+    def list_community_members(self, cid):
+        rows = self._req("GET", "/community_members", params={"community_id": f"eq.{cid}",
+                                                               "select": "user_id,rol,created_at,users(nombre,email)"})
+        out = [{"user_id": r["user_id"], "rol": r["rol"], "created_at": r["created_at"],
+                **(r.get("users") or {"nombre": "", "email": ""})} for r in rows]
+        return sorted(out, key=lambda m: (m["nombre"] or "").lower())
+
+    def set_community_member(self, cid, user_id, rol="responsable"):
+        rol = rol if rol in ROLES_COMUNIDAD else "responsable"
+        self._req("POST", "/community_members", params={"on_conflict": "community_id,user_id"},
+                  json_body={"community_id": cid, "user_id": user_id, "rol": rol, "created_at": _now()},
+                  prefer="resolution=merge-duplicates")
+
+    def remove_community_member(self, cid, user_id):
+        ids = [t["id"] for t in self.list_teams(community_id=cid)]
+        if ids:
+            self._req("DELETE", "/team_members", params={"user_id": f"eq.{user_id}", "team_id": f"in.({','.join(ids)})"})
+        return bool(self._req("DELETE", "/community_members",
+                              params={"community_id": f"eq.{cid}", "user_id": f"eq.{user_id}"}, returning=True))
+
+    # ---------------------------------------------------------- responsables de cada equipo
+    def list_team_members(self, team_ids):
+        if not team_ids:
+            return []
+        rows = self._req("GET", "/team_members", params={"team_id": f"in.({','.join(team_ids)})",
+                                                          "select": "team_id,user_id,users(nombre,email)"})
+        out = [{"team_id": r["team_id"], "user_id": r["user_id"], **(r.get("users") or {"nombre": "", "email": ""})}
+               for r in rows]
+        return sorted(out, key=lambda m: (m["nombre"] or "").lower())
+
+    def member_team_ids(self, user_id):
+        return [r["team_id"] for r in self._req("GET", "/team_members",
+                                                params={"user_id": f"eq.{user_id}", "select": "team_id"})]
+
+    def add_team_member(self, team_id, user_id):
+        self._req("POST", "/team_members", params={"on_conflict": "team_id,user_id"},
+                  json_body={"team_id": team_id, "user_id": user_id, "created_at": _now()},
+                  prefer="resolution=ignore-duplicates")
+
+    def set_team_members(self, team_id, user_ids):
+        self._req("DELETE", "/team_members", params={"team_id": f"eq.{team_id}"})
+        rows = [{"team_id": team_id, "user_id": u, "created_at": _now()} for u in dict.fromkeys(user_ids)]
+        if rows:
+            self._req("POST", "/team_members", json_body=rows)
 
     def export_team(self, team_id):
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),

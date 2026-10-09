@@ -310,16 +310,60 @@ class TeamUpdate(BaseModel):
     auto_memoria: Optional[bool] = None
 
 
-def _team_or_404(team_id, request: Request):
+# ------------------------------------------------------------------ permisos
+# Equipo personal (sin comunidad): lo usa quien lo creó (y sus co-responsables).
+# Equipo de una comunidad: lo usan sus responsables asignados. El coordinador de
+# la comunidad ve la planificación (encuentros) pero NO la memoria del equipo,
+# que puede tener información de los adolescentes.
+def _community_rol(cid: Optional[str], uid: str) -> Optional[str]:
+    if not cid:
+        return None
+    return next((m["rol"] for m in get_store().list_community_members(cid) if m["user_id"] == uid), None)
+
+
+def _team_access(team: dict, uid: str) -> Optional[str]:
+    store = get_store()
+    miembros = {m["user_id"] for m in store.list_team_members([team["id"]])}
+    if uid in miembros or (not team.get("community_id") and team.get("user_id") == uid):
+        return "responsable"
+    if team.get("community_id") and _community_rol(team["community_id"], uid) == "coordinador":
+        return "coordinador"
+    return None
+
+
+def _team_or_404(team_id, request: Request, allow_coord: bool = False):
     t = get_store().get_team(team_id)
-    if not t or t.get("user_id") != _uid(request):
+    acceso = _team_access(t, _uid(request)) if t else None
+    if not acceso or (acceso == "coordinador" and not allow_coord):
         raise HTTPException(404, "Equipo no encontrado")
+    t["acceso"] = acceso
     return t
+
+
+def _my_teams(uid: str) -> list:
+    """Equipos que el responsable usa: los personales que creó y aquellos donde está asignado."""
+    store = get_store()
+    propios = [t for t in store.list_teams(user_id=uid) if not t.get("community_id")]
+    ids = {t["id"] for t in propios}
+    asignados = [t for t in store.list_teams(ids=[i for i in store.member_team_ids(uid) if i not in ids])]
+    teams = sorted(propios + asignados, key=lambda t: t["nombre"].lower())
+    return _annotate_teams(teams, uid)
+
+
+def _annotate_teams(teams: list, uid: str) -> list:
+    store = get_store()
+    miembros = store.list_team_members([t["id"] for t in teams])
+    coms = {c["id"]: c for c in store.list_user_communities(uid)}
+    for t in teams:
+        t["responsables"] = [{"user_id": m["user_id"], "nombre": m["nombre"]} for m in miembros if m["team_id"] == t["id"]]
+        c = coms.get(t.get("community_id"))
+        t["comunidad"] = {"id": c["id"], "nombre": c["nombre"]} if c else None
+    return teams
 
 
 @app.get("/api/teams")
 def list_teams(request: Request):
-    return get_store().list_teams(user_id=_uid(request))
+    return _my_teams(_uid(request))
 
 
 @app.post("/api/teams")
@@ -330,7 +374,7 @@ def create_team(body: TeamIn, request: Request):
 
 @app.get("/api/teams/{team_id}")
 def get_team(team_id: str, request: Request):
-    return _team_or_404(team_id, request)
+    return _annotate_teams([_team_or_404(team_id, request)], _uid(request))[0]
 
 
 @app.put("/api/teams/{team_id}")
@@ -342,7 +386,7 @@ def update_team(team_id: str, body: TeamUpdate, request: Request):
 
 @app.delete("/api/teams/{team_id}")
 def delete_team(team_id: str, request: Request):
-    _team_or_404(team_id, request)
+    _team_or_404(team_id, request, allow_coord=True)
     if not get_store().delete_team(team_id):
         raise HTTPException(404, "Equipo no encontrado")
     return {"ok": True}
@@ -508,15 +552,28 @@ class GenerarIn(BaseModel):
     encuentro_id: Optional[str] = None
 
 
-def _enc_or_404(eid: str, request: Request):
+def _enc_or_404(eid: str, request: Request, read_only: bool = False):
+    """Autor o responsable del equipo: acceso completo. Coordinador de la
+    comunidad: solo lectura de la propuesta (sin observaciones)."""
     e = get_store().get_encuentro(eid)
-    if not e or e.get("user_id") != _uid(request):
-        raise HTTPException(404, "Encuentro no encontrado")
-    return e
+    uid = _uid(request)
+    if e and e.get("user_id") == uid:
+        return e
+    team = get_store().get_team(e["team_id"]) if e and e.get("team_id") else None
+    acceso = _team_access(team, uid) if team else None
+    if acceso == "responsable":
+        return e
+    if acceso == "coordinador" and read_only:
+        e = {**e, "observaciones": "", "solo_lectura": True}
+        e["meta"] = {k: v for k, v in (e.get("meta") or {}).items() if k in ("sources", "aviso")}
+        return e
+    raise HTTPException(404, "Encuentro no encontrado")
 
 
 def _with_team_name(items, request: Request):
-    teams = {t["id"]: t["nombre"] for t in get_store().list_teams(user_id=_uid(request))}
+    store = get_store()
+    ids = list({e["team_id"] for e in items if e.get("team_id")})
+    teams = {t["id"]: t["nombre"] for t in store.list_teams(ids=ids)} if ids else {}
     for e in items:
         e["team_nombre"] = teams.get(e.get("team_id"), "")
     return items
@@ -524,9 +581,12 @@ def _with_team_name(items, request: Request):
 
 @app.get("/api/encuentros")
 def list_encuentros(request: Request, team_id: Optional[str] = None):
+    uid = _uid(request)
     if team_id:
         _team_or_404(team_id, request)
-    return _with_team_name(get_store().list_encuentros(user_id=_uid(request), team_id=team_id), request)
+        return _with_team_name(get_store().list_encuentros(team_id=team_id), request)
+    ids = [t["id"] for t in _my_teams(uid)]
+    return _with_team_name(get_store().list_encuentros(user_id=uid, team_ids=ids), request)
 
 
 @app.post("/api/encuentros")
@@ -539,7 +599,7 @@ def create_encuentro(body: EncuentroIn, request: Request):
 
 @app.get("/api/encuentros/{eid}")
 def get_encuentro(eid: str, request: Request):
-    return _with_team_name([_enc_or_404(eid, request)], request)[0]
+    return _with_team_name([_enc_or_404(eid, request, read_only=True)], request)[0]
 
 
 @app.put("/api/encuentros/{eid}")
@@ -567,6 +627,32 @@ def generar_encuentro(body: GenerarIn, request: Request):
     return _sse(get_assistant().stream_encuentro(team, body.model_dump(), user_id=_uid(request)))
 
 
+class PdfIn(BaseModel):
+    propuesta: Optional[str] = Field(None, max_length=60000)
+    titulo: Optional[str] = Field(None, max_length=140)
+
+
+@app.post("/api/encuentros/{eid}/pdf")
+def encuentro_pdf(eid: str, body: PdfIn, request: Request):
+    """Descarga el encuentro como PDF (con lo que está en pantalla, aunque no se haya guardado)."""
+    from fastapi.responses import Response
+    from . import pdf
+    enc = dict(_enc_or_404(eid, request, read_only=True))
+    if not enc.get("solo_lectura"):
+        if body.propuesta is not None:
+            enc["propuesta"] = body.propuesta
+        if body.titulo:
+            enc["titulo"] = body.titulo
+    equipo = ""
+    if enc.get("team_id"):
+        t = get_store().get_team(enc["team_id"])
+        equipo = (t or {}).get("nombre", "")
+    data = pdf.encuentro_pdf(enc, equipo=equipo, incluir_observaciones=not enc.get("solo_lectura"))
+    nombre = pdf.nombre_archivo(enc)
+    return Response(data, media_type="application/pdf",
+                    headers={"Content-Disposition": f'attachment; filename="{nombre}"'})
+
+
 class AjusteIn(BaseModel):
     instruccion: str = Field(..., min_length=2, max_length=2000)
     propuesta: Optional[str] = Field(None, max_length=60000)
@@ -582,6 +668,256 @@ def ajustar_encuentro(eid: str, body: AjusteIn, request: Request):
     if not propuesta.strip():
         raise HTTPException(400, "Este encuentro todavía no tiene propuesta para ajustar")
     return _sse(get_assistant().stream_ajuste(enc, team, body.instruccion, propuesta))
+
+
+# ------------------------------------------------------------------ comunidades
+class ComunidadIn(BaseModel):
+    nombre: str = Field(..., min_length=2, max_length=100)
+    lugar: str = Field("", max_length=120)
+
+
+class ComunidadUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=2, max_length=100)
+    lugar: Optional[str] = Field(None, max_length=120)
+
+
+class UnirseIn(BaseModel):
+    codigo: str = Field(..., min_length=4, max_length=20)
+
+
+class MiembroUpdate(BaseModel):
+    rol: str
+
+
+class EquipoComunidadIn(BaseModel):
+    nombre: str = Field(..., min_length=1, max_length=80)
+    etapa: Optional[int] = Field(None, ge=1, le=4)
+    edades: str = Field("", max_length=60)
+    responsables: list = []
+
+
+class EquipoComunidadUpdate(BaseModel):
+    nombre: Optional[str] = Field(None, min_length=1, max_length=80)
+    etapa: Optional[int] = Field(None, ge=1, le=4)
+    responsables: Optional[list] = None
+
+
+class MoverEquipoIn(BaseModel):
+    community_id: str
+
+
+def _com_or_404(cid: str, request: Request, coord: bool = False):
+    com = get_store().get_community(cid)
+    rol = _community_rol(cid, _uid(request)) if com else None
+    if not rol:
+        raise HTTPException(404, "Comunidad no encontrada")
+    if coord and rol != "coordinador":
+        raise HTTPException(403, "Solo la coordinación de la comunidad puede hacer esto")
+    return {**com, "rol": rol}
+
+
+def _com_public(c: dict) -> dict:
+    out = {k: c.get(k) for k in ("id", "nombre", "lugar", "rol", "created_at")}
+    if c.get("rol") == "coordinador":
+        out["codigo"] = c.get("codigo")
+    return out
+
+
+def _check_responsables(cid: str, ids: list) -> list:
+    miembros = {m["user_id"] for m in get_store().list_community_members(cid)}
+    ids = [str(i) for i in ids if i]
+    if any(i not in miembros for i in ids):
+        raise HTTPException(400, "Los responsables tienen que ser miembros de la comunidad")
+    return list(dict.fromkeys(ids))
+
+
+def _mes_rango(mes: Optional[str]):
+    from datetime import date as _d
+    hoy = _d.today()
+    try:
+        y, m = (int(x) for x in (mes or "").split("-")[:2])
+    except ValueError:
+        y, m = hoy.year, hoy.month
+    return f"{y:04d}-{m:02d}", y, m
+
+
+@app.get("/api/comunidades")
+def list_comunidades(request: Request):
+    store, uid = get_store(), _uid(request)
+    out = []
+    for c in store.list_user_communities(uid):
+        item = _com_public(c)
+        item["equipos"] = len(store.list_teams(community_id=c["id"]))
+        out.append(item)
+    return out
+
+
+@app.post("/api/comunidades")
+def create_comunidad(body: ComunidadIn, request: Request):
+    c = get_store().create_community(body.nombre, body.lugar, _uid(request))
+    return _com_public({**c, "rol": "coordinador"})
+
+
+@app.post("/api/comunidades/unirse")
+def unirse_comunidad(body: UnirseIn, request: Request):
+    uid = _uid(request)
+    ip = request.client.host if request.client else "?"
+    if auth.too_many_attempts(f"join:{ip}:{uid}", limit=12):
+        raise HTTPException(429, "Demasiados intentos. Probá de nuevo en unos minutos.")
+    store = get_store()
+    c = store.get_community_by_code(body.codigo)
+    if not c:
+        raise HTTPException(404, "No hay ninguna comunidad con ese código. Revisalo con tu coordinador.")
+    rol = _community_rol(c["id"], uid)
+    if not rol:
+        store.set_community_member(c["id"], uid, "responsable")
+        rol = "responsable"
+    return _com_public({**c, "rol": rol})
+
+
+@app.get("/api/comunidades/{cid}")
+def get_comunidad(cid: str, request: Request, mes: Optional[str] = None):
+    """Comunidad con sus equipos por etapa y la planificación del mes."""
+    from .assistant import parse_etapa
+    store, uid = get_store(), _uid(request)
+    com = _com_or_404(cid, request)
+    coord = com["rol"] == "coordinador"
+    miembros = store.list_community_members(cid)
+    teams = _annotate_teams(store.list_teams(community_id=cid), uid)
+    mes_txt, y, m = _mes_rango(mes)
+    encs = store.list_encuentros(team_ids=[t["id"] for t in teams], limit=1000)
+    from datetime import date as _d
+    ref = _d(y, m, 15)
+    sug_cache = {}
+    equipos = []
+    for t in teams:
+        etapa = parse_etapa((t.get("perfil") or {}).get("etapa"))
+        mios = [e for e in encs if e.get("team_id") == t["id"]]
+        del_mes = [e for e in mios if (e.get("fecha") or "")[:7] == mes_txt]
+        if etapa not in sug_cache:
+            s = programas.sugerencias(etapa, ref) if etapa else {}
+            sug_cache[etapa] = [f["titulo"] for f in s.get("fichas", [])] if s.get("disponible") else []
+        soy = any(r["user_id"] == uid for r in t["responsables"])
+        equipos.append({
+            "id": t["id"], "nombre": t["nombre"], "etapa": etapa,
+            "edades": (t.get("perfil") or {}).get("edades", ""),
+            "cantidad": (t.get("perfil") or {}).get("cantidad_chicos", ""),
+            "responsables": t["responsables"],
+            "acceso": "responsable" if soy else ("coordinador" if coord else None),
+            "encuentros_mes": [{k: e.get(k) for k in ("id", "titulo", "fecha", "estado", "tema")} for e in del_mes],
+            "ultimo": next((e.get("fecha") for e in mios if e.get("fecha")), None),
+            "total_encuentros": len(mios),
+            "programa_mes": sug_cache[etapa],
+        })
+    resumen = {
+        "equipos": len(equipos), "miembros": len(miembros),
+        "con_plan": sum(1 for e in equipos if e["encuentros_mes"]),
+        "sin_responsable": sum(1 for e in equipos if not e["responsables"]),
+        "encuentros_mes": sum(len(e["encuentros_mes"]) for e in equipos),
+        "realizados_mes": sum(1 for e in equipos for x in e["encuentros_mes"] if x["estado"] == "realizado"),
+    }
+    return {**_com_public(com), "mes": mes_txt, "resumen": resumen, "equipos": equipos,
+            "miembros": [{"user_id": x["user_id"], "nombre": x["nombre"], "rol": x["rol"],
+                          **({"email": x["email"]} if coord else {})} for x in miembros]}
+
+
+@app.put("/api/comunidades/{cid}")
+def update_comunidad(cid: str, body: ComunidadUpdate, request: Request):
+    _com_or_404(cid, request, coord=True)
+    c = get_store().update_community(cid, nombre=body.nombre, lugar=body.lugar)
+    return _com_public({**c, "rol": "coordinador"})
+
+
+@app.post("/api/comunidades/{cid}/codigo")
+def regenerar_codigo(cid: str, request: Request):
+    from .memory import nuevo_codigo
+    _com_or_404(cid, request, coord=True)
+    c = get_store().update_community(cid, codigo=nuevo_codigo())
+    return _com_public({**c, "rol": "coordinador"})
+
+
+@app.delete("/api/comunidades/{cid}")
+def delete_comunidad(cid: str, request: Request):
+    _com_or_404(cid, request, coord=True)
+    get_store().delete_community(cid)
+    return {"ok": True}
+
+
+def _coordinadores(cid: str) -> set:
+    return {m["user_id"] for m in get_store().list_community_members(cid) if m["rol"] == "coordinador"}
+
+
+@app.put("/api/comunidades/{cid}/miembros/{user_id}")
+def update_miembro(cid: str, user_id: str, body: MiembroUpdate, request: Request):
+    _com_or_404(cid, request, coord=True)
+    if not _community_rol(cid, user_id):
+        raise HTTPException(404, "Esa persona no es miembro de la comunidad")
+    if body.rol not in ("coordinador", "responsable"):
+        raise HTTPException(400, "Rol inválido")
+    if body.rol == "responsable" and _coordinadores(cid) == {user_id}:
+        raise HTTPException(400, "La comunidad tiene que tener al menos un coordinador")
+    get_store().set_community_member(cid, user_id, body.rol)
+    return {"ok": True}
+
+
+@app.delete("/api/comunidades/{cid}/miembros/{user_id}")
+def remove_miembro(cid: str, user_id: str, request: Request):
+    """El coordinador puede quitar a alguien; cualquiera puede salir de la comunidad."""
+    uid = _uid(request)
+    _com_or_404(cid, request, coord=(user_id != uid))
+    if _coordinadores(cid) == {user_id}:
+        raise HTTPException(400, "Sos el único coordinador: nombrá a otra persona antes de salir")
+    get_store().remove_community_member(cid, user_id)
+    return {"ok": True}
+
+
+@app.post("/api/comunidades/{cid}/equipos")
+def create_equipo_comunidad(cid: str, body: EquipoComunidadIn, request: Request):
+    store, uid = get_store(), _uid(request)
+    com = _com_or_404(cid, request)
+    if com["rol"] == "coordinador":
+        responsables = _check_responsables(cid, body.responsables)
+    else:
+        responsables = [uid]  # un responsable crea su propio equipo dentro de la comunidad
+    perfil = {k: v for k, v in {"etapa": f"Etapa {body.etapa}" if body.etapa else "", "edades": body.edades}.items() if v}
+    if body.etapa and not perfil.get("edades"):
+        info = programas.etapa_info(body.etapa)
+        if info:
+            perfil["edades"] = info.get("edades", "")
+    t = store.create_team(body.nombre, perfil, True, user_id=uid)
+    store.update_team(t["id"], community_id=cid)
+    store.set_team_members(t["id"], responsables)
+    return _annotate_teams([store.get_team(t["id"])], uid)[0]
+
+
+@app.put("/api/comunidades/{cid}/equipos/{tid}")
+def update_equipo_comunidad(cid: str, tid: str, body: EquipoComunidadUpdate, request: Request):
+    store, uid = get_store(), _uid(request)
+    _com_or_404(cid, request, coord=True)
+    t = store.get_team(tid)
+    if not t or t.get("community_id") != cid:
+        raise HTTPException(404, "Equipo no encontrado")
+    perfil = None
+    if body.etapa is not None:
+        perfil = {**(t.get("perfil") or {}), "etapa": f"Etapa {body.etapa}"}
+    if body.nombre is not None or perfil is not None:
+        store.update_team(tid, nombre=body.nombre, perfil=perfil)
+    if body.responsables is not None:
+        store.set_team_members(tid, _check_responsables(cid, body.responsables))
+    return _annotate_teams([store.get_team(tid)], uid)[0]
+
+
+@app.post("/api/teams/{team_id}/comunidad")
+def mover_equipo(team_id: str, body: MoverEquipoIn, request: Request):
+    """Lleva un equipo personal a una comunidad; quien lo usaba queda como responsable."""
+    store, uid = get_store(), _uid(request)
+    t = _team_or_404(team_id, request)
+    _com_or_404(body.community_id, request)
+    if t.get("community_id") and t["community_id"] != body.community_id:
+        raise HTTPException(400, "Este equipo ya pertenece a otra comunidad")
+    store.add_team_member(team_id, uid)
+    store.update_team(team_id, community_id=body.community_id)
+    return _annotate_teams([store.get_team(team_id)], uid)[0]
 
 
 # ------------------------------------------------------------------ frontend
