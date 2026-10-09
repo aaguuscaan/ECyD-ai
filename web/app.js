@@ -52,6 +52,7 @@
     refresh: P(["M20 11a8 8 0 1 0-2.3 5.7", "M20 5v6h-6"]),
     pdf: P(["M14 3H6.5A1.5 1.5 0 0 0 5 4.5v15A1.5 1.5 0 0 0 6.5 21h11a1.5 1.5 0 0 0 1.5-1.5V8z", "M14 3v5h5", "M12 11v6m-3-3 3 3 3-3"]),
     "chevron-left": P(["m15 6-6 6 6 6"]),
+    "chat-bubbles": P(["M4 5.5A1.5 1.5 0 0 1 5.5 4h9A1.5 1.5 0 0 1 16 5.5v6a1.5 1.5 0 0 1-1.5 1.5H9l-3.5 3V13H5.5A1.5 1.5 0 0 1 4 11.5z", "M16 8h2.5A1.5 1.5 0 0 1 20 9.5v6a1.5 1.5 0 0 1-1.5 1.5H18v3l-3.5-3H11a1.5 1.5 0 0 1-1.5-1.5V15"]),
   };
   function icon(name, cls = "") {
     return `<i data-icon="${name}" class="${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICONS[name] || ""}</svg></i>`;
@@ -334,12 +335,13 @@
 
   // ------------------------------------------------------------ navegación
   function showView(name) {
+    if (name !== "chat") stopChatPoll();
     state.view = name;
     $$(".view").forEach(v => v.classList.toggle("hidden", v.id !== "view-" + name));
     $$(".nav-item").forEach(a => a.classList.toggle("active", a.dataset.view === name));
     closeSidebar(); closeRail();
     $("#main").scrollTop = 0;
-    const renderers = { comunidad: renderComunidad, preparar: renderPreparar, encuentros: renderEncuentros, conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
+    const renderers = { chat: renderChat, comunidad: renderComunidad, preparar: renderPreparar, encuentros: renderEncuentros, conversaciones: renderConversations, equipos: renderTeams, documentos: renderDocuments, memoria: renderMemory, configuracion: renderSettings };
     renderers[name]?.();
     if (name === "inicio") setTimeout(() => $("#input").focus(), 50);
   }
@@ -1195,6 +1197,74 @@
     } catch (err) { toast("No se pudo crear el PDF: " + err.message, 6000); }
   }
 
+  // ------------------------------------------------------------ feedback después del encuentro
+  const PUNTOS = [[1, "Muy difícil"], [2, "Flojo"], [3, "Bien"], [4, "Muy bien"], [5, "Excelente"]];
+  const FB_PREG = [
+    ["funciono", "¿Qué funcionó bien?", "Ej.: el juego del inicio los enganchó, participaron todos en el diálogo…"],
+    ["cambiaria", "¿Qué cambiarías o no funcionó?", "Ej.: la lectura fue larga, faltó tiempo para el cierre…"],
+    ["oracion", "¿Cómo respondieron al momento de oración o reflexión?", "Ej.: estuvieron atentos, les costó el silencio…"],
+    ["pendiente", "¿Quedó algo pendiente para el próximo encuentro?", "Ej.: retomar la pregunta sobre la amistad, hablar con un chico…"],
+  ];
+  const puntosTxt = n => (PUNTOS.find(p => p[0] === n) || [])[1] || "";
+
+  function paintFeedback(el, enc, ro, open) {
+    if (!el) return;
+    const fb = enc.feedback;
+    if (!fb) {
+      el.innerHTML = enc.estado === "realizado" && !ro ? `<div class="fb-missing">${icon("info")}<span><strong>Falta el feedback de este encuentro.</strong>
+        <small>Un minuto: la IA lo usa para preparar el próximo.</small></span><button class="btn small primary" data-fb-open>¿Cómo salió?</button></div>` : "";
+    } else {
+      el.innerHTML = `<div class="fb-card">
+        <div class="fb-head"><h3>${icon("check")}Cómo salió</h3>${ro ? "" : `<button class="link-btn" data-fb-open>Editar</button>`}</div>
+        <div class="fb-stats">${fb.puntuacion ? `<span class="fb-score s${fb.puntuacion}">${fb.puntuacion}/5 · ${esc(puntosTxt(fb.puntuacion))}</span>` : ""}
+          ${fb.asistentes != null ? `<span class="pill">${icon("users")}Vinieron ${fb.asistentes}</span>` : ""}</div>
+        ${FB_PREG.filter(([k]) => fb[k]).map(([k, label]) => `<div class="fb-item"><div class="k">${esc(label)}</div><div class="v">${esc(fb[k])}</div></div>`).join("")}
+        ${ro ? `<p class="muted small-note">Las respuestas escritas las ven solo los responsables del equipo.</p>` : ""}
+      </div>`;
+    }
+    hydrateIcons(el);
+    el.querySelector("[data-fb-open]")?.addEventListener("click", open);
+  }
+
+  function feedbackForm(enc, onSaved, onCancel) {
+    const fb = enc.feedback || {};
+    let punt = fb.puntuacion || null, guardado = false;
+    openPanel("¿Cómo salió el encuentro?", `
+      <form id="fb-form" class="stack">
+        <p class="help">${esc(enc.titulo || "Encuentro")}${enc.fecha ? " · " + esc(fmtDay(enc.fecha)) : ""}</p>
+        <div class="field-wrap"><label>En general, ¿cómo salió?</label>
+          <div class="fb-rate">${PUNTOS.map(([n, l]) => `<button type="button" data-p="${n}" class="${punt === n ? "on" : ""}"><strong>${n}</strong><small>${l}</small></button>`).join("")}</div></div>
+        <div class="field-wrap"><label for="fb-asis">¿Cuántos chicos vinieron?</label>
+          <input class="field" type="number" min="0" max="500" id="fb-asis" value="${esc(fb.asistentes ?? "")}" placeholder="${esc(enc.cantidad || "")}"></div>
+        ${FB_PREG.map(([k, label, ph]) => `<div class="field-wrap"><label for="fb-${k}">${esc(label)}</label>
+          <textarea class="field" id="fb-${k}" rows="2" maxlength="1500" placeholder="${esc(ph)}">${esc(fb[k] || "")}</textarea></div>`).join("")}
+        <p class="help">${icon("info", "ri")}Lo ven solo los responsables del equipo; la coordinación ve la puntuación y cuántos vinieron. La IA lo tiene en cuenta para el próximo encuentro de este grupo.</p>
+        <div class="actions"><button class="btn primary" type="submit">${icon("check")}Guardar</button>
+          ${enc.feedback ? "" : `<button class="btn ghost" type="button" id="fb-later">Más tarde</button>`}</div>
+      </form>`);
+    hydrateIcons($("#panel-body"));
+    $$(".fb-rate button").forEach(b => b.addEventListener("click", () => {
+      punt = +b.dataset.p; $$(".fb-rate button").forEach(x => x.classList.toggle("on", x === b));
+    }));
+    const put = async body => {
+      try { const upd = await api(`/api/encuentros/${enc.id}`, { method: "PUT", body }); guardado = true; closePanel(); onSaved(upd); return upd; }
+      catch (err) { toast(err.message); }
+    };
+    $("#fb-form").addEventListener("submit", async e => {
+      e.preventDefault();
+      const feedback = { puntuacion: punt, asistentes: $("#fb-asis").value === "" ? null : +$("#fb-asis").value };
+      FB_PREG.forEach(([k]) => { feedback[k] = $(`#fb-${k}`).value.trim(); });
+      if (await put({ estado: "realizado", feedback })) toast("¡Gracias! Feedback guardado");
+    });
+    $("#fb-later")?.addEventListener("click", async () => {
+      if (await put({ estado: "realizado" })) toast("Quedó como realizado. Podés completar el feedback cuando quieras.");
+    });
+    // si cierra el panel sin elegir, el estado vuelve a como estaba
+    const closeBtn = $("#panel-close");
+    const onClose = () => { closeBtn.removeEventListener("click", onClose); if (!guardado && onCancel) onCancel(); };
+    closeBtn.addEventListener("click", onClose);
+  }
+
   // ------------------------------------------------------------ editor de un encuentro
   function renderEncuentroEditor(container, enc, opts = {}) {
     const sources = opts.sources || enc.meta?.sources || [];
@@ -1223,6 +1293,7 @@
         <div class="md enc-md">${markdown(enc.propuesta || "_Todavía no hay propuesta._")}</div>
         <textarea class="field enc-text hidden" data-e="text" rows="22">${esc(enc.propuesta || "")}</textarea>
         <div class="extras"></div>
+        <div class="fb-block" data-e="fb"></div>
         ${ro ? `<div class="actions" style="margin-top:16px"><button class="btn small" data-e="copy">${icon("copy")}Copiar texto</button></div></div>` : `
         <div class="ajuste" data-e="ajuste">
           <div class="ajuste-head">${icon("sparkle")}<div><strong>Pedile cambios a la IA</strong>
@@ -1254,6 +1325,15 @@
     renderSourceBar(box);
     hydrateIcons(box);
     if (!ro) setupAjuste(box, q, enc);
+    const paintFb = () => paintFeedback(q("fb"), enc, ro, () => feedbackForm(enc, upd => {
+      Object.assign(enc, upd); if (q("estado")) q("estado").value = enc.estado; paintFb(); loadEncuentros();
+    }));
+    paintFb();
+    q("estado")?.addEventListener("change", e => {
+      if (e.target.value === "realizado" && !enc.feedback) feedbackForm(enc, upd => {
+        Object.assign(enc, upd); paintFb(); loadEncuentros();
+      }, () => { e.target.value = enc.estado; });
+    });
     $$("[data-doc]", box).forEach(b => b.addEventListener("click", () => openDoc(b.dataset.doc)));
     q("back")?.addEventListener("click", () => {
       encOpen = null;
@@ -1313,7 +1393,7 @@
       <div class="filters">
         <select class="field" id="ef-team" style="max-width:220px"><option value="">Todos los grupos</option>${state.teams.map(t => `<option value="${esc(t.id)}">${esc(t.nombre)}</option>`).join("")}</select>
         <span class="chip-group">${[1, 2, 3, 4].map(n => `<button class="chip" data-ef-etapa="${n}">Etapa ${n}</button>`).join("")}</span>
-        <span class="chip-group">${Object.entries(ESTADOS).map(([k, l]) => `<button class="chip" data-ef-estado="${k}">${l}</button>`).join("")}</span>
+        <span class="chip-group">${Object.entries(ESTADOS).map(([k, l]) => `<button class="chip" data-ef-estado="${k}">${l}</button>`).join("")}<button class="chip" data-ef-estado="sinfb">Falta feedback</button></span>
         <input class="field" type="search" id="ef-q" placeholder="Buscar por título o tema…" style="max-width:240px">
       </div>
       <div class="list" id="enc-list"><div class="thinking"><span class="spinner"></span>Cargando…</div></div>`;
@@ -1324,13 +1404,14 @@
       $$("[data-ef-estado]", v).forEach(b => b.classList.toggle("on", b.dataset.efEstado === encFilter.estado));
       const q = encFilter.q.toLowerCase();
       const rows = state.encuentros.filter(e => (!encFilter.team || e.team_id === encFilter.team) && (!encFilter.etapa || String(e.etapa) === encFilter.etapa)
-        && (!encFilter.estado || e.estado === encFilter.estado) && (!q || [e.titulo, e.tema, ...(e.fichas || []).map(f => f.titulo)].join(" ").toLowerCase().includes(q)));
+        && (!encFilter.estado || (encFilter.estado === "sinfb" ? e.estado === "realizado" && !e.feedback : e.estado === encFilter.estado)) && (!q || [e.titulo, e.tema, ...(e.fichas || []).map(f => f.titulo)].join(" ").toLowerCase().includes(q)));
       $("#enc-list").innerHTML = rows.length ? rows.map(e => `
         <div class="row-item clickable" data-open-enc="${esc(e.id)}">
           <div class="enc-date"><span>${e.fecha ? new Date(e.fecha.slice(0, 10) + "T12:00").getDate() : "—"}</span><small>${e.fecha ? new Date(e.fecha.slice(0, 10) + "T12:00").toLocaleDateString("es-AR", { month: "short" }) : ""}</small></div>
           <div class="row-main"><div class="row-title">${esc(e.titulo || e.tema || "Encuentro")}</div>
             <div class="row-sub">${encMeta(e).filter((x, i) => i !== 2).map(x => `<span>${esc(x)}</span>`).join("<span>·</span>")}
               ${(e.fichas || []).slice(0, 2).map(f => `<span class="badge">${esc(f.titulo)}</span>`).join("")}</div></div>
+          ${e.estado === "realizado" && !e.feedback ? `<span class="badge warn">Falta feedback</span>` : e.feedback?.puntuacion ? `<span class="badge">${e.feedback.puntuacion}/5</span>` : ""}
           <span class="badge ${e.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[e.estado] || e.estado)}</span>
         </div>`).join("")
         : `<div class="empty-state"><img src="/static/img/cruz-ecyd.svg" alt=""><p>${state.encuentros.length ? "No hay encuentros con esos filtros." : "Todavía no preparaste ningún encuentro."}</p>
@@ -1395,7 +1476,7 @@
       <div class="stats">
         <div class="stat"><span>${r.con_plan}/${r.equipos}</span><small>equipos con encuentro este mes</small></div>
         <div class="stat"><span>${r.encuentros_mes}</span><small>encuentros preparados</small></div>
-        <div class="stat"><span>${r.realizados_mes}</span><small>ya realizados</small></div>
+        <div class="stat"><span>${r.realizados_mes}</span><small>ya realizados${r.promedio ? ` · cómo salieron: ${r.promedio}/5` : ""}${r.falta_feedback ? ` · ${r.falta_feedback} sin feedback` : ""}</small></div>
         <div class="stat ${r.sin_responsable ? "warn" : ""}"><span>${r.sin_responsable}</span><small>equipos sin responsable</small></div>
       </div>
 
@@ -1441,7 +1522,7 @@
         : `<span class="pill warn">${icon("info")}Sin responsable</span>`}</div>
       <div class="com-encs">${e.encuentros_mes.length ? e.encuentros_mes.map(x => `
         <button class="com-enc" data-enc="${esc(x.id)}"><span>${esc(fmtDay(x.fecha))}</span><strong>${esc(x.titulo || x.tema || "Encuentro")}</strong>
-          <span class="badge ${x.estado === "realizado" ? "red" : ""}">${esc(ESTADOS[x.estado] || x.estado)}</span></button>`).join("")
+          <span class="badge ${x.falta_feedback ? "warn" : x.estado === "realizado" ? "red" : ""}">${x.puntuacion ? `${x.puntuacion}/5` : x.falta_feedback ? "Falta feedback" : esc(ESTADOS[x.estado] || x.estado)}</span></button>`).join("")
         : `<div class="com-empty">${icon("calendar")}<span>Sin encuentro este mes${e.programa_mes.length ? `<small>El programa sugiere: ${e.programa_mes.slice(0, 2).map(esc).join(" · ")}</small>` : ""}</span></div>`}</div>
       <div class="com-team-foot"><span class="muted small-note">${e.ultimo ? `Último: ${esc(fmtDay(e.ultimo))}` : "Sin encuentros todavía"}</span>
         ${soy ? `<button class="btn small primary" data-prep-team="${esc(e.id)}">${icon("sparkle")}Preparar</button>` : ""}</div>
@@ -1570,6 +1651,195 @@
       <p>Una comunidad (por ejemplo, <em>ECyD Mano Amiga</em>) reúne los equipos de todas las etapas y a sus responsables. La coordinación ve cómo va la planificación de cada equipo; la memoria de cada equipo queda solo para sus responsables.</p></div></div>
       ${comunidadForms(false)}`;
     bindComunidadForms(v);
+  }
+
+  // ------------------------------------------------------------ chat entre responsables
+  const chat = { canales: [], actual: null, mensajes: [], poll: null, unreadPoll: null, sending: false };
+  const canalPath = c => `/api/chats/${c.tipo}/${encodeURIComponent(c.id)}/mensajes`;
+  const visible = () => document.visibilityState === "visible";
+  const esMovil = () => window.matchMedia("(max-width: 880px)").matches;
+
+  function fmtHora(iso) { const d = new Date(iso); return isNaN(d) ? "" : d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit" }); }
+  function fmtDiaChat(iso) {
+    const d = new Date(iso), hoy = new Date(), ayer = new Date(Date.now() - 864e5);
+    if (d.toDateString() === hoy.toDateString()) return "Hoy";
+    if (d.toDateString() === ayer.toDateString()) return "Ayer";
+    return d.toLocaleDateString("es-AR", { weekday: "long", day: "numeric", month: "long" });
+  }
+  function fmtCuando(iso) {
+    if (!iso) return "";
+    const d = new Date(iso);
+    return d.toDateString() === new Date().toDateString() ? fmtHora(iso) : d.toLocaleDateString("es-AR", { day: "numeric", month: "short" });
+  }
+
+  async function loadUnread() {
+    try {
+      const r = await api("/api/chats");
+      chat.canales = r.canales;
+      const b = $("#chat-badge");
+      b.textContent = r.no_leidos > 99 ? "99+" : r.no_leidos;
+      b.classList.toggle("hidden", !r.no_leidos);
+      $("#open-sidebar").classList.toggle("has-dot", !!r.no_leidos);
+      if (state.view === "chat") paintCanales();
+      return r;
+    } catch { return null; }
+  }
+  function startUnreadPoll() {
+    clearInterval(chat.unreadPoll);
+    chat.unreadPoll = setInterval(() => { if (visible() && state.user) loadUnread(); }, 30000);
+  }
+  function stopChatPoll() { clearInterval(chat.poll); chat.poll = null; }
+
+  async function renderChat() {
+    const v = $("#view-chat");
+    v.innerHTML = `<div class="chat-layout ${chat.actual ? "has-open" : ""}">
+      <aside class="chat-list"><div class="chat-list-head"><h1>Chat</h1><p>Con los responsables de tu comunidad y de tu equipo.</p></div>
+        <div id="chat-canales"><div class="thinking"><span class="spinner"></span>Cargando…</div></div></aside>
+      <section class="chat-conv" id="chat-conv"></section></div>`;
+    await loadUnread();
+    paintCanales();
+    if (chat.actual && chat.canales.some(c => c.canal === chat.actual.canal)) openCanal(chat.actual.canal);
+    else if (!esMovil() && chat.canales.length) openCanal(chat.canales[0].canal);
+    else paintConvVacia();
+  }
+
+  function paintCanales() {
+    const box = $("#chat-canales"); if (!box) return;
+    if (!chat.canales.length) {
+      box.innerHTML = `<div class="chat-empty">${icon("community")}<p>Todavía no tenés chats. Se crean solos cuando te sumás a una comunidad o compartís un equipo con otros responsables.</p>
+        <button class="btn primary small" data-view="comunidad">${icon("community")}Ir a Comunidad</button></div>`;
+      hydrateIcons(box); return;
+    }
+    const grupo = (titulo, arr) => arr.length ? `<div class="side-label">${titulo}</div>` + arr.map(c => `
+      <button class="canal-item ${chat.actual?.canal === c.canal ? "active" : ""}" data-canal="${esc(c.canal)}">
+        <span class="canal-ico ${c.tipo}">${icon(c.tipo === "comunidad" ? "community" : "users")}</span>
+        <span class="canal-txt"><span class="canal-top"><strong>${esc(c.nombre)}</strong><small>${esc(fmtCuando(c.ultimo?.created_at))}</small></span>
+          <span class="canal-prev">${c.ultimo ? `${c.ultimo.mio ? "Vos" : esc((c.ultimo.nombre || "").split(" ")[0])}: ${esc(c.ultimo.texto.slice(0, 70))}` : `<em>${esc(c.subtitulo)}</em>`}</span></span>
+        ${c.no_leidos ? `<span class="nav-badge">${c.no_leidos}</span>` : ""}
+      </button>`).join("") : "";
+    box.innerHTML = grupo("Comunidades", chat.canales.filter(c => c.tipo === "comunidad")) + grupo("Equipos", chat.canales.filter(c => c.tipo === "equipo"));
+    $$("[data-canal]", box).forEach(b => b.addEventListener("click", () => openCanal(b.dataset.canal)));
+  }
+
+  function paintConvVacia() {
+    const conv = $("#chat-conv"); if (!conv) return;
+    conv.innerHTML = chat.canales.length ? `<div class="chat-empty">${icon("chat")}<p>Elegí un chat para empezar.</p></div>` : "";
+    hydrateIcons(conv);
+  }
+
+  async function openCanal(canalId) {
+    const c = chat.canales.find(x => x.canal === canalId); if (!c) return;
+    stopChatPoll();
+    chat.actual = c; chat.mensajes = [];
+    $(".chat-layout")?.classList.add("has-open");
+    paintCanales();
+    const conv = $("#chat-conv");
+    conv.innerHTML = `
+      <header class="conv-head">
+        <button class="icon-btn conv-back" id="conv-back" aria-label="Volver a los chats">${icon("chevron-left")}</button>
+        <span class="canal-ico ${c.tipo}">${icon(c.tipo === "comunidad" ? "community" : "users")}</span>
+        <div class="conv-title"><strong>${esc(c.nombre)}</strong><small>${c.tipo === "comunidad" ? "Todos los miembros de la comunidad" : esc((c.responsables || []).join(", ") || c.subtitulo)}</small></div>
+      </header>
+      ${c.tipo === "comunidad" ? `<div class="conv-note">${icon("info")}Este canal lo ven todos los miembros de la comunidad. No compartas datos personales de los chicos acá.</div>`
+        : `<div class="conv-note">${icon("info")}Solo lo ven los responsables de este equipo.</div>`}
+      <div class="conv-msgs" id="conv-msgs"><div class="thinking"><span class="spinner"></span>Cargando…</div></div>
+      <form class="conv-compose" id="conv-compose">
+        <textarea id="conv-input" rows="1" maxlength="2000" placeholder="Escribí un mensaje…" aria-label="Mensaje"></textarea>
+        <button class="send-btn" type="submit" aria-label="Enviar">${icon("send")}</button>
+      </form>`;
+    hydrateIcons(conv);
+    $("#conv-back").addEventListener("click", () => {
+      stopChatPoll(); chat.actual = null; $(".chat-layout")?.classList.remove("has-open"); paintCanales(); paintConvVacia(); loadUnread();
+    });
+    const inp = $("#conv-input");
+    const grow = () => { inp.style.height = "auto"; inp.style.height = Math.min(inp.scrollHeight, 140) + "px"; };
+    inp.addEventListener("input", grow);
+    inp.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing && !esMovil()) { e.preventDefault(); $("#conv-compose").requestSubmit(); } });
+    $("#conv-compose").addEventListener("submit", async e => {
+      e.preventDefault();
+      const texto = inp.value.trim();
+      if (!texto || chat.sending) return;
+      chat.sending = true;
+      try {
+        const m = await api(canalPath(c), { method: "POST", body: { texto } });
+        inp.value = ""; grow(); addMensajes([m], true);
+      } catch (err) { toast(err.message); }
+      finally { chat.sending = false; inp.focus(); }
+    });
+    try {
+      const r = await api(canalPath(c));
+      if (chat.actual?.canal !== canalId) return;
+      chat.mensajes = r.mensajes; c.rol = r.rol;
+      paintMensajes(true, r.mensajes.length >= 60);
+      c.no_leidos = 0; paintCanales(); loadUnread();
+    } catch (err) { $("#conv-msgs").innerHTML = `<p class="error-text">${esc(err.message)}</p>`; return; }
+    if (!esMovil()) inp.focus();
+    chat.poll = setInterval(pollMensajes, 4000);
+  }
+
+  async function pollMensajes() {
+    const c = chat.actual;
+    if (!c || !visible() || state.view !== "chat") return;
+    const last = chat.mensajes[chat.mensajes.length - 1];
+    try {
+      const r = await api(canalPath(c) + (last ? `?after=${encodeURIComponent(last.created_at)}` : ""));
+      if (chat.actual?.canal === c.canal && r.mensajes.length) addMensajes(r.mensajes, false);
+    } catch { /* se reintenta en el próximo ciclo */ }
+  }
+
+  function addMensajes(nuevos, forceScroll) {
+    const ids = new Set(chat.mensajes.map(m => m.id));
+    const add = nuevos.filter(m => !ids.has(m.id));
+    if (!add.length) return;
+    chat.mensajes.push(...add);
+    chat.mensajes.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+    const box = $("#conv-msgs");
+    const cerca = box && box.scrollHeight - box.scrollTop - box.clientHeight < 120;
+    paintMensajes(forceScroll || cerca);
+  }
+
+  function paintMensajes(scroll, hayMas) {
+    const box = $("#conv-msgs"); if (!box) return;
+    const prevTop = box.scrollTop;
+    if (hayMas !== undefined) box.dataset.mas = hayMas ? "1" : "";
+    if (!chat.mensajes.length) {
+      box.innerHTML = `<div class="chat-empty small">${icon("chat")}<p>Todavía no hay mensajes. ¡Escribí el primero!</p></div>`;
+      hydrateIcons(box); return;
+    }
+    let html = box.dataset.mas ? `<button class="link-btn conv-more" id="conv-more">Ver mensajes anteriores</button>` : "";
+    let dia = "", prev = null;
+    for (const m of chat.mensajes) {
+      const d = fmtDiaChat(m.created_at);
+      if (d !== dia) { html += `<div class="conv-day"><span>${esc(d)}</span></div>`; dia = d; prev = null; }
+      const seguido = prev && prev.user_id === m.user_id && (new Date(m.created_at) - new Date(prev.created_at)) < 5 * 60e3;
+      html += `<div class="cmsg ${m.mio ? "mine" : ""} ${seguido ? "cont" : ""}" data-id="${esc(m.id)}">
+        ${m.mio || seguido ? "" : `<span class="avatar xs">${esc(initials(m.nombre || "?"))}</span>`}
+        <div class="cbubble">${m.mio || seguido ? "" : `<div class="cname">${esc(m.nombre || "Alguien")}</div>`}
+          <div class="ctext">${esc(m.texto).replace(/\n/g, "<br>")}</div>
+          <div class="ctime">${fmtHora(m.created_at)}${m.mio || chat.actual?.rol === "coordinador" ? `<button class="cdel" data-del-msg="${esc(m.id)}" title="Borrar mensaje" aria-label="Borrar mensaje">${icon("trash")}</button>` : ""}</div></div>
+      </div>`;
+      prev = m;
+    }
+    box.innerHTML = html;
+    hydrateIcons(box);
+    box.scrollTop = scroll ? box.scrollHeight : prevTop;
+    $("#conv-more")?.addEventListener("click", cargarAnteriores);
+    $$("[data-del-msg]", box).forEach(b => b.addEventListener("click", async () => {
+      if (!confirm("¿Borrar este mensaje para todos?")) return;
+      try { await api(`/api/chats/mensajes/${b.dataset.delMsg}`, { method: "DELETE" }); chat.mensajes = chat.mensajes.filter(m => m.id !== b.dataset.delMsg); paintMensajes(false); }
+      catch (err) { toast(err.message); }
+    }));
+  }
+
+  async function cargarAnteriores() {
+    const c = chat.actual, first = chat.mensajes[0]; if (!c || !first) return;
+    const box = $("#conv-msgs"), prevH = box.scrollHeight;
+    try {
+      const r = await api(canalPath(c) + `?before=${encodeURIComponent(first.created_at)}&leer=false`);
+      chat.mensajes = [...r.mensajes.filter(m => !chat.mensajes.some(x => x.id === m.id)), ...chat.mensajes];
+      paintMensajes(false, r.mensajes.length >= 60);
+      box.scrollTop = box.scrollHeight - prevH;
+    } catch (err) { toast(err.message); }
   }
 
   // ------------------------------------------------------------ búsqueda global
@@ -1801,6 +2071,7 @@
       applyHeroPhoto(state.config.portada);
       ensureProgramas().catch(() => {});
       await loadTeams(); await loadConversations(); loadEncuentros(); loadComunidades();
+      loadUnread(); startUnreadPoll();
       updateHeader(); pollHealth();
       if (state.view !== "inicio") showView(state.view);
       if (!state.teams.length) toast("Tip: creá tu equipo e indicá su etapa para preparar encuentros según el programa.", 6000);

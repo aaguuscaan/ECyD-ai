@@ -628,6 +628,15 @@ def format_encuentros(encuentros: List[dict], max_items: int = 6) -> str:
         obs = f" · obs.: {e['observaciones'][:120]}" if e.get("observaciones") else ""
         lines.append(f"- {fecha} · {e.get('titulo') or e.get('tema')} · tema: {e.get('tema') or '—'} · "
                      f"fichas: {fichas} · estado: {e.get('estado', 'borrador')}{obs}")
+        fb = e.get("feedback") or {}
+        if fb:
+            partes = [f"cómo salió {fb['puntuacion']}/5" if fb.get("puntuacion") else "",
+                      f"vinieron {fb['asistentes']}" if fb.get("asistentes") is not None else "",
+                      f"funcionó: {fb['funciono'][:140]}" if fb.get("funciono") else "",
+                      f"cambiaría: {fb['cambiaria'][:140]}" if fb.get("cambiaria") else "",
+                      f"oración/reflexión: {fb['oracion'][:120]}" if fb.get("oracion") else "",
+                      f"PENDIENTE para el próximo: {fb['pendiente'][:160]}" if fb.get("pendiente") else ""]
+            lines.append("  ↳ feedback del responsable: " + " · ".join(p for p in partes if p))
     return "\n".join(lines)
 
 
@@ -664,7 +673,7 @@ def build_user_message(*, query: str, team_context: str, memory: str,
 ENCUENTRO_INSTRUCCIONES = """==== TAREA: PREPARAR UN ENCUENTRO ====
 Prepará una propuesta de encuentro para este grupo, lista para que el responsable la adapte.
 
-1. Empezá con 2-4 líneas de UBICACIÓN: cómo se relaciona el tema con el programa de la etapa y con este momento del año ("Según el programa de esta etapa…"). Si el tema no es el previsto, decí con naturalidad si es complementario o distinto, sin desalentarlo. Si el grupo ya trabajó este tema o esta ficha (ver encuentros anteriores), decilo y proponé una continuación o un enfoque diferente.
+1. Empezá con 2-4 líneas de UBICACIÓN: cómo se relaciona el tema con el programa de la etapa y con este momento del año ("Según el programa de esta etapa…"). Si el tema no es el previsto, decí con naturalidad si es complementario o distinto, sin desalentarlo. Si el grupo ya trabajó este tema o esta ficha (ver encuentros anteriores), decilo y proponé una continuación o un enfoque diferente. Tené en cuenta el feedback de los encuentros anteriores: retomá lo que quedó PENDIENTE, repetí lo que funcionó y evitá lo que el responsable dijo que cambiaría (mencionalo brevemente).
 2. Si hay una ficha elegida, SEGUÍ SU METODOLOGÍA Y SUS MOMENTOS tal como aparecen en el material (por ejemplo Antes/Importante, Despertar, Responder, Acompañar, Rincón de la oración, Convicciones y decisiones, Modelo de vida), citándola [F#]. No reemplaces la estructura de la ficha por una plantilla genérica.
 3. Si no hay ficha, usá como referencia esta estructura, adaptándola a lo que sugieran los materiales: Título · Objetivo · Idea central · Duración aproximada · Materiales · Introducción · Dinámica/actividad · Desarrollo · Preguntas para conversar · Momento de reflexión · Cierre · Oración o propuesta espiritual (si corresponde según el material ECyD).
 4. ADAPTÁ al grupo: cantidad de chicos (una dinámica para 5 no es igual que para 25: subgrupos, tiempos, espacio), composición (mixto, solo chicas o solo chicos), edades y duración disponible. Si falta un dato importante, hacé una suposición razonable y mencionála.

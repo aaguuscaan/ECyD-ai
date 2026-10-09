@@ -535,6 +535,7 @@ class EncuentroIn(BaseModel):
     observaciones: Optional[str] = Field(None, max_length=8000)
     estado: Optional[str] = None
     meta: Optional[dict] = None
+    feedback: Optional[dict] = None
 
 
 class GenerarIn(BaseModel):
@@ -564,7 +565,9 @@ def _enc_or_404(eid: str, request: Request, read_only: bool = False):
     if acceso == "responsable":
         return e
     if acceso == "coordinador" and read_only:
-        e = {**e, "observaciones": "", "solo_lectura": True}
+        fb = e.get("feedback") or None
+        e = {**e, "observaciones": "", "solo_lectura": True,
+             "feedback": {"puntuacion": fb.get("puntuacion"), "asistentes": fb.get("asistentes")} if fb else None}
         e["meta"] = {k: v for k, v in (e.get("meta") or {}).items() if k in ("sources", "aviso")}
         return e
     raise HTTPException(404, "Encuentro no encontrado")
@@ -804,7 +807,11 @@ def get_comunidad(cid: str, request: Request, mes: Optional[str] = None):
             "cantidad": (t.get("perfil") or {}).get("cantidad_chicos", ""),
             "responsables": t["responsables"],
             "acceso": "responsable" if soy else ("coordinador" if coord else None),
-            "encuentros_mes": [{k: e.get(k) for k in ("id", "titulo", "fecha", "estado", "tema")} for e in del_mes],
+            "encuentros_mes": [{**{k: e.get(k) for k in ("id", "titulo", "fecha", "estado", "tema")},
+                                "puntuacion": (e.get("feedback") or {}).get("puntuacion"),
+                                "asistentes": (e.get("feedback") or {}).get("asistentes"),
+                                "falta_feedback": e.get("estado") == "realizado" and not e.get("feedback")}
+                               for e in del_mes],
             "ultimo": next((e.get("fecha") for e in mios if e.get("fecha")), None),
             "total_encuentros": len(mios),
             "programa_mes": sug_cache[etapa],
@@ -815,7 +822,10 @@ def get_comunidad(cid: str, request: Request, mes: Optional[str] = None):
         "sin_responsable": sum(1 for e in equipos if not e["responsables"]),
         "encuentros_mes": sum(len(e["encuentros_mes"]) for e in equipos),
         "realizados_mes": sum(1 for e in equipos for x in e["encuentros_mes"] if x["estado"] == "realizado"),
+        "falta_feedback": sum(1 for e in equipos for x in e["encuentros_mes"] if x["falta_feedback"]),
     }
+    notas = [x["puntuacion"] for e in equipos for x in e["encuentros_mes"] if x.get("puntuacion")]
+    resumen["promedio"] = round(sum(notas) / len(notas), 1) if notas else None
     return {**_com_public(com), "mes": mes_txt, "resumen": resumen, "equipos": equipos,
             "miembros": [{"user_id": x["user_id"], "nombre": x["nombre"], "rol": x["rol"],
                           **({"email": x["email"]} if coord else {})} for x in miembros]}
@@ -918,6 +928,104 @@ def mover_equipo(team_id: str, body: MoverEquipoIn, request: Request):
     store.add_team_member(team_id, uid)
     store.update_team(team_id, community_id=body.community_id)
     return _annotate_teams([store.get_team(team_id)], uid)[0]
+
+
+# ------------------------------------------------------------------ chat entre responsables
+# Canales: "com-<id>" (todos los miembros de la comunidad) y "eq-<id>" (los
+# responsables de un equipo). La coordinación no ve el chat de un equipo, que
+# puede tener información de los adolescentes.
+class MensajeIn(BaseModel):
+    texto: str = Field(..., min_length=1, max_length=2000)
+
+
+def _canal(tipo: str, cid: str, request: Request) -> dict:
+    uid = _uid(request)
+    store = get_store()
+    if tipo == "comunidad":
+        com = store.get_community(cid)
+        rol = _community_rol(cid, uid) if com else None
+        if rol:
+            return {"canal": f"com-{cid}", "tipo": "comunidad", "id": cid, "nombre": com["nombre"],
+                    "subtitulo": "Toda la comunidad", "rol": rol}
+    elif tipo == "equipo":
+        t = store.get_team(cid)
+        if t and _team_access(t, uid) == "responsable":
+            com = store.get_community(t["community_id"]) if t.get("community_id") else None
+            return {"canal": f"eq-{cid}", "tipo": "equipo", "id": cid, "nombre": t["nombre"],
+                    "subtitulo": (com or {}).get("nombre") or "Equipo", "rol": "responsable"}
+    raise HTTPException(404, "Chat no encontrado")
+
+
+def _mis_canales(uid: str) -> list:
+    store = get_store()
+    canales = [{"canal": f"com-{c['id']}", "tipo": "comunidad", "id": c["id"], "nombre": c["nombre"],
+                "subtitulo": "Toda la comunidad"} for c in store.list_user_communities(uid)]
+    for t in _my_teams(uid):
+        # chat de equipo: cuando está en una comunidad o tiene más de un responsable
+        if t.get("community_id") or len(t.get("responsables") or []) > 1:
+            canales.append({"canal": f"eq-{t['id']}", "tipo": "equipo", "id": t["id"], "nombre": t["nombre"],
+                            "subtitulo": (t.get("comunidad") or {}).get("nombre") or "Equipo",
+                            "responsables": [r["nombre"] for r in t.get("responsables") or []]})
+    return canales
+
+
+def _msg_public(m: dict, uid: str) -> dict:
+    return {**{k: m.get(k) for k in ("id", "user_id", "nombre", "texto", "created_at")}, "mio": m.get("user_id") == uid}
+
+
+@app.get("/api/chats")
+def list_chats(request: Request):
+    uid = _uid(request)
+    canales = _mis_canales(uid)
+    resumen = get_store().chat_summary(uid, [c["canal"] for c in canales])
+    for c in canales:
+        r = resumen.get(c["canal"]) or {}
+        c["no_leidos"] = r.get("no_leidos", 0)
+        c["ultimo"] = _msg_public(r["ultimo"], uid) if r.get("ultimo") else None
+    canales.sort(key=lambda c: (c["ultimo"] or {}).get("created_at") or "", reverse=True)
+    return {"canales": canales, "no_leidos": sum(c["no_leidos"] for c in canales)}
+
+
+@app.get("/api/chats/{tipo}/{cid}/mensajes")
+def list_mensajes(tipo: str, cid: str, request: Request, after: Optional[str] = None,
+                  before: Optional[str] = None, leer: bool = True):
+    uid = _uid(request)
+    canal = _canal(tipo, cid, request)
+    store = get_store()
+    msgs = store.list_chat_messages(canal["canal"], after=after, before=before, limit=60 if not after else 200)
+    if leer and msgs and not before:
+        store.set_chat_read(uid, canal["canal"], msgs[-1]["created_at"])
+    return {**canal, "mensajes": [_msg_public(m, uid) for m in msgs]}
+
+
+@app.post("/api/chats/{tipo}/{cid}/mensajes")
+def enviar_mensaje(tipo: str, cid: str, body: MensajeIn, request: Request):
+    uid = _uid(request)
+    canal = _canal(tipo, cid, request)
+    texto = body.texto.strip()
+    if not texto:
+        raise HTTPException(400, "El mensaje está vacío")
+    if auth.too_many_attempts(f"chat:{uid}", limit=40, window=60):
+        raise HTTPException(429, "Estás mandando muchos mensajes seguidos. Esperá un momento.")
+    m = get_store().add_chat_message(canal["canal"], uid, texto)
+    get_store().set_chat_read(uid, canal["canal"], m["created_at"])
+    return _msg_public(m, uid)
+
+
+@app.delete("/api/chats/mensajes/{mid}")
+def borrar_mensaje(mid: str, request: Request):
+    """Cada uno borra sus mensajes; la coordinación puede borrar mensajes del canal de la comunidad."""
+    uid = _uid(request)
+    store = get_store()
+    m = store.get_chat_message(mid)
+    if not m:
+        raise HTTPException(404, "Mensaje no encontrado")
+    tipo, _, cid = m["canal"].partition("-")
+    canal = _canal("comunidad" if tipo == "com" else "equipo", cid, request)
+    if m.get("user_id") != uid and not (canal["tipo"] == "comunidad" and canal.get("rol") == "coordinador"):
+        raise HTTPException(403, "Solo podés borrar tus propios mensajes")
+    store.delete_chat_message(mid)
+    return {"ok": True}
 
 
 # ------------------------------------------------------------------ frontend

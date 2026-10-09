@@ -18,14 +18,22 @@ def _cond(col, expr):
         return lambda r: str(r.get(col)) in vals
     if expr == "is.null":
         return lambda r: r.get(col) is None
+    if expr.startswith("neq."):
+        return lambda r: str(r.get(col)) != expr[4:]
+    if expr.startswith("gt."):
+        return lambda r: str(r.get(col)) > expr[3:]
+    if expr.startswith("lt."):
+        return lambda r: str(r.get(col)) < expr[3:]
     raise AssertionError(f"filtro no soportado: {col}={expr}")
 
 
 class Fake:
-    KEYS = {"community_members": ("community_id", "user_id"), "team_members": ("team_id", "user_id")}
+    KEYS = {"community_members": ("community_id", "user_id"), "team_members": ("team_id", "user_id"),
+            "chat_reads": ("user_id", "canal")}
 
     def __init__(self):
-        self.t = {k: [] for k in ("users", "teams", "communities", "community_members", "team_members", "encuentros")}
+        self.t = {k: [] for k in ("users", "teams", "communities", "community_members", "team_members", "encuentros",
+                                  "chat_messages", "chat_reads")}
 
     def __call__(self, req: httpx.Request):
         assert req.headers.get("x-ecyd-key") == SECRET
@@ -36,7 +44,7 @@ class Fake:
             if k in ("select", "order", "limit", "on_conflict"):
                 continue
             if k == "or":
-                subs = [_cond(*p.split(".", 1)) for p in re.findall(r"\w+\.(?:eq\.[^,()]+|in\.\([^)]*\))", v[1:-1])]
+                subs = [_cond(*p.split(".", 1)) for p in re.findall(r"\w+\.(?:n?eq\.[^,()]+|in\.\([^)]*\)|is\.null)", v[1:-1])]
                 conds.append(lambda r, subs=subs: any(s(r) for s in subs))
             else:
                 conds.append(_cond(k, v))
@@ -46,6 +54,12 @@ class Fake:
         ret = "return=representation" in prefer
         if req.method == "GET":
             out = [dict(r) for r in rows if match(r)]
+            for part in reversed((params.get("order") or "").split(",")):
+                if part:
+                    col, _, d = part.partition(".")
+                    out.sort(key=lambda r: (r.get(col) is None, r.get(col)), reverse=d.startswith("desc"))
+            if "limit" in params:
+                out = out[: int(params["limit"])]
             sel = params.get("select", "*")
             m = re.search(r"(users|communities)\(([^)]*)\)", sel)
             if m:
@@ -118,3 +132,24 @@ def test_comunidades_supabase():
     assert s.member_team_ids(b["id"]) == [] and len(s.list_community_members(com["id"])) == 1
     s.delete_community(com["id"])
     assert all(t["community_id"] is None for t in fake.t["teams"]) and fake.t["communities"] == []
+
+
+def test_chat_supabase():
+    fake = Fake()
+    s = SupabaseMemoryStore(url="https://x.supabase.co", key="sb_publishable_x", secret=SECRET)
+    s.http = httpx.Client(base_url=s.base, headers=dict(s.http.headers), transport=httpx.MockTransport(fake))
+    a = s.create_user("a@x.com", "Ana", "h")
+    b = s.create_user("b@x.com", "Beto", "h")
+    m1 = s.add_chat_message("eq-t1", a["id"], "hola")
+    m2 = s.add_chat_message("eq-t1", b["id"], "qué tal")
+    s.add_chat_message("eq-otro", b["id"], "otro canal")
+    assert m1["nombre"] == "Ana" and [m["texto"] for m in s.list_chat_messages("eq-t1")] == ["hola", "qué tal"]
+    assert [m["id"] for m in s.list_chat_messages("eq-t1", after=m1["created_at"])] == [m2["id"]]
+    assert [m["id"] for m in s.list_chat_messages("eq-t1", before=m2["created_at"])] == [m1["id"]]
+    res = s.chat_summary(a["id"], ["eq-t1", "eq-otro"])
+    assert res["eq-t1"]["no_leidos"] == 1 and res["eq-t1"]["ultimo"]["texto"] == "qué tal"
+    s.set_chat_read(a["id"], "eq-t1", m2["created_at"])
+    s.set_chat_read(a["id"], "eq-t1", m1["created_at"])          # no retrocede
+    assert s.get_chat_read(a["id"], "eq-t1") == m2["created_at"]
+    assert s.chat_summary(a["id"], ["eq-t1"])["eq-t1"]["no_leidos"] == 0
+    assert s.delete_chat_message(m1["id"]) and s.get_chat_message(m1["id"]) is None

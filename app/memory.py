@@ -126,12 +126,32 @@ CREATE TABLE IF NOT EXISTS team_members (
     PRIMARY KEY (team_id, user_id)
 );
 CREATE INDEX IF NOT EXISTS idx_tm_user ON team_members(user_id);
+CREATE TABLE IF NOT EXISTS chat_messages (
+    id          TEXT PRIMARY KEY,
+    canal       TEXT NOT NULL,
+    user_id     TEXT,
+    texto       TEXT NOT NULL,
+    created_at  TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_chat_canal ON chat_messages(canal, created_at);
+CREATE TABLE IF NOT EXISTS chat_reads (
+    user_id      TEXT NOT NULL,
+    canal        TEXT NOT NULL,
+    last_read_at TEXT NOT NULL,
+    PRIMARY KEY (user_id, canal)
+);
 """
 
 # Columnas agregadas después de la primera versión (migración segura, aditiva)
-MIGRATIONS = [("teams", "user_id", "TEXT"), ("conversations", "user_id", "TEXT"), ("teams", "community_id", "TEXT")]
+MIGRATIONS = [("teams", "user_id", "TEXT"), ("conversations", "user_id", "TEXT"), ("teams", "community_id", "TEXT"),
+              ("encuentros", "feedback", "TEXT")]
 ROLES_COMUNIDAD = ["coordinador", "responsable"]
 _KEEP = object()  # "no cambiar" en update_team
+
+
+def _now_us() -> str:
+    """Marca de tiempo con microsegundos (orden estable de los mensajes del chat)."""
+    return datetime.now(timezone.utc).isoformat(timespec="microseconds")
 
 
 def nuevo_codigo() -> str:
@@ -148,7 +168,29 @@ def norm_codigo(codigo: str) -> str:
 
 ENCUENTRO_FIELDS = ["titulo", "fecha", "etapa", "tema", "origen_tema", "periodo", "fichas", "cantidad",
                     "composicion", "edades", "duracion", "propuesta", "observaciones", "estado",
-                    "conversation_id", "meta", "team_id"]
+                    "conversation_id", "meta", "team_id", "feedback"]
+FEEDBACK_TEXTOS = ["funciono", "cambiaria", "oracion", "pendiente"]
+
+
+def normalizar_feedback(v) -> Optional[Dict[str, Any]]:
+    """Respuestas del responsable después del encuentro (o None si no hay)."""
+    if not isinstance(v, dict) or not v:
+        return None
+    out: Dict[str, Any] = {}
+    for k in ("puntuacion", "asistentes"):
+        try:
+            n = int(v.get(k)) if v.get(k) not in (None, "") else None
+        except (TypeError, ValueError):
+            n = None
+        if k == "puntuacion" and n is not None:
+            n = min(5, max(1, n))
+        if k == "asistentes" and n is not None:
+            n = min(500, max(0, n))
+        out[k] = n
+    for k in FEEDBACK_TEXTOS:
+        out[k] = str(v.get(k) or "").strip()[:1500]
+    out["fecha"] = str(v.get("fecha") or _now())[:40]
+    return out
 ESTADOS = ["borrador", "planificado", "realizado"]
 
 CATEGORIAS = ["equipo", "adolescente", "proceso", "preferencia", "pendiente", "general"]
@@ -391,6 +433,7 @@ class MemoryStore:
         d = dict(row)
         d["fichas"] = json.loads(d.get("fichas") or "[]")
         d["meta"] = json.loads(d.get("meta") or "{}")
+        d["feedback"] = json.loads(d["feedback"]) if d.get("feedback") else None
         return d
 
     def create_encuentro(self, user_id: Optional[str], data: Dict[str, Any]) -> Dict:
@@ -398,7 +441,8 @@ class MemoryStore:
         now = _now()
         row = _encuentro_row(data)
         cols = ["id", "user_id", "created_at", "updated_at", *row.keys()]
-        vals = [eid, user_id, now, now, *[json.dumps(v, ensure_ascii=False) if k in ("fichas", "meta") else v
+        vals = [eid, user_id, now, now, *[json.dumps(v, ensure_ascii=False)
+                                         if k in ("fichas", "meta", "feedback") and v is not None else v
                                          for k, v in row.items()]]
         with self._conn() as c:
             c.execute(f"INSERT INTO encuentros ({', '.join(cols)}) VALUES ({', '.join('?' * len(cols))})", vals)
@@ -436,7 +480,8 @@ class MemoryStore:
         row = _encuentro_row(data, partial=True)
         if row:
             sets = ", ".join(f"{k}=?" for k in row)
-            vals = [json.dumps(v, ensure_ascii=False) if k in ("fichas", "meta") else v for k, v in row.items()]
+            vals = [json.dumps(v, ensure_ascii=False) if k in ("fichas", "meta", "feedback") and v is not None else v
+                    for k, v in row.items()]
             with self._conn() as c:
                 c.execute(f"UPDATE encuentros SET {sets}, updated_at=? WHERE id=?", (*vals, _now(), eid))
         return self.get_encuentro(eid)
@@ -531,6 +576,65 @@ class MemoryStore:
             c.executemany("INSERT OR IGNORE INTO team_members (team_id, user_id, created_at) VALUES (?,?,?)",
                           [(team_id, u, _now()) for u in dict.fromkeys(user_ids)])
 
+    # ---------------------------------------------------------- chat entre responsables
+    def _chat_rows(self, c, where: str, args: list, order: str, limit: int) -> List[Dict]:
+        return [dict(r) for r in c.execute(
+            "SELECT m.id, m.canal, m.user_id, m.texto, m.created_at, COALESCE(u.nombre, '') AS nombre "
+            f"FROM chat_messages m LEFT JOIN users u ON u.id=m.user_id WHERE {where} "
+            f"ORDER BY m.created_at {order} LIMIT ?", (*args, limit))]
+
+    def add_chat_message(self, canal: str, user_id: str, texto: str) -> Dict:
+        mid = uuid.uuid4().hex
+        with self._conn() as c:
+            c.execute("INSERT INTO chat_messages (id, canal, user_id, texto, created_at) VALUES (?,?,?,?,?)",
+                      (mid, canal, user_id, texto, _now_us()))
+            return self._chat_rows(c, "m.id=?", [mid], "ASC", 1)[0]
+
+    def list_chat_messages(self, canal: str, after: Optional[str] = None, before: Optional[str] = None,
+                           limit: int = 60) -> List[Dict]:
+        with self._conn() as c:
+            if after:
+                return self._chat_rows(c, "m.canal=? AND m.created_at>?", [canal, after], "ASC", limit)
+            if before:
+                rows = self._chat_rows(c, "m.canal=? AND m.created_at<?", [canal, before], "DESC", limit)
+            else:
+                rows = self._chat_rows(c, "m.canal=?", [canal], "DESC", limit)
+            return rows[::-1]
+
+    def get_chat_message(self, mid: str) -> Optional[Dict]:
+        with self._conn() as c:
+            rows = self._chat_rows(c, "m.id=?", [mid], "ASC", 1)
+            return rows[0] if rows else None
+
+    def delete_chat_message(self, mid: str) -> bool:
+        with self._conn() as c:
+            return c.execute("DELETE FROM chat_messages WHERE id=?", (mid,)).rowcount > 0
+
+    def get_chat_read(self, user_id: str, canal: str) -> Optional[str]:
+        with self._conn() as c:
+            r = c.execute("SELECT last_read_at FROM chat_reads WHERE user_id=? AND canal=?", (user_id, canal)).fetchone()
+            return r["last_read_at"] if r else None
+
+    def set_chat_read(self, user_id: str, canal: str, ts: str) -> None:
+        with self._conn() as c:
+            c.execute("INSERT INTO chat_reads (user_id, canal, last_read_at) VALUES (?,?,?) "
+                      "ON CONFLICT(user_id, canal) DO UPDATE SET last_read_at=excluded.last_read_at "
+                      "WHERE excluded.last_read_at > chat_reads.last_read_at", (user_id, canal, ts))
+
+    def chat_summary(self, user_id: str, canales: List[str]) -> Dict[str, Dict]:
+        out = {}
+        with self._conn() as c:
+            for canal in canales:
+                last = self._chat_rows(c, "m.canal=?", [canal], "DESC", 1)
+                r = c.execute("SELECT last_read_at FROM chat_reads WHERE user_id=? AND canal=?", (user_id, canal)).fetchone()
+                q = "SELECT COUNT(*) FROM chat_messages WHERE canal=? AND (user_id IS NULL OR user_id<>?)"
+                args = [canal, user_id]
+                if r:
+                    q += " AND created_at>?"
+                    args.append(r["last_read_at"])
+                out[canal] = {"ultimo": last[0] if last else None, "no_leidos": min(99, c.execute(q, args).fetchone()[0])}
+        return out
+
     def export_team(self, team_id: str) -> Dict:
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),
                 "encuentros": self.list_encuentros(team_id=team_id, limit=10000),
@@ -555,6 +659,8 @@ def _encuentro_row(data: Dict[str, Any], partial: bool = False) -> Dict[str, Any
                  for f in (v or []) if isinstance(f, dict)]
         elif k == "meta":
             v = v if isinstance(v, dict) else {}
+        elif k == "feedback":
+            v = normalizar_feedback(v)
         elif k == "estado":
             v = v if v in ESTADOS else "borrador"
         elif k == "origen_tema":
@@ -873,6 +979,69 @@ class SupabaseMemoryStore:
         rows = [{"team_id": team_id, "user_id": u, "created_at": _now()} for u in dict.fromkeys(user_ids)]
         if rows:
             self._req("POST", "/team_members", json_body=rows)
+
+    # ---------------------------------------------------------- chat entre responsables
+    @staticmethod
+    def _chat_out(r):
+        return {"id": r["id"], "canal": r["canal"], "user_id": r.get("user_id"), "texto": r["texto"],
+                "created_at": r["created_at"], "nombre": (r.get("users") or {}).get("nombre", "")}
+
+    _CHAT_SEL = "id,canal,user_id,texto,created_at,users(nombre)"
+
+    def add_chat_message(self, canal, user_id, texto):
+        row = {"id": uuid.uuid4().hex, "canal": canal, "user_id": user_id, "texto": texto, "created_at": _now_us()}
+        self._req("POST", "/chat_messages", json_body=row)
+        return self.get_chat_message(row["id"])
+
+    def list_chat_messages(self, canal, after=None, before=None, limit=60):
+        params = {"canal": f"eq.{canal}", "select": self._CHAT_SEL, "limit": str(limit)}
+        if after:
+            params.update({"created_at": f"gt.{after}", "order": "created_at.asc"})
+            return [self._chat_out(r) for r in self._req("GET", "/chat_messages", params=params)]
+        if before:
+            params["created_at"] = f"lt.{before}"
+        params["order"] = "created_at.desc"
+        return [self._chat_out(r) for r in self._req("GET", "/chat_messages", params=params)][::-1]
+
+    def get_chat_message(self, mid):
+        r = self._one(self._req("GET", "/chat_messages", params={"id": f"eq.{mid}", "select": self._CHAT_SEL}))
+        return self._chat_out(r) if r else None
+
+    def delete_chat_message(self, mid):
+        return bool(self._req("DELETE", "/chat_messages", params={"id": f"eq.{mid}"}, returning=True))
+
+    def get_chat_read(self, user_id, canal):
+        r = self._one(self._req("GET", "/chat_reads", params={"user_id": f"eq.{user_id}", "canal": f"eq.{canal}",
+                                                              "select": "last_read_at"}))
+        return r["last_read_at"] if r else None
+
+    def set_chat_read(self, user_id, canal, ts):
+        prev = self.get_chat_read(user_id, canal)
+        try:
+            if prev and datetime.fromisoformat(str(prev)) >= datetime.fromisoformat(str(ts)):
+                return
+        except ValueError:
+            pass
+        self._req("POST", "/chat_reads", params={"on_conflict": "user_id,canal"},
+                  json_body={"user_id": user_id, "canal": canal, "last_read_at": ts},
+                  prefer="resolution=merge-duplicates")
+
+    def chat_summary(self, user_id, canales):
+        out = {}
+        if not canales:
+            return out
+        reads = {r["canal"]: r["last_read_at"] for r in self._req(
+            "GET", "/chat_reads", params={"user_id": f"eq.{user_id}", "canal": f"in.({','.join(canales)})",
+                                          "select": "canal,last_read_at"})}
+        for canal in canales:
+            last = self.list_chat_messages(canal, limit=1)
+            params = {"canal": f"eq.{canal}", "select": "id", "limit": "99",
+                      "or": f"(user_id.is.null,user_id.neq.{user_id})"}
+            if reads.get(canal):
+                params["created_at"] = f"gt.{reads[canal]}"
+            n = len(self._req("GET", "/chat_messages", params=params))
+            out[canal] = {"ultimo": last[-1] if last else None, "no_leidos": n}
+        return out
 
     def export_team(self, team_id):
         return {"equipo": self.get_team(team_id), "memoria": self.list_memories(team_id),

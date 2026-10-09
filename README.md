@@ -96,6 +96,16 @@ programa) y puede leer las propuestas, pero **no** la memoria ni las observacion
 pueden tener información de los adolescentes. Un equipo personal se puede llevar a una
 comunidad desde *Mis equipos*.
 
+**Chat entre responsables.** Un canal por comunidad (todos sus miembros) y uno por equipo
+(solo sus responsables; la coordinación no lo ve). Los mensajes se actualizan cada ~4 s
+(Vercel no mantiene conexiones abiertas) y hay contador de no leídos. Cada uno borra sus
+mensajes; la coordinación puede borrar mensajes del canal de la comunidad.
+
+**Feedback del encuentro.** Al pasar un encuentro a *Realizado* aparece un formulario corto
+(cómo salió 1-5, cuántos vinieron, qué funcionó, qué cambiaría, oración, pendientes). La IA
+lo usa al preparar el próximo encuentro del grupo; la coordinación ve solo la puntuación y la
+asistencia.
+
 **PDF.** Cada encuentro se descarga como PDF (`POST /api/encuentros/{id}/pdf`, generado con
 ReportLab en `app/pdf.py`, con la cruz y el rojo del Manual de imagen).
 
@@ -151,7 +161,7 @@ del ECyD, `python scripts/ingest_corpus.py` y luego `build_index.py`.
 - **Vercel** corre la app (FastAPI, `app/main.py`, configurada en `vercel.json`).
 - **Supabase** guarda la memoria: equipos, recuerdos, conversaciones y notas
   (tablas `users`, `teams`, `memories`, `conversations`, `messages`, `encuentros`,
-  `communities`, `community_members`, `team_members`). Las tablas tienen RLS: solo
+  `communities`, `community_members`, `team_members`, `chat_messages`, `chat_reads`). Las tablas tienen RLS: solo
   aceptan pedidos del servidor que traen el secreto `ECYD_DB_SECRET`; la clave pública de
   Supabase sola no da acceso a nada.
 - **Búsqueda**: el mismo modelo de embeddings en versión ONNX cuantizada (~120 MB, con

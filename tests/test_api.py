@@ -175,11 +175,15 @@ def test_comunidades_y_permisos(client):
     assert c.get(f"/api/teams/{t['id']}/memories").status_code == 404
     e = c.get(f"/api/encuentros/{enc['id']}").json()
     assert e["solo_lectura"] and e["observaciones"] == "" and e["propuesta"] == "# La amistad"
+    otro.put(f"/api/encuentros/{enc['id']}", json={"estado": "realizado",
+                                                  "feedback": {"puntuacion": 4, "asistentes": 6, "pendiente": "Hablar con Juan"}})
+    assert c.get(f"/api/encuentros/{enc['id']}").json()["feedback"] == {"puntuacion": 4, "asistentes": 6}
     assert c.put(f"/api/encuentros/{enc['id']}", json={"estado": "realizado"}).status_code == 404
     panel = c.get(f"/api/comunidades/{com['id']}", params={"mes": "2026-10"}).json()
     eq = panel["equipos"][0]
     assert eq["etapa"] == 2 and eq["encuentros_mes"][0]["titulo"] == "La amistad" and eq["programa_mes"]
     assert panel["resumen"]["con_plan"] == 1 and "email" in panel["miembros"][0]
+    assert eq["encuentros_mes"][0]["puntuacion"] == 4 and panel["resumen"]["promedio"] == 4.0
     assert "email" not in resp.get(f"/api/comunidades/{com['id']}").json()["miembros"][0]
 
     # PDF: el responsable lo baja con lo que tiene en pantalla; la coordinación, sin observaciones
@@ -212,3 +216,71 @@ def test_comunidades_y_permisos(client):
     assert otro.get("/api/teams").json() == []
     assert c.put(f"/api/comunidades/{com['id']}/miembros/{ids['Resp']}", json={"rol": "coordinador"}).json()["ok"]
     assert "codigo" in resp.get("/api/comunidades").json()[0]
+
+
+def test_feedback_encuentro(client):
+    from app import assistant
+    c = client
+    register(c, "agus@x.com", "Agus")
+    team = c.get("/api/teams").json()[0]
+    enc = c.post("/api/encuentros", json={"team_id": team["id"], "titulo": "La amistad", "fecha": "2026-10-03"}).json()
+    assert enc["feedback"] is None
+    r = c.put(f"/api/encuentros/{enc['id']}", json={"estado": "realizado", "feedback": {
+        "puntuacion": 9, "asistentes": "7", "funciono": "El juego inicial", "cambiaria": "Lectura muy larga",
+        "oracion": "Estuvieron atentos", "pendiente": "Retomar la pregunta de la amistad verdadera"}}).json()
+    fb = r["feedback"]
+    assert r["estado"] == "realizado" and fb["puntuacion"] == 5 and fb["asistentes"] == 7 and fb["fecha"]
+    # editar otro campo no borra el feedback
+    assert c.put(f"/api/encuentros/{enc['id']}", json={"observaciones": "ok"}).json()["feedback"]["funciono"] == "El juego inicial"
+    # la IA lo recibe al preparar el siguiente encuentro del grupo
+    llm = assistant._assistant.llm
+    llm.calls.clear()
+    with c.stream("POST", "/api/encuentros/generar", json={"team_id": team["id"], "tema": "Servicio"}) as s:
+        list(s.iter_lines())
+    prompt = llm.calls[-1][-1]["content"]
+    assert "PENDIENTE para el próximo: Retomar la pregunta de la amistad verdadera" in prompt
+    assert "cómo salió 5/5" in prompt and "cambiaría: Lectura muy larga" in prompt
+
+
+def test_chat_responsables(client):
+    c = client
+    register(c, "coord@x.com", "Coordi")
+    a = TestClient(c.app); register(a, "ana@x.com", "Ana")
+    b = TestClient(c.app); register(b, "beto@x.com", "Beto")
+    ajeno = TestClient(c.app); register(ajeno, "ajeno@x.com", "Ajeno")
+    com = c.post("/api/comunidades", json={"nombre": "ECyD Mano Amiga"}).json()
+    for x in (a, b):
+        x.post("/api/comunidades/unirse", json={"codigo": com["codigo"]})
+    ids = {m["nombre"]: m["user_id"] for m in c.get(f"/api/comunidades/{com['id']}").json()["miembros"]}
+    t = c.post(f"/api/comunidades/{com['id']}/equipos",
+               json={"nombre": "Etapa 2", "etapa": 2, "responsables": [ids["Ana"], ids["Beto"]]}).json()
+
+    # canales: comunidad para todos; equipo solo para sus responsables
+    canales = lambda x: {ch["canal"] for ch in x.get("/api/chats").json()["canales"]}
+    assert canales(a) == {f"com-{com['id']}", f"eq-{t['id']}"}
+    assert f"eq-{t['id']}" not in canales(c)            # la coordinación no ve el chat del equipo
+    assert canales(ajeno) == set()
+
+    m1 = a.post(f"/api/chats/equipo/{t['id']}/mensajes", json={"texto": "¿Quién lleva las vendas el sábado?"}).json()
+    assert m1["mio"] and m1["nombre"] == "Ana"
+    assert c.post(f"/api/chats/equipo/{t['id']}/mensajes", json={"texto": "hola"}).status_code == 404
+    assert ajeno.get(f"/api/chats/comunidad/{com['id']}/mensajes").status_code == 404
+    assert a.post(f"/api/chats/equipo/{t['id']}/mensajes", json={"texto": "   "}).status_code == 400
+
+    # no leídos y marcar como leído
+    assert b.get("/api/chats").json()["no_leidos"] == 1
+    r = b.get(f"/api/chats/equipo/{t['id']}/mensajes").json()
+    assert [m["texto"] for m in r["mensajes"]] == ["¿Quién lleva las vendas el sábado?"] and not r["mensajes"][0]["mio"]
+    assert b.get("/api/chats").json()["no_leidos"] == 0
+    m2 = b.post(f"/api/chats/equipo/{t['id']}/mensajes", json={"texto": "Yo las llevo"}).json()
+    nuevos = a.get(f"/api/chats/equipo/{t['id']}/mensajes", params={"after": m1["created_at"]}).json()["mensajes"]
+    assert [m["id"] for m in nuevos] == [m2["id"]]
+
+    # canal de la comunidad
+    c.post(f"/api/chats/comunidad/{com['id']}/mensajes", json={"texto": "Reunión de responsables el jueves"})
+    assert a.get("/api/chats").json()["no_leidos"] == 1   # el de Beto ya lo leyó; falta el de la comunidad
+    # borrar: el propio sí, el ajeno no (salvo coordinación en el canal de la comunidad)
+    assert a.delete(f"/api/chats/mensajes/{m2['id']}").status_code == 403
+    assert b.delete(f"/api/chats/mensajes/{m2['id']}").json()["ok"]
+    mb = b.post(f"/api/chats/comunidad/{com['id']}/mensajes", json={"texto": "spam"}).json()
+    assert c.delete(f"/api/chats/mensajes/{mb['id']}").json()["ok"]
